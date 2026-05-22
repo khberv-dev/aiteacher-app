@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/auth/data/auth_repository.dart';
+import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/ui/profile/edit_password_dialog.dart';
 import 'package:ai_teacher/ui/profile/edit_profile_dialog.dart';
@@ -68,6 +69,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     await ref.read(authRepositoryProvider).signOut();
     if (!mounted) return;
     ref.invalidate(currentUserProvider);
+    ref.invalidate(streakCheckInProvider);
     context.goNamed(AppRoute.onboarding.name);
   }
 

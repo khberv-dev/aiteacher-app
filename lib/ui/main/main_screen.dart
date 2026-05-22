@@ -1,12 +1,14 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
+import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
 import 'package:ai_teacher/ui/blog/blog_page.dart';
 import 'package:ai_teacher/ui/chat/chat_list_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
 import 'package:ai_teacher/ui/lessons/lessons_page.dart';
 import 'package:ai_teacher/ui/profile/profile_page.dart';
 import 'package:ai_teacher/ui/shared/widget/app_bottom_nav.dart';
+import 'package:ai_teacher/ui/streak/streak_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,9 +43,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       ref.read(callControllerProvider.notifier).ensureListening();
+      final result = await ref
+          .read(streakCheckInProvider.notifier)
+          .runIfNeeded();
+      if (!mounted || result == null) return;
+      await StreakSheet.show(context);
     });
   }
 

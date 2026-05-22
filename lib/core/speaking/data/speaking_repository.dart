@@ -45,11 +45,13 @@ class SpeakingRepository {
 
   /// Sends one conversation turn (audio) and returns the AI's reply. Pass
   /// [conversationId] to continue an existing dialogue; omit it to start a
-  /// new one.
+  /// new one. [duration] is the measured length of the audio file in
+  /// seconds; the server uses it to weight scoring.
   Future<ConverseResult> converse({
     required String filePath,
     required String mimeType,
     String? conversationId,
+    Duration? duration,
   }) async {
     final form = FormData.fromMap({
       'audio': await MultipartFile.fromFile(
@@ -57,6 +59,7 @@ class SpeakingRepository {
         filename: filePath.split('/').last,
       ),
       'conversationId': ?conversationId,
+      'duration': ?duration?.inSeconds,
     });
     final response = await _dio.post<Map<String, dynamic>>(
       'assessments/conversation',

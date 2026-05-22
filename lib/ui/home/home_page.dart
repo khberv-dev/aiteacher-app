@@ -8,6 +8,7 @@ import 'package:ai_teacher/ui/home/widget/radar_card.dart';
 import 'package:ai_teacher/ui/home/widget/section_header.dart';
 import 'package:ai_teacher/ui/home/widget/stats_card.dart';
 import 'package:ai_teacher/ui/home/widget/streak_card.dart';
+import 'package:ai_teacher/ui/streak/streak_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +47,7 @@ class HomePage extends ConsumerWidget {
                 SectionHeader(
                   title: 'Streak',
                   actionLabel: 'Batafsil →',
-                  onAction: () {},
+                  onAction: () => StreakSheet.show(context),
                 ),
                 const StreakCard(),
                 const SectionHeader(title: 'AI bilan suhbat'),

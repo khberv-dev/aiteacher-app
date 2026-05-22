@@ -204,6 +204,7 @@ class SpeakingController extends Notifier<SpeakingState> {
     _ticker?.cancel();
     _ticker = null;
     _stopwatch.stop();
+    final recordedDuration = _stopwatch.elapsed;
     await _amplitudeSub?.cancel();
     _amplitudeSub = null;
     state = state.copyWith(
@@ -236,6 +237,7 @@ class SpeakingController extends Notifier<SpeakingState> {
         filePath: filePath,
         mimeType: 'audio/aac',
         conversationId: state.conversationId,
+        duration: recordedDuration,
       );
       final nextTurns = <SpeakingTurn>[
         ...state.turns,
