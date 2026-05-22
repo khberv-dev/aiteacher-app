@@ -186,22 +186,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   onTap: () => SubscriptionDetailsSheet.show(context),
                 ),
                 ProfileRow(
-                  icon: Icons.credit_card_outlined,
-                  iconColor: const Color(0xFF22C55E),
-                  iconBackground: const Color(0xFFF0FDF4),
-                  title: "To'lov usuli",
-                  subtitle: 'Uzcard •••• 4521',
-                  trailing: const ProfileTrailingValue(),
-                  onTap: () {},
-                ),
-                ProfileRow(
                   icon: Icons.description_outlined,
                   iconColor: const Color(0xFF64748B),
                   iconBackground: const Color(0xFFF1F5F9),
                   title: "To'lov tarixi",
                   trailing: const ProfileTrailingValue(
                     badge: ProfilePillBadge(
-                      label: '12',
+                      label: '0',
                       background: Color(0xFFFEF9C3),
                       textColor: Color(0xFFB45309),
                     ),

@@ -266,9 +266,7 @@ class SpeakingController extends Notifier<SpeakingState> {
       state = state.copyWith(phase: SpeakingPhase.idle);
       return;
     }
-    final fullUrl = audioUrl.startsWith('http')
-        ? audioUrl
-        : '${NetworkConfig.hostUrl}/${audioUrl.replaceFirst(RegExp(r'^/+'), '')}';
+    final fullUrl = NetworkConfig.resolveStatic(audioUrl);
     try {
       _player ??= AudioPlayer();
       await _playerCompleteSub?.cancel();

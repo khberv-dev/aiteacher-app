@@ -3,6 +3,7 @@ import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
 import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,13 +55,22 @@ class _SubscriptionDetailsSheetState
     return null;
   }
 
-  void _onPurchase() {
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(content: Text("To'lov sahifasi tez orada qo'shiladi")),
-      );
+  Future<void> _onPurchase() async {
+    final plans =
+        ref.read(availablePlansProvider).valueOrNull ?? const <Plan>[];
+    final plan = _findSelectedPlan(plans);
+    final price = _findSelectedPrice(plan);
+    if (plan == null || price == null) return;
+    final created = await PaymentTypesSheet.show(
+      context,
+      planId: plan.id,
+      planName: plan.name,
+      planMonth: price.month,
+      amount: price.price,
+    );
+    if (created == true && mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
