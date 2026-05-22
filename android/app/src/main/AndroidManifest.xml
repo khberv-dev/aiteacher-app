@@ -8,7 +8,7 @@
     <!-- flutter_webrtc adds CAMERA via manifest merge; we're audio-only. -->
     <uses-permission android:name="android.permission.CAMERA" tools:node="remove"/>
     <application
-        android:label="ai_teacher"
+        android:label="My AI Teacher"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

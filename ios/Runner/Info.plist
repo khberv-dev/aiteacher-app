@@ -4,10 +4,6 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>AI Teacher mikrofondan foydalanib siz aytgan gaplarni tahlil qiladi.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>AI Teacher kamerasiz audio qo'ng'iroqlardan foydalanadi; kamera talab qilinmaydi.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -30,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>AI Teacher kamerasiz audio qo'ng'iroqlardan foydalanadi; kamera talab qilinmaydi.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>AI Teacher mikrofondan foydalanib siz aytgan gaplarni tahlil qiladi.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -53,6 +53,10 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

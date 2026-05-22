@@ -1,0 +1,22 @@
+{
+  "flutter": {
+    "platforms": {
+      "ios": {
+        "default": {
+          "projectId": "my-aiteacher",
+          "appId": "1:254841951410:ios:80241d390c4b1b0cbc25ab",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "my-aiteacher",
+          "configurations": {
+            "ios": "1:254841951410:ios:80241d390c4b1b0cbc25ab"
+          }
+        }
+      }
+    }
+  }
+}
