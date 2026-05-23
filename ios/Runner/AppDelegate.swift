@@ -14,12 +14,18 @@ import Firebase
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
 
+    clearBadge(application)
+
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   override func applicationDidBecomeActive(_ application: UIApplication) {
     super.applicationDidBecomeActive(application)
+    clearBadge(application)
+  }
+
+  private func clearBadge(_ application: UIApplication) {
     if #available(iOS 17.0, *) {
       UNUserNotificationCenter.current().setBadgeCount(0) { _ in }
     } else {

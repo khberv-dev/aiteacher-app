@@ -18,6 +18,8 @@ class CacheService {
 
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+  static const String _sessionIdKey = 'session_id';
+  static const String _fcmTokenKey = 'fcm_token';
 
   String? get accessToken => _prefs.getString(_accessTokenKey);
 
@@ -37,6 +39,20 @@ class CacheService {
     await _prefs.remove(_accessTokenKey);
     await _prefs.remove(_refreshTokenKey);
   }
+
+  String? get sessionId => _prefs.getString(_sessionIdKey);
+
+  Future<bool> setSessionId(String id) =>
+      _prefs.setString(_sessionIdKey, id);
+
+  Future<bool> removeSessionId() => _prefs.remove(_sessionIdKey);
+
+  String? get fcmToken => _prefs.getString(_fcmTokenKey);
+
+  Future<bool> setFcmToken(String token) =>
+      _prefs.setString(_fcmTokenKey, token);
+
+  Future<bool> removeFcmToken() => _prefs.remove(_fcmTokenKey);
 
   String? getString(String key) => _prefs.getString(key);
 

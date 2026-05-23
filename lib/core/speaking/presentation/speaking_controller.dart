@@ -4,6 +4,7 @@ import 'package:ai_teacher/app/data/network_config.dart';
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
 import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -29,6 +30,7 @@ class SpeakingState {
     this.amplitudes = const [],
     this.readyForAnalyze = false,
     this.analyzingReport = false,
+    this.limitReached = false,
     this.error,
   });
 
@@ -47,6 +49,10 @@ class SpeakingState {
 
   /// Report generation in flight (POST /assessments/conversation/:id/report).
   final bool analyzingReport;
+
+  /// Server rejected the turn because the free daily limit is reached.
+  /// Screen surfaces a paywall sheet on transition false → true.
+  final bool limitReached;
   final String? error;
 
   bool get isRecording => phase == SpeakingPhase.recording;
@@ -66,6 +72,7 @@ class SpeakingState {
     List<double>? amplitudes,
     bool? readyForAnalyze,
     bool? analyzingReport,
+    bool? limitReached,
     Object? error = _sentinel,
   }) {
     return SpeakingState(
@@ -84,6 +91,7 @@ class SpeakingState {
       amplitudes: amplitudes ?? this.amplitudes,
       readyForAnalyze: readyForAnalyze ?? this.readyForAnalyze,
       analyzingReport: analyzingReport ?? this.analyzingReport,
+      limitReached: limitReached ?? this.limitReached,
       error: identical(error, _sentinel) ? this.error : error as String?,
     );
   }
@@ -258,7 +266,11 @@ class SpeakingController extends Notifier<SpeakingState> {
       debugPrint('converse failed: $e\n$st');
       state = state.copyWith(
         phase: SpeakingPhase.error,
-        error: 'Yuborishda xatolik. Qaytadan urinib koring.',
+        limitReached: _isLimitError(e),
+        error: _extractApiMessage(
+          e,
+          'Yuborishda xatolik. Qaytadan urinib koring.',
+        ),
       );
     }
   }
@@ -302,7 +314,11 @@ class SpeakingController extends Notifier<SpeakingState> {
       debugPrint('analyzeConversation failed: $e\n$st');
       state = state.copyWith(
         analyzingReport: false,
-        error: "Hisobotni tayyorlab bo'lmadi. Qaytadan urinib koring.",
+        limitReached: _isLimitError(e),
+        error: _extractApiMessage(
+          e,
+          "Hisobotni tayyorlab bo'lmadi. Qaytadan urinib koring.",
+        ),
         phase: SpeakingPhase.error,
       );
       return null;
@@ -329,4 +345,45 @@ class SpeakingController extends Notifier<SpeakingState> {
     _player?.stop();
     state = const SpeakingState();
   }
+
+  /// Clears the limit-reached flag after the paywall sheet is dismissed.
+  void dismissLimit() {
+    if (state.limitReached) {
+      state = state.copyWith(limitReached: false);
+    }
+  }
+}
+
+/// Extracts the `message` from a NestJS-style error response, falling back to
+/// [fallback] for non-Dio errors or non-standard payloads.
+String _extractApiMessage(Object e, String fallback) {
+  if (e is DioException) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final msg = data['message'];
+      if (msg is String && msg.isNotEmpty) return msg;
+      if (msg is List && msg.isNotEmpty) {
+        final first = msg.first;
+        if (first is String && first.isNotEmpty) return first;
+      }
+    }
+  }
+  return fallback;
+}
+
+/// True when the API rejected the request because the daily free limit is
+/// reached and the user needs to subscribe.
+bool _isLimitError(Object e) {
+  if (e is! DioException) return false;
+  if (e.response?.statusCode != 400) return false;
+  final data = e.response?.data;
+  if (data is! Map) return false;
+  final msg = data['message'];
+  final text = msg is String
+      ? msg
+      : msg is List && msg.isNotEmpty
+      ? msg.first.toString()
+      : null;
+  if (text == null) return false;
+  return text.contains('limit') || text.contains('obuna');
 }

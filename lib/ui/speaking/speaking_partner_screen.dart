@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/speaking/presentation/speaking_controller.dart';
+import 'package:ai_teacher/ui/speaking/limit_reached_sheet.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_avatar.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_controls.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_dots.dart';
@@ -65,9 +66,23 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<SpeakingState>(speakingControllerProvider, (prev, next) {
+      final wasLimited = prev?.limitReached ?? false;
+      if (!wasLimited && next.limitReached) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted) return;
+          await LimitReachedSheet.show(context);
+          if (!mounted) return;
+          ref.read(speakingControllerProvider.notifier).dismissLimit();
+          ref.read(speakingControllerProvider.notifier).resetError();
+        });
+      }
+    });
+
     final state = ref.watch(speakingControllerProvider);
 
     if (state.phase == SpeakingPhase.error &&
+        !state.limitReached &&
         state.error != null &&
         state.error != _lastErrorShown) {
       _lastErrorShown = state.error;

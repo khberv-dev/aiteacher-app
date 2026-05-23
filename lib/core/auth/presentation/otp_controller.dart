@@ -2,6 +2,7 @@ import 'package:ai_teacher/core/auth/data/auth_dtos.dart';
 import 'package:ai_teacher/core/auth/data/auth_exception.dart';
 import 'package:ai_teacher/core/auth/data/auth_repository.dart';
 import 'package:ai_teacher/core/auth/presentation/auth_action_state.dart';
+import 'package:ai_teacher/core/session/presentation/session_controller.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,6 +37,7 @@ class OtpController extends Notifier<AuthActionState> {
       } catch (_) {
         // Non-fatal: profile screen will retry on its own watch.
       }
+      await ref.read(sessionControllerProvider.notifier).syncSession();
       state = const AuthIdle();
       return tokens;
     } on AuthException catch (e) {

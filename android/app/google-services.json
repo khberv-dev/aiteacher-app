@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "254841951410",
+    "project_id": "my-aiteacher",
+    "storage_bucket": "my-aiteacher.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254841951410:android:4624d7fe5b2cfa08bc25ab",
+        "android_client_info": {
+          "package_name": "uz.myteacher.ai_teacher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFI_I2FMYmRrewX8JFKaE9npjqZl5v5ZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
