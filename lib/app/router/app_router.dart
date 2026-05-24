@@ -9,6 +9,7 @@ import 'package:ai_teacher/ui/chat/chat_list_data.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/onboarding/onboarding_screen.dart';
+import 'package:ai_teacher/ui/speaking/assessment_history_screen.dart';
 import 'package:ai_teacher/ui/speaking/speaking_partner_screen.dart';
 import 'package:ai_teacher/ui/speaking/speaking_report_screen.dart';
 import 'package:ai_teacher/ui/survey/survey_data.dart';
@@ -99,6 +100,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoute.call.name,
         builder: (context, state) => const CallScreen(),
       ),
+      GoRoute(
+        path: AppRoute.speakingHistory.path,
+        name: AppRoute.speakingHistory.name,
+        builder: (context, state) => const AssessmentHistoryScreen(),
+      ),
     ],
   );
 });
@@ -112,6 +118,7 @@ enum AppRoute {
   main('/main'),
   speaking('/speaking'),
   speakingReport('/speaking-report'),
+  speakingHistory('/speaking-history'),
   chat('/chat'),
   call('/call');
 

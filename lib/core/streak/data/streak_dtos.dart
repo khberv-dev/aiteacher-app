@@ -53,8 +53,7 @@ class StreakDay {
   factory StreakDay.fromJson(Map<String, dynamic> json) {
     final raw = json['date'] as String? ?? '';
     return StreakDay(
-      date:
-          DateTime.tryParse(raw) ?? DateTime.fromMillisecondsSinceEpoch(0),
+      date: DateTime.tryParse(raw) ?? DateTime.fromMillisecondsSinceEpoch(0),
       weekday: StreakWeekday.fromApi(json['weekday'] as String?),
       active: json['active'] as bool? ?? false,
     );

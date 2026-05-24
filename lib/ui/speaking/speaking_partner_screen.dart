@@ -146,7 +146,8 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
                 ),
               const PartnerDots(),
               PartnerControls(
-                onKeyboard: () {},
+                onHistory: () =>
+                    context.pushNamed(AppRoute.speakingHistory.name),
                 onMic: state.isBusy ? () {} : _onMicTap,
                 onMagic: state.analyzingReport ? () {} : _onAnalyzeTap,
                 recording: state.phase == SpeakingPhase.recording,

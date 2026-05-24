@@ -1,6 +1,7 @@
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_coach_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_grammar_errors_card.dart';
+import 'package:ai_teacher/ui/speaking/widget/report_locked_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_pronunciation_card.dart';
 import 'package:flutter/material.dart';
 
@@ -14,15 +15,20 @@ class ReportGrammarPage extends StatelessWidget {
     final tips = assessment.coachTips.length > 2
         ? assessment.coachTips.skip(2).take(2).toList(growable: false)
         : assessment.coachTips.take(2).toList(growable: false);
+    final locked = !assessment.isFullReportAvailable;
+    Widget gate(Widget child) =>
+        locked ? ReportLockedCard(child: child) : child;
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
         ReportGrammarErrorsCard(detail: assessment.grammarDetail),
-        ReportPronunciationCard(
-          detail: assessment.pronunciationDetail,
-          score: assessment.skills.pronunciation,
+        gate(
+          ReportPronunciationCard(
+            detail: assessment.pronunciationDetail,
+            score: assessment.skills.pronunciation,
+          ),
         ),
-        ReportCoachCard(tips: tips, subtitle: "Grammar bo'yicha"),
+        gate(ReportCoachCard(tips: tips, subtitle: "Grammar bo'yicha")),
       ],
     );
   }

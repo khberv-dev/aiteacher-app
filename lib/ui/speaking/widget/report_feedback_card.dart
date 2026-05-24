@@ -172,9 +172,7 @@ final MarkdownStyleSheet _markdownStyle = MarkdownStyleSheet(
   blockquoteDecoration: BoxDecoration(
     color: const Color(0xFFEFFCFA),
     borderRadius: BorderRadius.circular(8),
-    border: const Border(
-      left: BorderSide(color: Color(0xFF0D9488), width: 3),
-    ),
+    border: const Border(left: BorderSide(color: Color(0xFF0D9488), width: 3)),
   ),
   blockquotePadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
   code: const TextStyle(

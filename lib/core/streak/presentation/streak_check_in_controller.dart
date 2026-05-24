@@ -7,10 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Session-scoped flag that prevents the daily check-in from firing more
 /// than once per app launch (or login). Invalidate the provider on logout
 /// so the next sign-in re-triggers it.
-final streakCheckInProvider =
-    NotifierProvider<StreakCheckInController, bool>(
-      StreakCheckInController.new,
-    );
+final streakCheckInProvider = NotifierProvider<StreakCheckInController, bool>(
+  StreakCheckInController.new,
+);
 
 class StreakCheckInController extends Notifier<bool> {
   @override

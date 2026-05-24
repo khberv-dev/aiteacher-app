@@ -46,8 +46,6 @@ class Payment {
     required this.id,
     required this.userId,
     required this.paymentTypeId,
-    required this.planId,
-    required this.planMonth,
     required this.amount,
     required this.status,
     this.type,
@@ -57,8 +55,6 @@ class Payment {
   final String id;
   final String userId;
   final String paymentTypeId;
-  final String planId;
-  final int planMonth;
   final num amount;
   final PaymentStatus status;
   final PaymentType? type;
@@ -73,8 +69,6 @@ class Payment {
       id: json['id'] as String? ?? '',
       userId: json['userId'] as String? ?? '',
       paymentTypeId: json['paymentTypeId'] as String? ?? '',
-      planId: json['planId'] as String? ?? '',
-      planMonth: (json['planMonth'] as num?)?.toInt() ?? 0,
       amount: (json['amount'] as num?) ?? 0,
       status: PaymentStatus.fromApi(json['status'] as String?),
       type: typeRaw is Map

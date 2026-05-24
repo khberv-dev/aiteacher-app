@@ -59,9 +59,7 @@ class StreakSheet extends ConsumerWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    _CloseButton(
-                      onTap: () => Navigator.of(context).pop(),
-                    ),
+                    _CloseButton(onTap: () => Navigator.of(context).pop()),
                   ],
                 ),
               ),
@@ -150,9 +148,7 @@ class _StreakBody extends StatelessWidget {
           else
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (final day in days) _DayCell(day: day),
-              ],
+              children: [for (final day in days) _DayCell(day: day)],
             ),
         ],
       ),
@@ -255,9 +251,7 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isToday = _isSameDay(day.date.toLocal(), DateTime.now());
-    final bg = day.active
-        ? const Color(0xFFFEF3C7)
-        : const Color(0xFFF5F5F5);
+    final bg = day.active ? const Color(0xFFFEF3C7) : const Color(0xFFF5F5F5);
     final border = isToday ? const Color(0xFFF5B700) : Colors.transparent;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -288,9 +282,7 @@ class _DayCell extends StatelessWidget {
         Text(
           day.weekday.shortLabelUz,
           style: TextStyle(
-            color: isToday
-                ? const Color(0xFF1A1A1A)
-                : const Color(0xFF666666),
+            color: isToday ? const Color(0xFF1A1A1A) : const Color(0xFF666666),
             fontSize: 11,
             fontWeight: isToday ? FontWeight.w800 : FontWeight.w700,
           ),
@@ -320,11 +312,7 @@ class _CloseButton extends StatelessWidget {
         child: const SizedBox(
           width: 32,
           height: 32,
-          child: Icon(
-            Icons.close_rounded,
-            color: Color(0xFF64748B),
-            size: 18,
-          ),
+          child: Icon(Icons.close_rounded, color: Color(0xFF64748B), size: 18),
         ),
       ),
     );

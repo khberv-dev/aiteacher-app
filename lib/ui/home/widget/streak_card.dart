@@ -67,9 +67,7 @@ class StreakCard extends ConsumerWidget {
                 else
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (final day in days) _DayCell(day: day),
-                    ],
+                    children: [for (final day in days) _DayCell(day: day)],
                   ),
               ],
             ),
@@ -117,9 +115,7 @@ class _DayCell extends StatelessWidget {
         Text(
           day.weekday.shortLabelUz,
           style: TextStyle(
-            color: isToday
-                ? const Color(0xFF1A1A1A)
-                : const Color(0xB3000000),
+            color: isToday ? const Color(0xFF1A1A1A) : const Color(0xB3000000),
             fontSize: 10,
             fontWeight: isToday ? FontWeight.w800 : FontWeight.w700,
           ),

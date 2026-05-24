@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class PartnerControls extends StatelessWidget {
   const PartnerControls({
     super.key,
-    required this.onKeyboard,
+    required this.onHistory,
     required this.onMic,
     required this.onMagic,
     required this.recording,
   });
 
-  final VoidCallback onKeyboard;
+  final VoidCallback onHistory;
   final VoidCallback onMic;
   final VoidCallback onMagic;
   final bool recording;
@@ -22,7 +22,7 @@ class PartnerControls extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _SideButton(icon: Icons.keyboard_alt_outlined, onTap: onKeyboard),
+          _SideButton(icon: Icons.history_rounded, onTap: onHistory),
           _MicButton(active: recording, onTap: onMic),
           _SideButton(icon: Icons.auto_awesome_outlined, onTap: onMagic),
         ],

@@ -6,8 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Holds the current session id (mirrored from [CacheService]) and runs the
 /// create-or-attach sync. Call [syncSession] on every relevant trigger —
 /// app launch, login/register success, and FCM token refresh.
-final sessionControllerProvider =
-    NotifierProvider<SessionController, String?>(SessionController.new);
+final sessionControllerProvider = NotifierProvider<SessionController, String?>(
+  SessionController.new,
+);
 
 class SessionController extends Notifier<String?> {
   @override

@@ -13,6 +13,7 @@ class Assessment {
     required this.coachTips,
     this.audio,
     this.audioMimeType,
+    this.isFullReportAvailable = true,
   });
 
   final String feedback;
@@ -28,6 +29,10 @@ class Assessment {
   final List<String> coachTips;
   final String? audio;
   final String? audioMimeType;
+
+  /// Server flag. When false, the report should obscure detail cards behind
+  /// a paywall (only the first card in each tab stays visible).
+  final bool isFullReportAvailable;
 
   factory Assessment.fromJson(Map<String, dynamic> json) {
     return Assessment(
@@ -59,6 +64,7 @@ class Assessment {
           .toList(growable: false),
       audio: json['audio'] as String?,
       audioMimeType: json['audioMimeType'] as String?,
+      isFullReportAvailable: json['isFullReportAvailable'] as bool? ?? true,
     );
   }
 }

@@ -42,8 +42,7 @@ class CacheService {
 
   String? get sessionId => _prefs.getString(_sessionIdKey);
 
-  Future<bool> setSessionId(String id) =>
-      _prefs.setString(_sessionIdKey, id);
+  Future<bool> setSessionId(String id) => _prefs.setString(_sessionIdKey, id);
 
   Future<bool> removeSessionId() => _prefs.remove(_sessionIdKey);
 

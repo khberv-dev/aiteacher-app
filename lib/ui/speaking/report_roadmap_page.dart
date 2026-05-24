@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_coach_card.dart';
+import 'package:ai_teacher/ui/speaking/widget/report_locked_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_monthly_plan_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_next_session_cta.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_roadmap_levels_card.dart';
@@ -15,6 +16,9 @@ class ReportRoadmapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tips = assessment.coachTips;
+    final locked = !assessment.isFullReportAvailable;
+    Widget gate(Widget child) =>
+        locked ? ReportLockedCard(child: child) : child;
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
@@ -24,17 +28,23 @@ class ReportRoadmapPage extends StatelessWidget {
           activeVocabSize: assessment.vocabularyDetail.activeSizeEstimate,
           estimatedDuration: assessment.roadmap.estimatedDuration,
         ),
-        ReportMonthlyPlanCard(
-          focusAreas: assessment.roadmap.focusAreas,
-          targetLevel: assessment.roadmap.targetLevel,
-          currentLevel: assessment.cefrLevel,
+        gate(
+          ReportMonthlyPlanCard(
+            focusAreas: assessment.roadmap.focusAreas,
+            targetLevel: assessment.roadmap.targetLevel,
+            currentLevel: assessment.cefrLevel,
+          ),
         ),
-        ReportCoachCard(
-          tips: tips,
-          subtitle: '${tips.length} ta ustuvor tavsiya',
+        gate(
+          ReportCoachCard(
+            tips: tips,
+            subtitle: '${tips.length} ta ustuvor tavsiya',
+          ),
         ),
-        ReportNextSessionCta(
-          onStart: () => context.goNamed(AppRoute.speaking.name),
+        gate(
+          ReportNextSessionCta(
+            onStart: () => context.goNamed(AppRoute.speaking.name),
+          ),
         ),
       ],
     );

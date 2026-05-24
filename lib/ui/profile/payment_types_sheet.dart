@@ -10,25 +10,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaymentTypesSheet extends ConsumerStatefulWidget {
-  const PaymentTypesSheet({
-    super.key,
-    required this.planId,
-    required this.planName,
-    required this.planMonth,
-    required this.amount,
-  });
+  const PaymentTypesSheet({super.key, required this.amount, this.title});
 
-  final String planId;
-  final String planName;
-  final int planMonth;
+  /// Optional descriptive title shown under the sheet heading (e.g. plan or
+  /// purpose). Falls back to a generic price label when omitted.
+  final String? title;
   final num amount;
 
   static Future<bool?> show(
     BuildContext context, {
-    required String planId,
-    required String planName,
-    required int planMonth,
     required num amount,
+    String? title,
   }) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -37,12 +29,7 @@ class PaymentTypesSheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => PaymentTypesSheet(
-        planId: planId,
-        planName: planName,
-        planMonth: planMonth,
-        amount: amount,
-      ),
+      builder: (_) => PaymentTypesSheet(amount: amount, title: title),
     );
   }
 
@@ -59,12 +46,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
     try {
       final payment = await ref
           .read(paymentRepositoryProvider)
-          .create(
-            paymentTypeId: type.id,
-            planId: widget.planId,
-            planMonth: widget.planMonth,
-            amount: widget.amount,
-          );
+          .create(paymentTypeId: type.id, amount: widget.amount);
       if (!mounted) return;
       Navigator.of(context).pop(true);
       ScaffoldMessenger.of(context)
@@ -129,8 +111,9 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
               ),
               const SizedBox(height: 4),
               Text(
-                '${widget.planName.isEmpty ? "Tarif" : widget.planName} · '
-                '${widget.planMonth} oy · ${_formatPrice(widget.amount)}',
+                widget.title != null && widget.title!.isNotEmpty
+                    ? '${widget.title} · ${_formatPrice(widget.amount)}'
+                    : _formatPrice(widget.amount),
                 style: const TextStyle(
                   color: Color(0xFF6B7280),
                   fontSize: 13,

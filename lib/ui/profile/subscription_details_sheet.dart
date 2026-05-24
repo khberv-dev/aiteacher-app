@@ -63,10 +63,8 @@ class _SubscriptionDetailsSheetState
     if (plan == null || price == null) return;
     final created = await PaymentTypesSheet.show(
       context,
-      planId: plan.id,
-      planName: plan.name,
-      planMonth: price.month,
       amount: price.price,
+      title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
     );
     if (created == true && mounted) {
       Navigator.of(context).pop();
