@@ -294,7 +294,7 @@ class _HeroStats extends StatelessWidget {
       ),
       _StatItem(value: '${assessment.skills.fluency}', label: 'RAVONLIK'),
       _StatItem(
-        value: '${assessment.fluencyDetail.speechRateWpm}wpm',
+        value: '${assessment.fluencyDetail.speechRateWpm}',
         label: 'TEZLIK',
       ),
       _StatItem(
