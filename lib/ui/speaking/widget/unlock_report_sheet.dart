@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
+import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:flutter/material.dart';
 
 class UnlockReportSheet extends StatelessWidget {
@@ -27,6 +28,11 @@ class UnlockReportSheet extends StatelessWidget {
       amount: reportUnlockAmount,
       title: 'Hisobotni ochish',
     );
+  }
+
+  Future<void> _onSubscribe(BuildContext context) async {
+    Navigator.of(context).pop();
+    await SubscriptionDetailsSheet.show(context);
   }
 
   @override
@@ -79,7 +85,9 @@ class UnlockReportSheet extends StatelessWidget {
             const _PriceCard(amount: reportUnlockAmount),
             const SizedBox(height: 16),
             _PayButton(onTap: () => _onPay(context)),
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
+            _UnlimitedButton(onTap: () => _onSubscribe(context)),
+            const SizedBox(height: 4),
             Center(
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -242,6 +250,61 @@ class _PayButton extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _UnlimitedButton extends StatelessWidget {
+  const _UnlimitedButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.primary, width: 1.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.workspace_premium_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "Cheksiz hisobotlar — obuna oling",
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
+              ],
             ),
           ),
         ),

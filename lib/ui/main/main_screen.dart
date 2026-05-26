@@ -1,8 +1,10 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
+import 'package:ai_teacher/core/cashback/data/cashback_repository.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
 import 'package:ai_teacher/ui/blog/blog_page.dart';
+import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
 import 'package:ai_teacher/ui/chat/chat_list_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
 import 'package:ai_teacher/ui/lessons/lessons_page.dart';
@@ -40,18 +42,38 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     ProfilePage(),
   ];
 
+  bool _cashbackToastShown = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       ref.read(callControllerProvider.notifier).ensureListening();
-      final result = await ref
+      final streak = await ref
           .read(streakCheckInProvider.notifier)
           .runIfNeeded();
-      if (!mounted || result == null) return;
-      await StreakSheet.show(context);
+      if (!mounted) return;
+      if (streak != null) {
+        await StreakSheet.show(context);
+        if (!mounted) return;
+      }
+      await _showCashbackToastIfAny();
     });
+  }
+
+  Future<void> _showCashbackToastIfAny() async {
+    if (_cashbackToastShown) return;
+    _cashbackToastShown = true;
+    try {
+      final cashbacks = await ref.read(cashbackRepositoryProvider).list();
+      final unclaimed = cashbacks.where((c) => !c.claimed).toList();
+      if (!mounted || unclaimed.isEmpty) return;
+      await CashbackEarnedToast.show(context, unclaimed: unclaimed);
+    } catch (_) {
+      // Silent — the user will see cashbacks the next time they relaunch.
+      _cashbackToastShown = false;
+    }
   }
 
   void _onTabTap(int index) {

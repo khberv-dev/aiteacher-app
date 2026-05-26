@@ -30,6 +30,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _referralController = TextEditingController();
   AuthIdentifierKind _identifierKind = AuthIdentifierKind.phone;
 
   @override
@@ -38,6 +39,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _referralController.dispose();
     super.dispose();
   }
 
@@ -64,6 +66,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final lastName = parts.length > 1 ? parts.skip(1).join(' ') : '';
 
     final survey = widget.surveyAnswers;
+    final referral = _referralController.text.trim().isEmpty
+        ? null
+        : _referralController.text.trim();
     if (_identifierKind == AuthIdentifierKind.phone) {
       final draft = await ref
           .read(registerControllerProvider.notifier)
@@ -75,6 +80,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             goal: survey?.goal,
             level: survey?.level,
             dailyTime: survey?.dailyTime,
+            referralCode: referral,
           );
       if (!mounted || draft == null) return;
       context.pushNamed(AppRoute.otp.name, extra: draft);
@@ -89,6 +95,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             goal: survey?.goal,
             level: survey?.level,
             dailyTime: survey?.dailyTime,
+            referralCode: referral,
           );
       if (!mounted || tokens == null) return;
       context.goNamed(AppRoute.main.name);
@@ -198,9 +205,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         label: 'PAROL',
                         hint: 'Kamida 6 ta belgi',
                         controller: _passwordController,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _onSubmit(),
+                        textInputAction: TextInputAction.next,
                         validator: _validatePassword,
+                      ),
+                      const SizedBox(height: 16),
+                      LabeledField(
+                        label: "REFERAL KOD (IXTIYORIY)",
+                        hint: 'A1B2C3D4',
+                        controller: _referralController,
+                        textInputAction: TextInputAction.done,
+                        keyboardType: TextInputType.text,
+                        onFieldSubmitted: (_) => _onSubmit(),
                       ),
                     ],
                   ),

@@ -1,12 +1,16 @@
 import 'dart:math' as math;
 
+import 'package:ai_teacher/core/user/data/user_dtos.dart';
+import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RadarCard extends StatelessWidget {
+class RadarCard extends ConsumerWidget {
   const RadarCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final student = ref.watch(currentUserProvider).valueOrNull?.student;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       child: Container(
@@ -31,11 +35,11 @@ class RadarCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
+            const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Text(
                     'BILIM XARITAM',
                     style: TextStyle(
@@ -80,10 +84,10 @@ class RadarCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const SizedBox(
-              width: 120,
-              height: 120,
-              child: _RadarChart(level: 'B1'),
+            SizedBox(
+              width: 132,
+              height: 132,
+              child: _RadarChart(student: student),
             ),
           ],
         ),
@@ -92,27 +96,55 @@ class RadarCard extends StatelessWidget {
   }
 }
 
+class _RadarAxis {
+  const _RadarAxis({
+    required this.label,
+    required this.angle,
+    required this.color,
+  });
+
+  /// Single-letter label drawn just outside the vertex (S/L/R/W).
+  final String label;
+
+  /// Radians, measured from +x clockwise as in the painter math.
+  final double angle;
+  final Color color;
+}
+
 class _RadarChart extends StatelessWidget {
-  const _RadarChart({required this.level});
+  const _RadarChart({this.student});
 
-  final String level;
+  final StudentProfile? student;
 
-  static const _vertexColors = [
-    Color(0xFF60A5FA),
-    Color(0xFF2DD4BF),
-    Color(0xFFFCD34D),
-    Color(0xFFF9A8D4),
-    Color(0xFFC4B5FD),
+  static const _axes = [
+    // Top / right / bottom / left (-pi/2, 0, pi/2, pi)
+    _RadarAxis(label: 'S', angle: -math.pi / 2, color: Color(0xFF60A5FA)),
+    _RadarAxis(label: 'L', angle: 0, color: Color(0xFF2DD4BF)),
+    _RadarAxis(label: 'R', angle: math.pi / 2, color: Color(0xFFFCD34D)),
+    _RadarAxis(label: 'W', angle: math.pi, color: Color(0xFFF9A8D4)),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final levels = student == null
+        ? const <double>[0, 0, 0, 0]
+        : [
+            student!.speaking.fraction,
+            student!.listening.fraction,
+            student!.reading.fraction,
+            student!.writing.fraction,
+          ];
+    final overall = student?.overall.label ?? 'A0';
     return Stack(
       alignment: Alignment.center,
       children: [
-        const SizedBox.expand(child: CustomPaint(painter: _PentagonPainter())),
+        SizedBox.expand(
+          child: CustomPaint(
+            painter: _RadarPainter(levels: levels, axes: _axes),
+          ),
+        ),
         Text(
-          level,
+          overall,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 22,
@@ -120,90 +152,143 @@ class _RadarChart extends StatelessWidget {
             letterSpacing: -0.5,
           ),
         ),
-        ..._vertexDots(),
       ],
     );
   }
-
-  List<Widget> _vertexDots() {
-    const size = 120.0;
-    const radius = size / 2;
-    const dotSize = 8.0;
-    return List.generate(5, (i) {
-      final angle = -math.pi / 2 + (i * 2 * math.pi / 5);
-      final dx = radius + radius * math.cos(angle) - dotSize / 2;
-      final dy = radius + radius * math.sin(angle) - dotSize / 2;
-      return Positioned(
-        left: dx,
-        top: dy,
-        child: Container(
-          width: dotSize,
-          height: dotSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _vertexColors[i],
-          ),
-        ),
-      );
-    });
-  }
 }
 
-class _PentagonPainter extends CustomPainter {
-  const _PentagonPainter();
+class _RadarPainter extends CustomPainter {
+  const _RadarPainter({required this.levels, required this.axes});
+
+  final List<double> levels;
+  final List<_RadarAxis> axes;
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radii = [size.width / 2, size.width / 2 * 0.75, size.width / 2 * 0.5];
-    final fills = [
-      const Color(0x1F2DD4BF),
-      const Color(0x00FFFFFF),
-      const Color(0x00FFFFFF),
-    ];
-    final strokeColors = [
-      const Color(0x80FFFFFF),
-      const Color(0x14FFFFFF),
-      const Color(0x14FFFFFF),
-    ];
-    final strokeWidths = [1.5, 1.0, 1.0];
+    final radius = math.min(size.width, size.height) / 2;
 
-    for (var i = 0; i < radii.length; i++) {
-      final path = _pentagonPath(center, radii[i]);
+    // Background rings.
+    const rings = [1.0, 0.66, 0.33];
+    final ringStrokes = [
+      const Color(0x80FFFFFF),
+      const Color(0x33FFFFFF),
+      const Color(0x14FFFFFF),
+    ];
+    final ringWidths = [1.5, 1.0, 1.0];
+
+    for (var i = 0; i < rings.length; i++) {
       canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.fill
-          ..color = fills[i],
-      );
-      canvas.drawPath(
-        path,
+        _polyPath(center, radius * rings[i]),
         Paint()
           ..style = PaintingStyle.stroke
-          ..color = strokeColors[i]
-          ..strokeWidth = strokeWidths[i],
+          ..color = ringStrokes[i]
+          ..strokeWidth = ringWidths[i],
+      );
+    }
+    // Fill the outer ring softly so the body still has the teal wash.
+    canvas.drawPath(
+      _polyPath(center, radius),
+      Paint()
+        ..style = PaintingStyle.fill
+        ..color = const Color(0x1F2DD4BF),
+    );
+
+    // Axis spokes.
+    final spokePaint = Paint()
+      ..color = const Color(0x33FFFFFF)
+      ..strokeWidth = 1;
+    for (final axis in axes) {
+      final p = _pointAt(center, radius, axis.angle, 1);
+      canvas.drawLine(center, p, spokePaint);
+    }
+
+    // Data polygon.
+    if (levels.any((l) => l > 0)) {
+      final dataPath = Path();
+      for (var i = 0; i < axes.length; i++) {
+        final p = _pointAt(center, radius, axes[i].angle, levels[i]);
+        if (i == 0) {
+          dataPath.moveTo(p.dx, p.dy);
+        } else {
+          dataPath.lineTo(p.dx, p.dy);
+        }
+      }
+      dataPath.close();
+
+      canvas.drawPath(
+        dataPath,
+        Paint()
+          ..style = PaintingStyle.fill
+          ..color = const Color(0x4D2DD4BF),
+      );
+      canvas.drawPath(
+        dataPath,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..color = const Color(0xFF2DD4BF)
+          ..strokeWidth = 1.6,
+      );
+    }
+
+    // Vertex dots + axis letters.
+    for (var i = 0; i < axes.length; i++) {
+      final axis = axes[i];
+      final level = levels[i];
+      final dot = _pointAt(center, radius, axis.angle, level);
+      canvas.drawCircle(
+        dot,
+        4.5,
+        Paint()
+          ..color = axis.color
+          ..style = PaintingStyle.fill,
+      );
+
+      final labelOffset = _pointAt(center, radius + 10, axis.angle, 1);
+      final tp = TextPainter(
+        text: TextSpan(
+          text: axis.label,
+          style: TextStyle(
+            color: axis.color,
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(
+        canvas,
+        Offset(
+          labelOffset.dx - tp.width / 2,
+          labelOffset.dy - tp.height / 2,
+        ),
       );
     }
   }
 
-  Path _pentagonPath(Offset center, double radius) {
+  Path _polyPath(Offset center, double radius) {
     final path = Path();
-    for (var i = 0; i < 5; i++) {
-      final angle = -math.pi / 2 + (i * 2 * math.pi / 5);
-      final point = Offset(
-        center.dx + radius * math.cos(angle),
-        center.dy + radius * math.sin(angle),
-      );
+    for (var i = 0; i < axes.length; i++) {
+      final p = _pointAt(center, radius, axes[i].angle, 1);
       if (i == 0) {
-        path.moveTo(point.dx, point.dy);
+        path.moveTo(p.dx, p.dy);
       } else {
-        path.lineTo(point.dx, point.dy);
+        path.lineTo(p.dx, p.dy);
       }
     }
     path.close();
     return path;
   }
 
+  Offset _pointAt(Offset center, double radius, double angle, double fraction) {
+    final r = radius * fraction;
+    return Offset(
+      center.dx + r * math.cos(angle),
+      center.dy + r * math.sin(angle),
+    );
+  }
+
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _RadarPainter old) =>
+      old.levels != levels || old.axes != axes;
 }

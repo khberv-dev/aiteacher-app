@@ -1,10 +1,15 @@
+import 'package:ai_teacher/core/cashback/data/cashback_dtos.dart';
+import 'package:ai_teacher/core/cashback/presentation/cashback_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CashbackCard extends StatelessWidget {
+class CashbackCard extends ConsumerWidget {
   const CashbackCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summaryAsync = ref.watch(cashbackSummaryProvider);
+    final summary = summaryAsync.valueOrNull ?? CashbackSummary.zero;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
       child: Container(
@@ -15,12 +20,10 @@ class CashbackCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: const [
-            _CashbackTopRow(),
-            SizedBox(height: 8),
-            _ProgressBar(progress: 0.87),
-            SizedBox(height: 8),
-            _CashbackMeta(),
+          children: [
+            _CashbackTopRow(summary: summary),
+            const SizedBox(height: 10),
+            _CashbackMeta(summary: summary),
           ],
         ),
       ),
@@ -29,7 +32,9 @@ class CashbackCard extends StatelessWidget {
 }
 
 class _CashbackTopRow extends StatelessWidget {
-  const _CashbackTopRow();
+  const _CashbackTopRow({required this.summary});
+
+  final CashbackSummary summary;
 
   @override
   Widget build(BuildContext context) {
@@ -39,19 +44,19 @@ class _CashbackTopRow extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Mavjud balans',
+            children: [
+              const Text(
+                'Jami cashback',
                 style: TextStyle(
                   color: Color(0x66FFFFFF),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                "51 760 so'm",
-                style: TextStyle(
+                _formatPrice(summary.total),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
@@ -69,17 +74,13 @@ class _CashbackTopRow extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              Icon(
-                Icons.arrow_upward_rounded,
-                size: 12,
-                color: Color(0xFFB98900),
-              ),
+              Text('🪙', style: TextStyle(fontSize: 14)),
               SizedBox(width: 4),
               Text(
-                '87%',
+                'Cashback',
                 style: TextStyle(
                   color: Color(0xFFF5B700),
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -91,61 +92,41 @@ class _CashbackTopRow extends StatelessWidget {
   }
 }
 
-class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.progress});
-
-  final double progress;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(3),
-      child: Container(
-        height: 5,
-        color: Colors.white.withValues(alpha: 0.1),
-        child: FractionallySizedBox(
-          alignment: Alignment.centerLeft,
-          widthFactor: progress,
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFF5B700), Color(0xFFFCD34D)],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _CashbackMeta extends StatelessWidget {
-  const _CashbackMeta();
+  const _CashbackMeta({required this.summary});
+
+  final CashbackSummary summary;
 
   @override
   Widget build(BuildContext context) {
+    final hasUnclaimed = summary.unclaimed > 0;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Text(
-          'Oy oxirigacha: 13 kun',
-          style: TextStyle(
-            color: Color(0x59FFFFFF),
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Text(
-          '87 / 100%',
-          style: TextStyle(
-            color: Color(0x59FFFFFF),
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
+      children: [
+        Expanded(
+          child: Text(
+            hasUnclaimed
+                ? "Olishga tayyor: ${_formatPrice(summary.unclaimed)}"
+                : "Yangi cashback'larni do'st referal qilib oling",
+            style: const TextStyle(
+              color: Color(0x59FFFFFF),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
     );
   }
+}
+
+String _formatPrice(num value) {
+  final whole = value.toInt();
+  final s = whole.toString();
+  final buf = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
+    buf.write(s[i]);
+  }
+  return "${buf.toString()} so'm";
 }

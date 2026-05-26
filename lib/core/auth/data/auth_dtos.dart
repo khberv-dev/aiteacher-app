@@ -50,6 +50,7 @@ class RegistrationDraft {
     this.goal,
     this.level,
     this.dailyTime,
+    this.referralCode,
   });
 
   final String firstName;
@@ -60,4 +61,5 @@ class RegistrationDraft {
   final String? goal;
   final String? level;
   final String? dailyTime;
+  final String? referralCode;
 }

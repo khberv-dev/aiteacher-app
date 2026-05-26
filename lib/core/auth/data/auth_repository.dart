@@ -61,6 +61,7 @@ class AuthRepository {
           'goal': ?draft.goal,
           'level': ?draft.level,
           'dailyTime': ?draft.dailyTime,
+          'referralCode': ?draft.referralCode,
         },
       );
       final tokens = AuthTokens.fromJson(response.data ?? const {});
@@ -79,6 +80,7 @@ class AuthRepository {
     String? goal,
     String? level,
     String? dailyTime,
+    String? referralCode,
   }) async {
     try {
       final response = await dio.post<Map<String, dynamic>>(
@@ -91,6 +93,7 @@ class AuthRepository {
           'goal': ?goal,
           'level': ?level,
           'dailyTime': ?dailyTime,
+          'referralCode': ?referralCode,
         },
       );
       final tokens = AuthTokens.fromJson(response.data ?? const {});

@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/home/widget/cashback_card.dart';
 import 'package:ai_teacher/ui/home/widget/home_header.dart';
 import 'package:ai_teacher/ui/home/widget/live_card.dart';
 import 'package:ai_teacher/ui/home/widget/mini_cards_row.dart';
@@ -55,6 +56,8 @@ class HomePage extends ConsumerWidget {
                   onStart: () => context.pushNamed(AppRoute.speaking.name),
                 ),
                 const MiniCardsRow(),
+                const SectionHeader(title: 'Cashback'),
+                const CashbackCard(),
                 const SectionHeader(title: "Mening o'sishim raqamlarda"),
                 const StatsCard(),
                 const PageDots(length: 4, activeIndex: 0),

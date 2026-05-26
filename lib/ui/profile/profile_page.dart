@@ -15,6 +15,7 @@ import 'package:ai_teacher/ui/profile/widget/profile_trailing_value.dart';
 import 'package:ai_teacher/ui/profile/widget/profile_user_card.dart';
 import 'package:ai_teacher/utils/uz_phone_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -76,6 +77,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Future<void> _openPrivacyPolicy() async {
     final uri = Uri.parse('https://www.myteacher.uz/docs/privacy_policy.html');
     await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+  }
+
+  Future<void> _copyReferral(String code) async {
+    await Clipboard.setData(ClipboardData(text: code));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('Referal kod nusxalandi')));
   }
 
   Future<void> _openEditProfile() async {
@@ -164,6 +173,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     : 'Kiritilmagan',
                 trailing: const ProfileTrailingValue(showChevron: false),
               ),
+              if ((user?.referralCode ?? '').isNotEmpty)
+                ProfileRow(
+                  icon: Icons.qr_code_2_rounded,
+                  iconColor: const Color(0xFF7C3AED),
+                  iconBackground: const Color(0xFFF5F3FF),
+                  title: 'Referal kod',
+                  subtitle: user!.referralCode!,
+                  trailing: const ProfileTrailingValue(
+                    value: 'Nusxa',
+                    showChevron: false,
+                  ),
+                  onTap: () => _copyReferral(user.referralCode!),
+                ),
             ],
           ),
           if (!hideSubscriptionSection) ...[

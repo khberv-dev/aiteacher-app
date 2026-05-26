@@ -23,6 +23,7 @@ class RegisterController extends Notifier<AuthActionState> {
     String? goal,
     String? level,
     String? dailyTime,
+    String? referralCode,
   }) async {
     state = const AuthLoading();
     try {
@@ -36,6 +37,7 @@ class RegisterController extends Notifier<AuthActionState> {
         goal: goal,
         level: level,
         dailyTime: dailyTime,
+        referralCode: referralCode,
       );
     } on AuthException catch (e) {
       state = AuthFailure(e.message);
@@ -51,6 +53,7 @@ class RegisterController extends Notifier<AuthActionState> {
     String? goal,
     String? level,
     String? dailyTime,
+    String? referralCode,
   }) async {
     state = const AuthLoading();
     try {
@@ -64,6 +67,7 @@ class RegisterController extends Notifier<AuthActionState> {
             goal: goal,
             level: level,
             dailyTime: dailyTime,
+            referralCode: referralCode,
           );
       ref.invalidate(currentUserProvider);
       try {

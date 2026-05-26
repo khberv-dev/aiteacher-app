@@ -216,18 +216,24 @@ class _HistoryItem extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: item.hasReport
-                      ? const Color(0xFFE0E7FF)
-                      : const Color(0xFFF1F5F9),
+                  color: !item.hasReport
+                      ? const Color(0xFFF1F5F9)
+                      : item.isFullReportAvailable
+                      ? const Color(0xFFDCFCE7)
+                      : const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  item.hasReport
+                  !item.hasReport
+                      ? Icons.history_rounded
+                      : item.isFullReportAvailable
                       ? Icons.assignment_turned_in_rounded
-                      : Icons.history_rounded,
-                  color: item.hasReport
-                      ? const Color(0xFF1340C4)
-                      : const Color(0xFF64748B),
+                      : Icons.lock_outline_rounded,
+                  color: !item.hasReport
+                      ? const Color(0xFF64748B)
+                      : item.isFullReportAvailable
+                      ? const Color(0xFF15803D)
+                      : const Color(0xFFB45309),
                   size: 22,
                 ),
               ),
@@ -249,21 +255,27 @@ class _HistoryItem extends StatelessWidget {
                     Row(
                       children: [
                         _StatusChip(
-                          label: item.hasReport
-                              ? 'Hisobot tayyor'
-                              : item.readyForAnalyze
-                              ? 'Tayyor'
-                              : "Yetarli emas",
-                          background: item.hasReport
+                          label: !item.hasReport
+                              ? (item.readyForAnalyze
+                                    ? 'Tayyor'
+                                    : "Yetarli emas")
+                              : item.isFullReportAvailable
+                              ? "To'liq hisobot"
+                              : 'Qisman ko\'rinadi',
+                          background: !item.hasReport
+                              ? (item.readyForAnalyze
+                                    ? const Color(0xFFFEF3C7)
+                                    : const Color(0xFFF1F5F9))
+                              : item.isFullReportAvailable
                               ? const Color(0xFFDCFCE7)
-                              : item.readyForAnalyze
-                              ? const Color(0xFFFEF3C7)
-                              : const Color(0xFFF1F5F9),
-                          textColor: item.hasReport
+                              : const Color(0xFFFEF3C7),
+                          textColor: !item.hasReport
+                              ? (item.readyForAnalyze
+                                    ? const Color(0xFFB45309)
+                                    : const Color(0xFF64748B))
+                              : item.isFullReportAvailable
                               ? const Color(0xFF15803D)
-                              : item.readyForAnalyze
-                              ? const Color(0xFFB45309)
-                              : const Color(0xFF64748B),
+                              : const Color(0xFFB45309),
                         ),
                       ],
                     ),
