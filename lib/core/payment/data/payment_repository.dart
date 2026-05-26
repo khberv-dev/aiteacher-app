@@ -24,10 +24,16 @@ class PaymentRepository {
   Future<Payment> create({
     required String paymentTypeId,
     required num amount,
+    String? callbackUrl,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       'payments',
-      data: {'paymentTypeId': paymentTypeId, 'amount': amount.toInt()},
+      data: {
+        'paymentTypeId': paymentTypeId,
+        'amount': amount.toInt(),
+        if (callbackUrl != null && callbackUrl.isNotEmpty)
+          'callbackUrl': callbackUrl,
+      },
     );
     return Payment.fromJson(response.data ?? const {});
   }

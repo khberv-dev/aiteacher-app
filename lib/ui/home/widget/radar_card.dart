@@ -258,10 +258,7 @@ class _RadarPainter extends CustomPainter {
       )..layout();
       tp.paint(
         canvas,
-        Offset(
-          labelOffset.dx - tp.width / 2,
-          labelOffset.dy - tp.height / 2,
-        ),
+        Offset(labelOffset.dx - tp.width / 2, labelOffset.dy - tp.height / 2),
       );
     }
   }

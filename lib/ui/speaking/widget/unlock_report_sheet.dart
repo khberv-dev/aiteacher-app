@@ -1,15 +1,19 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/core/speaking/presentation/report_unlock_price.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UnlockReportSheet extends StatelessWidget {
-  const UnlockReportSheet({super.key});
+class UnlockReportSheet extends ConsumerWidget {
+  const UnlockReportSheet({super.key, this.conversationId});
 
-  /// Amount charged for a single-report unlock.
-  static const int reportUnlockAmount = 5000;
+  /// The conversation whose report is being unlocked. Forwarded into
+  /// the payment sheet so the created payment can be linked back to it
+  /// (and the report screen can show a wait state on return).
+  final String? conversationId;
 
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {String? conversationId}) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -17,16 +21,18 @@ class UnlockReportSheet extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => const UnlockReportSheet(),
+      builder: (_) => UnlockReportSheet(conversationId: conversationId),
     );
   }
 
-  Future<void> _onPay(BuildContext context) async {
+  Future<void> _onPay(BuildContext context, int price) async {
     Navigator.of(context).pop();
     await PaymentTypesSheet.show(
       context,
-      amount: reportUnlockAmount,
+      amount: price,
       title: 'Hisobotni ochish',
+      callbackUrl: 'https://ai.myteacher.uz/app/report',
+      conversationId: conversationId,
     );
   }
 
@@ -36,7 +42,9 @@ class UnlockReportSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final priceAsync = ref.watch(reportUnlockPriceProvider);
+    final price = priceAsync.valueOrNull;
     return SafeArea(
       top: false,
       child: Padding(
@@ -82,9 +90,12 @@ class UnlockReportSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            const _PriceCard(amount: reportUnlockAmount),
+            _PriceCard(amount: price),
             const SizedBox(height: 16),
-            _PayButton(onTap: () => _onPay(context)),
+            _PayButton(
+              enabled: price != null,
+              onTap: price == null ? null : () => _onPay(context, price),
+            ),
             const SizedBox(height: 10),
             _UnlimitedButton(onTap: () => _onSubscribe(context)),
             const SizedBox(height: 4),
@@ -143,7 +154,9 @@ class _Hero extends StatelessWidget {
 class _PriceCard extends StatelessWidget {
   const _PriceCard({required this.amount});
 
-  final int amount;
+  /// `null` means the price is still loading from the API — shows a
+  /// small spinner in place of the figure.
+  final int? amount;
 
   @override
   Widget build(BuildContext context) {
@@ -183,14 +196,24 @@ class _PriceCard extends StatelessWidget {
               ],
             ),
           ),
-          Text(
-            _formatPrice(amount),
-            style: const TextStyle(
-              color: Color(0xFF0F172A),
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+          if (amount == null)
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.2,
+                valueColor: AlwaysStoppedAnimation(Color(0xFF0F172A)),
+              ),
+            )
+          else
+            Text(
+              _formatPrice(amount!),
+              style: const TextStyle(
+                color: Color(0xFF0F172A),
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -198,57 +221,64 @@ class _PriceCard extends StatelessWidget {
 }
 
 class _PayButton extends StatelessWidget {
-  const _PayButton({required this.onTap});
+  const _PayButton({required this.onTap, this.enabled = true});
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+
+  /// When `false` the button renders dimmed and ignores taps — used while
+  /// the unlock price is still being fetched.
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: Material(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(14),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
+    return Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: SizedBox(
+        width: double.infinity,
+        height: 54,
+        child: Material(
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(14),
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.primary, AppColors.primaryDark],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: enabled ? onTap : null,
+            borderRadius: BorderRadius.circular(14),
+            child: Ink(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.primary, AppColors.primaryDark],
                 ),
-              ],
-            ),
-            child: const Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "To'lash",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 20,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
                   ),
                 ],
+              ),
+              child: const Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "To'lash",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

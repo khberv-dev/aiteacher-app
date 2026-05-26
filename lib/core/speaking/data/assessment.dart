@@ -14,6 +14,7 @@ class Assessment {
     this.audio,
     this.audioMimeType,
     this.isFullReportAvailable = true,
+    this.conversationId,
   });
 
   final String feedback;
@@ -33,6 +34,31 @@ class Assessment {
   /// Server flag. When false, the report should obscure detail cards behind
   /// a paywall (only the first card in each tab stays visible).
   final bool isFullReportAvailable;
+
+  /// Server conversation id this report belongs to. Carried so the
+  /// unlock/payment flow can attach a payment to the right conversation.
+  final String? conversationId;
+
+  Assessment copyWith({bool? isFullReportAvailable, String? conversationId}) {
+    return Assessment(
+      feedback: feedback,
+      overallScore: overallScore,
+      cefrLevel: cefrLevel,
+      durationSeconds: durationSeconds,
+      skills: skills,
+      fluencyDetail: fluencyDetail,
+      pronunciationDetail: pronunciationDetail,
+      grammarDetail: grammarDetail,
+      vocabularyDetail: vocabularyDetail,
+      roadmap: roadmap,
+      coachTips: coachTips,
+      audio: audio,
+      audioMimeType: audioMimeType,
+      isFullReportAvailable:
+          isFullReportAvailable ?? this.isFullReportAvailable,
+      conversationId: conversationId ?? this.conversationId,
+    );
+  }
 
   factory Assessment.fromJson(Map<String, dynamic> json) {
     return Assessment(
@@ -65,6 +91,7 @@ class Assessment {
       audio: json['audio'] as String?,
       audioMimeType: json['audioMimeType'] as String?,
       isFullReportAvailable: json['isFullReportAvailable'] as bool? ?? true,
+      conversationId: json['conversationId'] as String?,
     );
   }
 }

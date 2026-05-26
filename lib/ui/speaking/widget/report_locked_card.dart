@@ -11,6 +11,7 @@ class ReportLockedCard extends StatelessWidget {
   const ReportLockedCard({
     super.key,
     required this.child,
+    this.conversationId,
     this.titleHeight = 64,
     this.horizontalPadding = 16,
     this.bottomPadding = 18,
@@ -18,6 +19,10 @@ class ReportLockedCard extends StatelessWidget {
   });
 
   final Widget child;
+
+  /// Conversation whose report is being unlocked. Forwarded into
+  /// [UnlockReportSheet] so the resulting payment links back to it.
+  final String? conversationId;
 
   /// Top offset (from the widget's top edge) above which content is left
   /// untouched. Tune per-card if the title row is taller than 64px.
@@ -49,7 +54,10 @@ class ReportLockedCard extends StatelessWidget {
               child: Material(
                 color: Colors.white.withValues(alpha: 0.32),
                 child: InkWell(
-                  onTap: () => UnlockReportSheet.show(context),
+                  onTap: () => UnlockReportSheet.show(
+                    context,
+                    conversationId: conversationId,
+                  ),
                   child: const Center(child: _ProLockPill()),
                 ),
               ),

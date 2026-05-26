@@ -5,22 +5,41 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/payment/data/payment_dtos.dart';
 import 'package:ai_teacher/core/payment/data/payment_repository.dart';
 import 'package:ai_teacher/core/payment/presentation/payment_types_controller.dart';
+import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
+import 'package:ai_teacher/core/speaking/presentation/pending_report_payment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaymentTypesSheet extends ConsumerStatefulWidget {
-  const PaymentTypesSheet({super.key, required this.amount, this.title});
+  const PaymentTypesSheet({
+    super.key,
+    required this.amount,
+    this.title,
+    this.callbackUrl,
+    this.conversationId,
+  });
 
   /// Optional descriptive title shown under the sheet heading (e.g. plan or
   /// purpose). Falls back to a generic price label when omitted.
   final String? title;
   final num amount;
 
+  /// Optional return URL forwarded to the server's create-payment request so
+  /// the provider redirects the user back here after checkout.
+  final String? callbackUrl;
+
+  /// When set, the created payment is also linked to this assessment
+  /// conversation (so the server can mark its full report available once the
+  /// payment lands in `success`) and we start the report-screen wait state.
+  final String? conversationId;
+
   static Future<bool?> show(
     BuildContext context, {
     required num amount,
     String? title,
+    String? callbackUrl,
+    String? conversationId,
   }) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -29,7 +48,12 @@ class PaymentTypesSheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => PaymentTypesSheet(amount: amount, title: title),
+      builder: (_) => PaymentTypesSheet(
+        amount: amount,
+        title: title,
+        callbackUrl: callbackUrl,
+        conversationId: conversationId,
+      ),
     );
   }
 
@@ -46,7 +70,32 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
     try {
       final payment = await ref
           .read(paymentRepositoryProvider)
-          .create(paymentTypeId: type.id, amount: widget.amount);
+          .create(
+            paymentTypeId: type.id,
+            amount: widget.amount,
+            callbackUrl: widget.callbackUrl,
+          );
+
+      // Best-effort: link the payment to its conversation and arm the
+      // report screen's wait state. Failures here are non-fatal — the
+      // provider checkout still launches.
+      final conversationId = widget.conversationId;
+      if (conversationId != null && conversationId.isNotEmpty) {
+        try {
+          await ref
+              .read(speakingRepositoryProvider)
+              .assignPaymentToConversation(
+                conversationId: conversationId,
+                paymentId: payment.id,
+              );
+        } catch (e) {
+          debugPrint('assignPaymentToConversation failed: $e');
+        }
+        ref
+            .read(pendingReportPaymentProvider.notifier)
+            .start(conversationId: conversationId, paymentId: payment.id);
+      }
+
       if (!mounted) return;
       Navigator.of(context).pop(true);
       ScaffoldMessenger.of(context)

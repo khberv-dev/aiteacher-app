@@ -15,8 +15,12 @@ class ReportOverviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locked = !assessment.isFullReportAvailable;
-    Widget gate(Widget child) =>
-        locked ? ReportLockedCard(child: child) : child;
+    Widget gate(Widget child) => locked
+        ? ReportLockedCard(
+            conversationId: assessment.conversationId,
+            child: child,
+          )
+        : child;
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [

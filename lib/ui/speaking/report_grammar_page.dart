@@ -16,8 +16,12 @@ class ReportGrammarPage extends StatelessWidget {
         ? assessment.coachTips.skip(2).take(2).toList(growable: false)
         : assessment.coachTips.take(2).toList(growable: false);
     final locked = !assessment.isFullReportAvailable;
-    Widget gate(Widget child) =>
-        locked ? ReportLockedCard(child: child) : child;
+    Widget gate(Widget child) => locked
+        ? ReportLockedCard(
+            conversationId: assessment.conversationId,
+            child: child,
+          )
+        : child;
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
