@@ -1,6 +1,5 @@
-import 'package:ai_teacher/app/router/app_router.dart';
+import 'package:ai_teacher/ui/vocabulary/vocabulary_intro_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class MiniCardsRow extends StatelessWidget {
   const MiniCardsRow({super.key});
@@ -21,8 +20,7 @@ class MiniCardsRow extends StatelessWidget {
                 colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
               ),
               shadowColor: const Color(0x522563EB),
-              onTap: () =>
-                  context.goNamed(AppRoute.vocabularyTraining.name),
+              onTap: () => VocabularyIntroSheet.show(context),
             ),
           ),
           const SizedBox(width: 12),

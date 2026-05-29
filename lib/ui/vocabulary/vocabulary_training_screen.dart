@@ -8,6 +8,7 @@ import 'package:ai_teacher/ui/vocabulary/widget/training_empty_view.dart';
 import 'package:ai_teacher/ui/vocabulary/widget/training_evaluation_card.dart';
 import 'package:ai_teacher/ui/vocabulary/widget/training_progress_bar.dart';
 import 'package:ai_teacher/ui/vocabulary/widget/training_summary_view.dart';
+import 'package:ai_teacher/ui/vocabulary/widget/word_definition_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,9 +73,7 @@ class VocabularyTrainingScreen extends ConsumerWidget {
                         correct: s.correct,
                         incorrect: s.incorrect,
                         onRestart: () => ref
-                            .read(
-                              vocabularyTrainingControllerProvider.notifier,
-                            )
+                            .read(vocabularyTrainingControllerProvider.notifier)
                             .restart(),
                         onExit: () => _onBack(context),
                       );
@@ -102,7 +101,7 @@ class _TrainingBody extends ConsumerWidget {
     final current = state.current!;
     final showingResult =
         state.speakingPhase == SpeakingCheckPhase.showingResult &&
-            state.lastEvaluation != null;
+        state.lastEvaluation != null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
@@ -126,12 +125,34 @@ class _TrainingBody extends ConsumerWidget {
           ),
           if (!showingResult) ...[
             const SizedBox(height: 16),
-            HoldMicButton(
-              phase: state.speakingPhase,
-              elapsed: state.recordingElapsed,
-              onPressStart: notifier.startSpeaking,
-              onPressEnd: notifier.stopAndCheck,
-              onPressCancel: notifier.cancelSpeaking,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _ThumbButton(
+                  emoji: '🤷',
+                  color: const Color(0xFFDC2626),
+                  bg: const Color(0xFFFEF2F2),
+                  border: const Color(0xFFFECACA),
+                  onTap: () => WordDefinitionSheet.show(context, current),
+                  enabled: state.speakingPhase == SpeakingCheckPhase.idle,
+                ),
+                HoldMicButton(
+                  phase: state.speakingPhase,
+                  elapsed: state.recordingElapsed,
+                  onPressStart: notifier.startSpeaking,
+                  onPressEnd: notifier.stopAndCheck,
+                  onPressCancel: notifier.cancelSpeaking,
+                ),
+                _ThumbButton(
+                  emoji: '👍',
+                  color: const Color(0xFF16A34A),
+                  bg: const Color(0xFFF0FDF4),
+                  border: const Color(0xFFBBF7D0),
+                  onTap: notifier.skipWord,
+                  enabled: state.speakingPhase == SpeakingCheckPhase.idle,
+                ),
+              ],
             ),
             const SizedBox(height: 8),
           ],
@@ -268,6 +289,53 @@ class _Loading extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ThumbButton extends StatelessWidget {
+  const _ThumbButton({
+    required this.emoji,
+    required this.color,
+    required this.bg,
+    required this.border,
+    required this.onTap,
+    required this.enabled,
+  });
+
+  final String emoji;
+  final Color color;
+  final Color bg;
+  final Color border;
+  final VoidCallback onTap;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      opacity: enabled ? 1.0 : 0.35,
+      duration: const Duration(milliseconds: 160),
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        child: Container(
+          width: 62,
+          height: 62,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: bg,
+            border: Border.all(color: border, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.12),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: Text(emoji, style: const TextStyle(fontSize: 26)),
+        ),
       ),
     );
   }

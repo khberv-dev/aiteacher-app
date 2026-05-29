@@ -45,8 +45,8 @@ class AppBottomNav extends StatelessWidget {
       iconBackground: Color(0xFFCCFBF1),
     ),
     NavTab(
-      label: 'Blog',
-      icon: Icons.bookmark_outline_rounded,
+      label: 'Izohlar',
+      icon: Icons.forum_outlined,
       iconColor: Color(0xFFFB923C),
       iconBackground: Color(0xFFFFF7ED),
     ),

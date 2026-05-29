@@ -76,9 +76,7 @@ class VocabularyRepository {
   /// back as `0`.
   Future<Map<WordStatus, int>> stats() async {
     final response = await _dio.get<List<dynamic>>('vocabulary/stats');
-    final out = <WordStatus, int>{
-      for (final s in WordStatus.values) s: 0,
-    };
+    final out = <WordStatus, int>{for (final s in WordStatus.values) s: 0};
     for (final entry in response.data ?? const []) {
       if (entry is! Map) continue;
       final status = WordStatus.fromApi(entry['status'] as String?);

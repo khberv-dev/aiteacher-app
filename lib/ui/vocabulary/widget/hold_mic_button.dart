@@ -46,14 +46,10 @@ class HoldMicButton extends StatelessWidget {
       children: [
         Listener(
           behavior: HitTestBehavior.opaque,
-          onPointerDown: enabled && !isRecording
-              ? (_) => onPressStart()
-              : null,
+          onPointerDown: enabled && !isRecording ? (_) => onPressStart() : null,
           onPointerUp: isRecording ? (_) => onPressEnd() : null,
           onPointerCancel: isRecording ? (_) => onPressCancel() : null,
-          child: _MicCircle(
-            phase: phase,
-          ),
+          child: _MicCircle(phase: phase),
         ),
         const SizedBox(height: 14),
         AnimatedSwitcher(
@@ -85,8 +81,8 @@ class HoldMicButton extends StatelessWidget {
             color: isRecording
                 ? const Color(0xFF7F1D1D)
                 : isChecking
-                    ? const Color(0xFF475569)
-                    : const Color(0xFF6B7280),
+                ? const Color(0xFF475569)
+                : const Color(0xFF6B7280),
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
@@ -137,13 +133,13 @@ class _MicCircleState extends State<_MicCircle>
     final base = isRecording
         ? const Color(0xFFDC2626)
         : isChecking
-            ? const Color(0xFF94A3B8)
-            : AppColors.primary;
+        ? const Color(0xFF94A3B8)
+        : AppColors.primary;
     final darker = isRecording
         ? const Color(0xFFB91C1C)
         : isChecking
-            ? const Color(0xFF64748B)
-            : AppColors.primaryDark;
+        ? const Color(0xFF64748B)
+        : AppColors.primaryDark;
 
     return AnimatedBuilder(
       animation: _pulse,
@@ -163,9 +159,9 @@ class _MicCircleState extends State<_MicCircle>
                 height: ringSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFDC2626).withValues(
-                    alpha: ringOpacity.clamp(0.0, 1.0),
-                  ),
+                  color: const Color(
+                    0xFFDC2626,
+                  ).withValues(alpha: ringOpacity.clamp(0.0, 1.0)),
                 ),
               ),
               Container(
@@ -197,9 +193,7 @@ class _MicCircleState extends State<_MicCircle>
                         ),
                       )
                     : Icon(
-                        isRecording
-                            ? Icons.stop_rounded
-                            : Icons.mic_rounded,
+                        isRecording ? Icons.stop_rounded : Icons.mic_rounded,
                         color: Colors.white,
                         size: 52,
                       ),

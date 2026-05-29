@@ -62,7 +62,9 @@ class VocabularyTrainingState {
   final String? speakingError;
 
   bool get isEmpty => batch.isEmpty;
+
   bool get isDone => batch.isNotEmpty && currentIndex >= batch.length;
+
   VocabularyWord? get current => isDone || isEmpty ? null : batch[currentIndex];
 
   VocabularyTrainingState copyWith({
@@ -111,10 +113,13 @@ class VocabularyTrainingController
     final batch = await repo.getTrainingBatch();
     // Fire-and-forget stats so the first card paints sooner.
     unawaited(
-      repo.stats().then((s) {
-        final cur = state.valueOrNull;
-        if (cur != null) state = AsyncData(cur.copyWith(stats: s));
-      }).catchError((_) {}),
+      repo
+          .stats()
+          .then((s) {
+            final cur = state.valueOrNull;
+            if (cur != null) state = AsyncData(cur.copyWith(stats: s));
+          })
+          .catchError((_) {}),
     );
     return VocabularyTrainingState(
       batch: batch,
@@ -319,12 +324,11 @@ class VocabularyTrainingController
 
     if (wasCorrect && word != null) {
       unawaited(
-        ref
-            .read(vocabularyRepositoryProvider)
-            .removeWord(word.id)
-            .catchError((e) {
-              debugPrint('removeWord failed for ${word.word}: $e');
-            }),
+        ref.read(vocabularyRepositoryProvider).removeWord(word.id).catchError((
+          e,
+        ) {
+          debugPrint('removeWord failed for ${word.word}: $e');
+        }),
       );
     }
 
@@ -332,6 +336,22 @@ class VocabularyTrainingController
     // training counters, so we just advance the local cursor without
     // double-counting.
     state = AsyncData(_advance(s, wasCorrect));
+  }
+
+  /// Advances past the current word without recording a result.
+  void skipWord() {
+    final s = state.valueOrNull;
+    if (s == null || s.isDone || s.isEmpty) return;
+    if (s.speakingPhase != SpeakingCheckPhase.idle) return;
+    state = AsyncData(
+      VocabularyTrainingState(
+        batch: s.batch,
+        currentIndex: s.currentIndex + 1,
+        correct: s.correct,
+        incorrect: s.incorrect,
+        stats: s.stats,
+      ),
+    );
   }
 
   /// Clears any inline speaking error banner.

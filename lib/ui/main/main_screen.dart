@@ -3,7 +3,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
 import 'package:ai_teacher/core/cashback/data/cashback_repository.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
-import 'package:ai_teacher/ui/blog/blog_page.dart';
+import 'package:ai_teacher/ui/blog/blog_page.dart' show CommentsPage;
 import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
 import 'package:ai_teacher/ui/chat/chat_list_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
@@ -22,7 +22,7 @@ class MainScreen extends ConsumerStatefulWidget {
   static const int chatTab = 0;
   static const int lessonsTab = 1;
   static const int homeTab = 2;
-  static const int blogTab = 3;
+  static const int commentsTab = 3;
   static const int profileTab = 4;
 
   final int initialTab;
@@ -38,7 +38,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     ChatListPage(),
     LessonsPage(),
     HomePage(),
-    BlogPage(),
+    CommentsPage(),
     ProfilePage(),
   ];
 
