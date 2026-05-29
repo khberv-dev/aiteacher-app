@@ -14,6 +14,7 @@ import 'package:ai_teacher/ui/speaking/speaking_partner_screen.dart';
 import 'package:ai_teacher/ui/speaking/speaking_report_screen.dart';
 import 'package:ai_teacher/ui/survey/survey_data.dart';
 import 'package:ai_teacher/ui/survey/survey_screen.dart';
+import 'package:ai_teacher/ui/vocabulary/vocabulary_training_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -105,6 +106,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoute.speakingHistory.name,
         builder: (context, state) => const AssessmentHistoryScreen(),
       ),
+      GoRoute(
+        path: AppRoute.vocabularyTraining.path,
+        name: AppRoute.vocabularyTraining.name,
+        builder: (context, state) => const VocabularyTrainingScreen(),
+      ),
     ],
   );
 });
@@ -119,6 +125,7 @@ enum AppRoute {
   speaking('/speaking'),
   speakingReport('/speaking-report'),
   speakingHistory('/speaking-history'),
+  vocabularyTraining('/vocabulary-training'),
   chat('/chat'),
   call('/call');
 
