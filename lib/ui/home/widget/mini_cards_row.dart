@@ -1,5 +1,7 @@
+import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/ui/vocabulary/vocabulary_intro_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MiniCardsRow extends StatelessWidget {
   const MiniCardsRow({super.key});
@@ -24,16 +26,17 @@ class MiniCardsRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: _MiniCard(
-              icon: Icons.bolt_outlined,
-              titleLines: ['Online', 'testlar'],
-              gradient: LinearGradient(
+              icon: Icons.sports_esports_outlined,
+              titleLines: const ["So'z", 'Jangi'],
+              gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF064E3B), Color(0xFF059669)],
+                colors: [Color(0xFF9A3412), Color(0xFFDC2626)],
               ),
-              shadowColor: Color(0x52059669),
+              shadowColor: const Color(0x52DC2626),
+              onTap: () => context.pushNamed(AppRoute.wordBattle.name),
             ),
           ),
         ],

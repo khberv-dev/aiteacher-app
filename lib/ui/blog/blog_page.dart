@@ -19,9 +19,7 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
     if (_checkingCanPost) return;
     setState(() => _checkingCanPost = true);
     try {
-      final result = await ref
-          .read(commentsRepositoryProvider)
-          .checkCanPost();
+      final result = await ref.read(commentsRepositoryProvider).checkCanPost();
       if (!mounted) return;
       if (result.canPost) {
         _openWriteDialog();
@@ -185,8 +183,7 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            valueColor:
-                                AlwaysStoppedAnimation(Colors.white),
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
                           ),
                         )
                       : const Icon(

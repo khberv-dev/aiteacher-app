@@ -4,6 +4,7 @@ import 'package:ai_teacher/core/speaking/data/assessment.dart';
 import 'package:ai_teacher/ui/auth/login_screen.dart';
 import 'package:ai_teacher/ui/auth/otp_screen.dart';
 import 'package:ai_teacher/ui/auth/register_screen.dart';
+import 'package:ai_teacher/ui/battle/battle_screen.dart';
 import 'package:ai_teacher/ui/call/call_screen.dart';
 import 'package:ai_teacher/ui/chat/chat_list_data.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
@@ -111,6 +112,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoute.vocabularyTraining.name,
         builder: (context, state) => const VocabularyTrainingScreen(),
       ),
+      GoRoute(
+        path: AppRoute.wordBattle.path,
+        name: AppRoute.wordBattle.name,
+        builder: (context, state) => const BattleScreen(),
+      ),
     ],
   );
 });
@@ -126,6 +132,7 @@ enum AppRoute {
   speakingReport('/speaking-report'),
   speakingHistory('/speaking-history'),
   vocabularyTraining('/vocabulary-training'),
+  wordBattle('/word-battle'),
   chat('/chat'),
   call('/call');
 

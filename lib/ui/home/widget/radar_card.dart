@@ -116,23 +116,26 @@ class _RadarChart extends StatelessWidget {
 
   final StudentProfile? student;
 
+  // Pentagon: 5 axes evenly spaced at 72° (2π/5) starting from top (−π/2).
+  // S: −90°, L: −18°, R: 54°, W: 126°, F: 198°
   static const _axes = [
-    // Top / right / bottom / left (-pi/2, 0, pi/2, pi)
     _RadarAxis(label: 'S', angle: -math.pi / 2, color: Color(0xFF60A5FA)),
-    _RadarAxis(label: 'L', angle: 0, color: Color(0xFF2DD4BF)),
-    _RadarAxis(label: 'R', angle: math.pi / 2, color: Color(0xFFFCD34D)),
-    _RadarAxis(label: 'W', angle: math.pi, color: Color(0xFFF9A8D4)),
+    _RadarAxis(label: 'L', angle: -math.pi / 10, color: Color(0xFF2DD4BF)),
+    _RadarAxis(label: 'R', angle: 3 * math.pi / 10, color: Color(0xFFFCD34D)),
+    _RadarAxis(label: 'W', angle: 7 * math.pi / 10, color: Color(0xFFF9A8D4)),
+    _RadarAxis(label: 'F', angle: 11 * math.pi / 10, color: Color(0xFFA78BFA)),
   ];
 
   @override
   Widget build(BuildContext context) {
     final levels = student == null
-        ? const <double>[0, 0, 0, 0]
+        ? const <double>[0, 0, 0, 0, 0]
         : [
             student!.speaking.fraction,
             student!.listening.fraction,
             student!.reading.fraction,
             student!.writing.fraction,
+            student!.fluency.fraction,
           ];
     final overall = student?.overall.label ?? 'A0';
     return Stack(

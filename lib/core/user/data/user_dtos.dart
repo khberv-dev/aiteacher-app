@@ -101,6 +101,7 @@ class StudentProfile {
     required this.reading,
     required this.listening,
     required this.speaking,
+    required this.fluency,
   });
 
   final CefrLevel overall;
@@ -108,6 +109,7 @@ class StudentProfile {
   final CefrLevel reading;
   final CefrLevel listening;
   final CefrLevel speaking;
+  final CefrLevel fluency;
 
   factory StudentProfile.fromJson(Map<String, dynamic> json) {
     return StudentProfile(
@@ -116,6 +118,7 @@ class StudentProfile {
       reading: CefrLevel.fromApi(json['readingLevel'] as String?),
       listening: CefrLevel.fromApi(json['listeningLevel'] as String?),
       speaking: CefrLevel.fromApi(json['speakingLevel'] as String?),
+      fluency: CefrLevel.fromApi(json['fluencyLevel'] as String?),
     );
   }
 }
