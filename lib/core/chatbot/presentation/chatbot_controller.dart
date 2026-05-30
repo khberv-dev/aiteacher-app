@@ -33,8 +33,7 @@ class ChatbotState {
 class ChatbotController extends AutoDisposeAsyncNotifier<ChatbotState> {
   @override
   Future<ChatbotState> build() async {
-    final session =
-        await ref.watch(chatbotRepositoryProvider).createSession();
+    final session = await ref.watch(chatbotRepositoryProvider).createSession();
     return ChatbotState(sessionId: session.id);
   }
 
@@ -50,11 +49,13 @@ class ChatbotController extends AutoDisposeAsyncNotifier<ChatbotState> {
       content: content,
     );
 
-    state = AsyncData(current.copyWith(
-      messages: [...current.messages, tempMsg],
-      isSending: true,
-      clearError: true,
-    ));
+    state = AsyncData(
+      current.copyWith(
+        messages: [...current.messages, tempMsg],
+        isSending: true,
+        clearError: true,
+      ),
+    );
 
     try {
       final result = await ref
@@ -69,16 +70,18 @@ class ChatbotController extends AutoDisposeAsyncNotifier<ChatbotState> {
     } catch (e) {
       final now = state.valueOrNull;
       if (now == null) return;
-      state = AsyncData(now.copyWith(
-        messages: now.messages.where((m) => m.id != tempId).toList(),
-        isSending: false,
-        error: 'Xatolik yuz berdi. Qayta urinib ko\'ring.',
-      ));
+      state = AsyncData(
+        now.copyWith(
+          messages: now.messages.where((m) => m.id != tempId).toList(),
+          isSending: false,
+          error: 'Xatolik yuz berdi. Qayta urinib ko\'ring.',
+        ),
+      );
     }
   }
 }
 
 final chatbotControllerProvider =
     AutoDisposeAsyncNotifierProvider<ChatbotController, ChatbotState>(
-  ChatbotController.new,
-);
+      ChatbotController.new,
+    );

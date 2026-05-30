@@ -219,8 +219,9 @@ class _CourseThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fullUrl =
-        coverUrl != null ? '${NetworkConfig.hostUrl}/public/$coverUrl' : null;
+    final fullUrl = coverUrl != null
+        ? '${NetworkConfig.hostUrl}/public/$coverUrl'
+        : null;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
