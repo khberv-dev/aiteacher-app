@@ -37,7 +37,7 @@ class OtpController extends Notifier<AuthActionState> {
       } catch (_) {
         // Non-fatal: profile screen will retry on its own watch.
       }
-      await ref.read(sessionControllerProvider.notifier).syncSession();
+      await ref.read(sessionControllerProvider.notifier).claimSession();
       state = const AuthIdle();
       return tokens;
     } on AuthException catch (e) {

@@ -29,13 +29,15 @@ class SessionController extends Notifier<String?> {
     await syncSession();
   }
 
-  /// Creates a session if none exists; attaches the logged-in user when an
-  /// access token is present. Idempotent — safe to call repeatedly.
+  /// Called on every app launch (and FCM token refresh). Creates a session if
+  /// none exists; if already logged in with no session it also claims it.
+  /// For sessions that are already claimed, uses PUT to refresh os/fcmToken.
   Future<void> syncSession() async {
     final cache = ref.read(cacheServiceProvider);
     final fcmToken = cache.fcmToken;
     final accessToken = cache.accessToken;
     final existing = state ?? cache.sessionId;
+    final isLoggedIn = accessToken != null && accessToken.isNotEmpty;
 
     try {
       String? id = existing;
@@ -47,14 +49,37 @@ class SessionController extends Notifier<String?> {
         await cache.setSessionId(session.id);
         id = session.id;
         state = session.id;
+        // Reinstall while already logged in — claim the new session immediately.
+        if (isLoggedIn) {
+          await ref
+              .read(sessionRepositoryProvider)
+              .attachUser(sessionId: id, fcmToken: fcmToken);
+        }
+        return;
       }
-      if (accessToken != null && accessToken.isNotEmpty) {
+      // Session already exists — update os/fcmToken if authenticated.
+      if (isLoggedIn) {
         await ref
             .read(sessionRepositoryProvider)
-            .attachUser(sessionId: id, fcmToken: fcmToken);
+            .update(sessionId: id, fcmToken: fcmToken);
       }
     } catch (e, st) {
       debugPrint('session sync failed: $e\n$st');
+    }
+  }
+
+  /// Claims the current session for the logged-in user. Call once right after
+  /// login or registration so the server links userId to this session.
+  Future<void> claimSession() async {
+    final cache = ref.read(cacheServiceProvider);
+    final id = state ?? cache.sessionId;
+    if (id == null || id.isEmpty) return;
+    try {
+      await ref
+          .read(sessionRepositoryProvider)
+          .attachUser(sessionId: id, fcmToken: cache.fcmToken);
+    } catch (e, st) {
+      debugPrint('session claim failed: $e\n$st');
     }
   }
 }

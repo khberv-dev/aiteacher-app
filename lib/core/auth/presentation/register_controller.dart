@@ -75,7 +75,7 @@ class RegisterController extends Notifier<AuthActionState> {
       } catch (_) {
         // Non-fatal: main/profile screens will retry on their own watch.
       }
-      await ref.read(sessionControllerProvider.notifier).syncSession();
+      await ref.read(sessionControllerProvider.notifier).claimSession();
       state = const AuthIdle();
       return tokens;
     } on AuthException catch (e) {
