@@ -22,7 +22,7 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
   late final VideoPlayerController _videoCtrl;
   ChewieController? _chewieCtrl;
   bool _videoError = false;
-  bool _inputFocused = false;
+  bool _isPlaying = false;
   bool _closeVisible = true;
   Timer? _hideCloseTimer;
 
@@ -30,7 +30,6 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
   void initState() {
     super.initState();
     _initVideo();
-    _scheduleHideClose();
   }
 
   Future<void> _initVideo() async {
@@ -38,7 +37,9 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
     try {
       await _videoCtrl.initialize();
       if (!mounted) return;
+      _videoCtrl.addListener(_onVideoStateChanged);
       setState(() {
+        _isPlaying = _videoCtrl.value.isPlaying;
         _chewieCtrl = ChewieController(
           videoPlayerController: _videoCtrl,
           autoPlay: true,
@@ -58,6 +59,18 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
     }
   }
 
+  void _onVideoStateChanged() {
+    final playing = _videoCtrl.value.isPlaying;
+    if (playing == _isPlaying) return;
+    setState(() => _isPlaying = playing);
+    if (!playing) {
+      _hideCloseTimer?.cancel();
+      setState(() => _closeVisible = true);
+    } else {
+      _scheduleHideClose();
+    }
+  }
+
   void _onVideoPointerDown() {
     setState(() => _closeVisible = true);
     _scheduleHideClose();
@@ -65,6 +78,9 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
 
   void _scheduleHideClose() {
     _hideCloseTimer?.cancel();
+
+    if (!_isPlaying) return;
+
     _hideCloseTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) setState(() => _closeVisible = false);
     });
@@ -73,6 +89,7 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
   @override
   void dispose() {
     _hideCloseTimer?.cancel();
+    _videoCtrl.removeListener(_onVideoStateChanged);
     _chewieCtrl?.dispose();
     _videoCtrl.dispose();
     super.dispose();
@@ -94,15 +111,9 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
             children: [
               Stack(
                 children: [
-                  ClipRect(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      height: _inputFocused
-                          ? 0.0
-                          : MediaQuery.of(context).size.height * 0.3,
-                      child: _buildVideoPlayer(),
-                    ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    child: _buildVideoPlayer(),
                   ),
                   Positioned(
                     top: 8,
@@ -110,7 +121,7 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
                     right: 0,
                     child: Center(
                       child: AnimatedOpacity(
-                        opacity: _closeVisible ? 1.0 : 0.0,
+                        opacity: !_isPlaying ? 1.0 : (_closeVisible ? 1.0 : 0),
                         duration: const Duration(milliseconds: 250),
                         child: GestureDetector(
                           onTap: () => Navigator.of(context).pop(),
@@ -134,22 +145,39 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
                   ),
                 ],
               ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                height: _inputFocused ? 0.0 : 12.0,
-              ),
-              const SizedBox(height: 4),
+              const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
               Expanded(
                 child: ChatbotView(
                   onInputFocusChanged: (focused) {
-                    setState(() => _inputFocused = focused);
-                    if (focused) {
-                      _chewieCtrl?.pause();
-                    } else {
-                      _chewieCtrl?.play();
-                    }
+                    if (focused) _chewieCtrl?.pause();
                   },
+                  onInputTyped: () => _chewieCtrl?.pause(),
+                  emptyHintText: 'Bu video dars haqida\nbiror savol bering!',
+                  trailingAction: GestureDetector(
+                    onTap: () {
+                      if (_isPlaying) {
+                        _chewieCtrl?.pause();
+                      } else {
+                        _chewieCtrl?.play();
+                      }
+                    },
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        _isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -165,7 +193,11 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, size: 40, color: Color(0xFF94A3B8)),
+            Icon(
+              Icons.error_outline_rounded,
+              size: 40,
+              color: Color(0xFF94A3B8),
+            ),
             SizedBox(height: 8),
             Text(
               'Video yuklanmadi',

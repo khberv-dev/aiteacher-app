@@ -156,10 +156,12 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
               callback: (args) {
                 if (args.isNotEmpty && mounted) {
                   debugPrint('[CourseWebScreen] Opening video: ${args[0]}');
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) =>
-                        CourseVideoScreen(videoUrl: args[0].toString()),
-                  ));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          CourseVideoScreen(videoUrl: args[0].toString()),
+                    ),
+                  );
                 }
               },
             );

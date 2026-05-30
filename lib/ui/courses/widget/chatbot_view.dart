@@ -8,10 +8,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Self-contained chatbot UI. Pass [onClose] to show a close button in the
 /// header (used when embedded in a bottom sheet).
 class ChatbotView extends ConsumerStatefulWidget {
-  const ChatbotView({super.key, this.onClose, this.onInputFocusChanged});
+  const ChatbotView({
+    super.key,
+    this.onClose,
+    this.onInputFocusChanged,
+    this.onInputTyped,
+    this.trailingAction,
+    this.emptyHintText,
+  });
 
   final VoidCallback? onClose;
   final ValueChanged<bool>? onInputFocusChanged;
+  final VoidCallback? onInputTyped;
+  final Widget? trailingAction;
+  final String? emptyHintText;
 
   @override
   ConsumerState<ChatbotView> createState() => _ChatbotViewState();
@@ -27,6 +37,9 @@ class _ChatbotViewState extends ConsumerState<ChatbotView> {
     super.initState();
     _inputFocusNode.addListener(() {
       widget.onInputFocusChanged?.call(_inputFocusNode.hasFocus);
+    });
+    _textCtrl.addListener(() {
+      if (_textCtrl.text.isNotEmpty) widget.onInputTyped?.call();
     });
   }
 
@@ -109,6 +122,7 @@ class _ChatbotViewState extends ConsumerState<ChatbotView> {
               isSending: state.isSending,
               error: state.error,
               scrollController: _scrollCtrl,
+              emptyHintText: widget.emptyHintText,
             ),
           ),
         ),
@@ -117,6 +131,7 @@ class _ChatbotViewState extends ConsumerState<ChatbotView> {
           focusNode: _inputFocusNode,
           enabled: async.valueOrNull?.isSending != true,
           onSend: _send,
+          trailingAction: widget.trailingAction,
         ),
       ],
     );
@@ -129,12 +144,14 @@ class _MessageList extends StatelessWidget {
     required this.isSending,
     required this.scrollController,
     this.error,
+    this.emptyHintText,
   });
 
   final List<ChatbotMessage> messages;
   final bool isSending;
   final String? error;
   final ScrollController scrollController;
+  final String? emptyHintText;
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +166,7 @@ class _MessageList extends StatelessWidget {
       itemCount: messages.length + extraCount,
       itemBuilder: (context, i) {
         if (messages.isEmpty && !isSending && i == 0 && error == null) {
-          return const _EmptyHint();
+          return _EmptyHint(text: emptyHintText);
         }
         if (i < messages.length) return _MessageBubble(message: messages[i]);
         if (isSending && i == messages.length) return const _TypingIndicator();
@@ -161,7 +178,9 @@ class _MessageList extends StatelessWidget {
 }
 
 class _EmptyHint extends StatelessWidget {
-  const _EmptyHint();
+  const _EmptyHint({this.text});
+
+  final String? text;
 
   @override
   Widget build(BuildContext context) {
@@ -175,10 +194,10 @@ class _EmptyHint extends StatelessWidget {
             color: AppColors.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Ingliz tili bo\'yicha\nbiror savol bering!',
+          Text(
+            text ?? 'Ingliz tili bo\'yicha\nbiror savol bering!',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -426,12 +445,14 @@ class _InputBar extends StatefulWidget {
     required this.onSend,
     required this.enabled,
     this.focusNode,
+    this.trailingAction,
   });
 
   final TextEditingController controller;
   final VoidCallback onSend;
   final bool enabled;
   final FocusNode? focusNode;
+  final Widget? trailingAction;
 
   @override
   State<_InputBar> createState() => _InputBarState();
@@ -506,6 +527,10 @@ class _InputBarState extends State<_InputBar> {
               ),
             ),
           ),
+          if (widget.trailingAction != null) ...[
+            const SizedBox(width: 8),
+            widget.trailingAction!,
+          ],
           const SizedBox(width: 8),
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),

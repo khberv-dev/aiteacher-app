@@ -226,8 +226,8 @@ class _CourseThumbnail extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
-        width: 44,
-        height: 44,
+        width: 64,
+        height: 64,
         child: fullUrl != null
             ? Image.network(
                 fullUrl,
@@ -247,7 +247,7 @@ class _CourseThumbnail extends StatelessWidget {
       alignment: Alignment.center,
       child: Icon(
         Icons.school_rounded,
-        size: 22,
+        size: 30,
         color: enrolled ? AppColors.primary : const Color(0xFF94A3B8),
       ),
     );
