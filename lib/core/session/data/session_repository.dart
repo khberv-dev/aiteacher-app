@@ -22,10 +22,7 @@ class SessionRepository {
     final os = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
     final response = await publicDio.post<Map<String, dynamic>>(
       'sessions',
-      data: {
-        'os': os,
-        'fcmToken': ?fcmToken,
-      },
+      data: {'os': os, 'fcmToken': ?fcmToken},
     );
     return Session.fromJson(response.data ?? const {});
   }
@@ -45,10 +42,7 @@ class SessionRepository {
 
   /// Auth required — refreshes `os` and `fcmToken` on a session that already
   /// belongs to the current user. Call on every app launch after login.
-  Future<Session> update({
-    required String sessionId,
-    String? fcmToken,
-  }) async {
+  Future<Session> update({required String sessionId, String? fcmToken}) async {
     final os = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
     final response = await authDio.put<Map<String, dynamic>>(
       'sessions/$sessionId',

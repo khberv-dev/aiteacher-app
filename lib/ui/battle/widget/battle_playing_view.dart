@@ -213,10 +213,7 @@ class _ProgressBar extends StatelessWidget {
 }
 
 class _RoundTimerCircle extends StatelessWidget {
-  const _RoundTimerCircle({
-    required this.remaining,
-    required this.total,
-  });
+  const _RoundTimerCircle({required this.remaining, required this.total});
 
   final int remaining;
   final int total;
@@ -224,8 +221,7 @@ class _RoundTimerCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUrgent = remaining <= 3;
-    final activeColor =
-        isUrgent ? const Color(0xFFDC2626) : AppColors.primary;
+    final activeColor = isUrgent ? const Color(0xFFDC2626) : AppColors.primary;
 
     return TweenAnimationBuilder<double>(
       key: ValueKey(remaining),

@@ -1,5 +1,11 @@
 class Session {
-  const Session({required this.id, this.userId, this.os, this.fcmToken, this.ip});
+  const Session({
+    required this.id,
+    this.userId,
+    this.os,
+    this.fcmToken,
+    this.ip,
+  });
 
   final String id;
   final String? userId;

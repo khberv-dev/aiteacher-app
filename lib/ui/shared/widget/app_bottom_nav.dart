@@ -33,8 +33,8 @@ class AppBottomNav extends StatelessWidget {
       iconBackground: Color(0xFFF0FDFA),
     ),
     NavTab(
-      label: 'Dars',
-      icon: Icons.play_arrow_rounded,
+      label: 'Kurslar',
+      icon: Icons.school_rounded,
       iconColor: Color(0xFF22C55E),
       iconBackground: Color(0xFFF0FDF4),
     ),

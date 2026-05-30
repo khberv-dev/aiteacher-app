@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/core/auth/data/auth_dtos.dart';
+import 'package:ai_teacher/core/course/data/course_dtos.dart';
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
 import 'package:ai_teacher/ui/auth/login_screen.dart';
 import 'package:ai_teacher/ui/auth/otp_screen.dart';
@@ -8,6 +9,7 @@ import 'package:ai_teacher/ui/battle/battle_screen.dart';
 import 'package:ai_teacher/ui/call/call_screen.dart';
 import 'package:ai_teacher/ui/chat/chat_list_data.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
+import 'package:ai_teacher/ui/courses/course_web_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/onboarding/onboarding_screen.dart';
 import 'package:ai_teacher/ui/speaking/assessment_history_screen.dart';
@@ -117,6 +119,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoute.wordBattle.name,
         builder: (context, state) => const BattleScreen(),
       ),
+      GoRoute(
+        path: AppRoute.courseWeb.path,
+        name: AppRoute.courseWeb.name,
+        builder: (context, state) {
+          final course = state.extra as Course;
+          return CourseWebScreen(title: course.title, url: course.url);
+        },
+      ),
     ],
   );
 });
@@ -133,6 +143,7 @@ enum AppRoute {
   speakingHistory('/speaking-history'),
   vocabularyTraining('/vocabulary-training'),
   wordBattle('/word-battle'),
+  courseWeb('/course-web'),
   chat('/chat'),
   call('/call');
 

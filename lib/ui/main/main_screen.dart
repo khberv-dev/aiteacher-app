@@ -6,8 +6,8 @@ import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.d
 import 'package:ai_teacher/ui/blog/blog_page.dart' show CommentsPage;
 import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
 import 'package:ai_teacher/ui/chat/chat_list_page.dart';
+import 'package:ai_teacher/ui/courses/courses_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
-import 'package:ai_teacher/ui/lessons/lessons_page.dart';
 import 'package:ai_teacher/ui/profile/profile_page.dart';
 import 'package:ai_teacher/ui/shared/widget/app_bottom_nav.dart';
 import 'package:ai_teacher/ui/streak/streak_sheet.dart';
@@ -20,7 +20,7 @@ class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key, this.initialTab = MainScreen.homeTab});
 
   static const int chatTab = 0;
-  static const int lessonsTab = 1;
+  static const int coursesTab = 1;
   static const int homeTab = 2;
   static const int commentsTab = 3;
   static const int profileTab = 4;
@@ -36,7 +36,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   static const _pages = <Widget>[
     ChatListPage(),
-    LessonsPage(),
+    CoursesPage(),
     HomePage(),
     CommentsPage(),
     ProfilePage(),

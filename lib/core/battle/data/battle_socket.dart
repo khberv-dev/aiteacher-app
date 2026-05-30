@@ -77,7 +77,7 @@ class BattleSocket {
     socket.on('connect', (_) => debugPrint('battle socket connected'));
     socket.on(
       'disconnect',
-          (r) => debugPrint('battle socket disconnected: $r'),
+      (r) => debugPrint('battle socket disconnected: $r'),
     );
     socket.on('connect_error', (e) {
       debugPrint('battle connect error: $e');
@@ -103,8 +103,8 @@ class BattleSocket {
             players: rawPlayers
                 .map(
                   (e) =>
-                  LobbyPlayer.fromJson(Map<String, dynamic>.from(e as Map)),
-            )
+                      LobbyPlayer.fromJson(Map<String, dynamic>.from(e as Map)),
+                )
                 .toList(),
             maxPlayers: (d['maxPlayers'] as num?)?.toInt() ?? 4,
             waitSeconds: (d['waitSeconds'] as num?)?.toInt() ?? 30,
@@ -140,8 +140,8 @@ class BattleSocket {
             players: rawPlayers
                 .map(
                   (e) =>
-                  LobbyPlayer.fromJson(Map<String, dynamic>.from(e as Map)),
-            )
+                      LobbyPlayer.fromJson(Map<String, dynamic>.from(e as Map)),
+                )
                 .toList(),
             totalRounds: (d['totalRounds'] as num?)?.toInt() ?? 10,
             roundSeconds: (d['roundSeconds'] as num?)?.toInt() ?? 10,
@@ -269,11 +269,10 @@ class BattleSocket {
         _gameOver.add(
           rawScoreboard
               .map(
-                (e) =>
-                ScoreboardEntry.fromJson(
+                (e) => ScoreboardEntry.fromJson(
                   Map<String, dynamic>.from(e as Map),
                 ),
-          )
+              )
               .toList(),
         );
       } catch (e) {
