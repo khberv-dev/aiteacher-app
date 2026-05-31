@@ -100,8 +100,18 @@ class WritingTaskListItem extends StatelessWidget {
     if (diff.inDays == 1) return 'Kecha';
     if (diff.inDays < 7) return '${diff.inDays} kun oldin';
     const months = [
-      'Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn',
-      'Iyl', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek',
+      'Yan',
+      'Fev',
+      'Mar',
+      'Apr',
+      'May',
+      'Iyn',
+      'Iyl',
+      'Avg',
+      'Sen',
+      'Okt',
+      'Noy',
+      'Dek',
     ];
     return '${date.day} ${months[date.month - 1]}';
   }
@@ -148,10 +158,14 @@ class _StatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final (label, color) = switch (status) {
       WritingTaskStatus.completed => ('Bajarildi', const Color(0xFF059669)),
-      WritingTaskStatus.pendingBackTranslation =>
-        ('2-bosqich', const Color(0xFFD97706)),
-      WritingTaskStatus.pendingTranslation =>
-        ('1-bosqich', const Color(0xFF3B82F6)),
+      WritingTaskStatus.pendingBackTranslation => (
+        '2-bosqich',
+        const Color(0xFFD97706),
+      ),
+      WritingTaskStatus.pendingTranslation => (
+        '1-bosqich',
+        const Color(0xFF3B82F6),
+      ),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

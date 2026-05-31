@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/battle/data/battle_dtos.dart';
 import 'package:ai_teacher/core/battle/presentation/battle_controller.dart';
+import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
 import 'package:ai_teacher/ui/battle/widget/battle_game_over_view.dart';
 import 'package:ai_teacher/ui/battle/widget/battle_idle_view.dart';
 import 'package:ai_teacher/ui/battle/widget/battle_playing_view.dart';
@@ -10,11 +11,34 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class BattleScreen extends ConsumerWidget {
+class BattleScreen extends ConsumerStatefulWidget {
   const BattleScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BattleScreen> createState() => _BattleScreenState();
+}
+
+class _BattleScreenState extends ConsumerState<BattleScreen> {
+  late final StudentActivitySocket _activitySocket;
+
+  @override
+  void initState() {
+    super.initState();
+    _activitySocket = ref.read(studentActivitySocketProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _activitySocket.emitBattleGameStart();
+    });
+  }
+
+  @override
+  void dispose() {
+    _activitySocket.emitBattleGameEnd();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(battleControllerProvider);
     final notifier = ref.read(battleControllerProvider.notifier);
 

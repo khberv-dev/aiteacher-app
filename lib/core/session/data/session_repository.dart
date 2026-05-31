@@ -22,7 +22,7 @@ class SessionRepository {
     final os = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
     final response = await publicDio.post<Map<String, dynamic>>(
       'sessions',
-      data: {'os': os, 'fcmToken': ?fcmToken},
+      data: {'os': os, 'appName': 'student', 'fcmToken': ?fcmToken},
     );
     return Session.fromJson(response.data ?? const {});
   }
@@ -33,9 +33,10 @@ class SessionRepository {
     required String sessionId,
     String? fcmToken,
   }) async {
+    final os = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
     final response = await authDio.patch<Map<String, dynamic>>(
       'sessions/$sessionId',
-      data: {'fcmToken': ?fcmToken},
+      data: {'os': os, 'fcmToken': ?fcmToken},
     );
     return Session.fromJson(response.data ?? const {});
   }

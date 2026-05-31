@@ -8,6 +8,7 @@ import 'package:ai_teacher/ui/chat/widget/activity_date_separator.dart';
 import 'package:ai_teacher/ui/chat/widget/activity_item_view.dart';
 import 'package:ai_teacher/ui/chat/widget/chat_compose_area.dart';
 import 'package:ai_teacher/ui/chat/widget/chat_header.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,7 +46,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: false,
+      badge: false,
+      sound: false,
+    );
+  }
+
+  @override
   void dispose() {
+    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
     _composeController.dispose();
     super.dispose();
   }
@@ -175,6 +191,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       itemCount: groups.length,
+      reverse: true,
       separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final group = groups[index];

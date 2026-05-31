@@ -39,7 +39,7 @@ class CoursesPage extends ConsumerWidget {
             ],
           ),
         ),
-        data: (state) => RefreshIndicator(
+        data: (courses) => RefreshIndicator(
           onRefresh: () =>
               ref.read(coursesControllerProvider.notifier).refresh(),
           child: CustomScrollView(
@@ -48,9 +48,9 @@ class CoursesPage extends ConsumerWidget {
               const SliverToBoxAdapter(child: SizedBox(height: 16)),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
                   child: Text(
-                    'Kurslar',
+                    'Mening kurslarim',
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 24,
@@ -60,27 +60,12 @@ class CoursesPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (state.mine.isNotEmpty) ...[
-                _SectionHeader(title: 'Mening kurslarim'),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverList.separated(
-                    itemCount: state.mine.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
-                    itemBuilder: (_, i) =>
-                        _CourseCard(course: state.mine[i], enrolled: true),
-                  ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
-              ],
-              _SectionHeader(title: 'Barcha kurslar'),
-              state.active.isEmpty
-                  ? SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              courses.isEmpty
+                  ? SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
                         child: Text(
-                          'Hozircha faol kurslar yo\'q',
+                          "Biriktirilgan kurslar yo'q",
                           style: const TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 14,
@@ -92,15 +77,9 @@ class CoursesPage extends ConsumerWidget {
                   : SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       sliver: SliverList.separated(
-                        itemCount: state.active.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 10),
-                        itemBuilder: (_, i) => _CourseCard(
-                          course: state.active[i],
-                          enrolled: state.mine.any(
-                            (m) => m.id == state.active[i].id,
-                          ),
-                        ),
+                        itemCount: courses.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 10),
+                        itemBuilder: (_, i) => _CourseCard(course: courses[i]),
                       ),
                     ),
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
@@ -112,35 +91,10 @@ class CoursesPage extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-        child: Text(
-          title,
-          style: const TextStyle(
-            color: Color(0xFF64748B),
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.4,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _CourseCard extends StatelessWidget {
-  const _CourseCard({required this.course, required this.enrolled});
+  const _CourseCard({required this.course});
 
   final Course course;
-  final bool enrolled;
 
   @override
   Widget build(BuildContext context) {
@@ -167,33 +121,17 @@ class _CourseCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
-                _CourseThumbnail(coverUrl: course.coverUrl, enrolled: enrolled),
+                _CourseThumbnail(coverUrl: course.coverUrl),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        course.title,
-                        style: const TextStyle(
-                          color: Color(0xFF0F172A),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          height: 1.3,
-                        ),
-                      ),
-                      if (enrolled) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          'Biriktirilgan',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ],
+                  child: Text(
+                    course.title,
+                    style: const TextStyle(
+                      color: Color(0xFF0F172A),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      height: 1.3,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -212,10 +150,9 @@ class _CourseCard extends StatelessWidget {
 }
 
 class _CourseThumbnail extends StatelessWidget {
-  const _CourseThumbnail({required this.coverUrl, required this.enrolled});
+  const _CourseThumbnail({required this.coverUrl});
 
   final String? coverUrl;
-  final bool enrolled;
 
   @override
   Widget build(BuildContext context) {
@@ -241,15 +178,9 @@ class _CourseThumbnail extends StatelessWidget {
 
   Widget _placeholder() {
     return Container(
-      color: enrolled
-          ? AppColors.primary.withValues(alpha: 0.1)
-          : const Color(0xFFF1F5F9),
+      color: AppColors.primary.withValues(alpha: 0.1),
       alignment: Alignment.center,
-      child: Icon(
-        Icons.school_rounded,
-        size: 30,
-        color: enrolled ? AppColors.primary : const Color(0xFF94A3B8),
-      ),
+      child: Icon(Icons.school_rounded, size: 30, color: AppColors.primary),
     );
   }
 }

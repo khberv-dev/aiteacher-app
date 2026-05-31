@@ -17,7 +17,8 @@ class WritingTaskListController
   }
 }
 
-final writingTaskListControllerProvider = AutoDisposeAsyncNotifierProvider<
-  WritingTaskListController,
-  List<WritingTask>
->(WritingTaskListController.new);
+final writingTaskListControllerProvider =
+    AutoDisposeAsyncNotifierProvider<
+      WritingTaskListController,
+      List<WritingTask>
+    >(WritingTaskListController.new);

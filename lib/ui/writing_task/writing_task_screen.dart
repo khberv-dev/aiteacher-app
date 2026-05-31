@@ -191,9 +191,7 @@ class _StepDots extends StatelessWidget {
           width: active ? 18 : 6,
           height: 6,
           decoration: BoxDecoration(
-            color: active
-                ? const Color(0xFF059669)
-                : const Color(0xFFE2E8F0),
+            color: active ? const Color(0xFF059669) : const Color(0xFFE2E8F0),
             borderRadius: BorderRadius.circular(3),
           ),
         );

@@ -28,11 +28,14 @@ class WritingTaskState {
 }
 
 // ignore: lines_longer_than_80_chars
-class WritingTaskController extends AutoDisposeFamilyAsyncNotifier<WritingTaskState, String?> {
+class WritingTaskController
+    extends AutoDisposeFamilyAsyncNotifier<WritingTaskState, String?> {
   @override
   Future<WritingTaskState> build(String? taskId) async {
     final repo = ref.read(writingTaskRepositoryProvider);
-    final task = taskId == null ? await repo.create() : await repo.findOne(taskId);
+    final task = taskId == null
+        ? await repo.create()
+        : await repo.findOne(taskId);
     return WritingTaskState(task: task);
   }
 

@@ -43,14 +43,8 @@ class _WritingTaskListScreenState extends ConsumerState<WritingTaskListScreen> {
           bottom: false,
           child: Column(
             children: [
-              _Header(
-                onBack: () => Navigator.of(context).pop(),
-              ),
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFE2E8F0),
-              ),
+              _Header(onBack: () => Navigator.of(context).pop()),
+              const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
               Expanded(
                 child: async.when(
                   loading: () =>
@@ -92,14 +86,13 @@ class _WritingTaskListScreenState extends ConsumerState<WritingTaskListScreen> {
                             itemCount: tasks.length,
                             separatorBuilder: (_, _) =>
                                 const SizedBox(height: 10),
-                            itemBuilder: (context, i) =>
-                                WritingTaskListItem(
-                                  task: tasks[i],
-                                  onTap: () => context.pushNamed(
-                                    AppRoute.writingTaskDetail.name,
-                                    extra: tasks[i].id,
-                                  ),
-                                ),
+                            itemBuilder: (context, i) => WritingTaskListItem(
+                              task: tasks[i],
+                              onTap: () => context.pushNamed(
+                                AppRoute.writingTaskDetail.name,
+                                extra: tasks[i].id,
+                              ),
+                            ),
                           ),
                         ),
                 ),
@@ -109,8 +102,7 @@ class _WritingTaskListScreenState extends ConsumerState<WritingTaskListScreen> {
         ),
         floatingActionButton: async.valueOrNull?.isNotEmpty == true
             ? _NewTaskFab(
-                onTap: () =>
-                    context.pushNamed(AppRoute.writingTaskDetail.name),
+                onTap: () => context.pushNamed(AppRoute.writingTaskDetail.name),
               )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

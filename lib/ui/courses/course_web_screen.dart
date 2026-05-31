@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/chatbot/presentation/chatbot_controller.dart';
+import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
 import 'package:ai_teacher/ui/courses/course_video_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +20,18 @@ class CourseWebScreen extends ConsumerStatefulWidget {
 class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
   InAppWebViewController? _controller;
   double _progress = 0;
+  late final StudentActivitySocket _activitySocket;
+
+  @override
+  void initState() {
+    super.initState();
+    _activitySocket = ref.read(studentActivitySocketProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _activitySocket.emitCourseStart();
+    });
+  }
+
 
   static const _observerScript = '''
 (function() {
@@ -127,7 +140,10 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
             IconButton(
               icon: const Icon(Icons.close_rounded),
               color: const Color(0xFF0F172A),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                _activitySocket.emitCourseEnd();
+                Navigator.of(context).pop();
+              },
             ),
           ],
           bottom: PreferredSize(
