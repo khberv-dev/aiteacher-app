@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/speaking/presentation/speaking_controller.dart';
+import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
 import 'package:ai_teacher/ui/speaking/limit_reached_sheet.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_avatar.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_controls.dart';
@@ -19,7 +20,18 @@ class SpeakingPartnerScreen extends ConsumerStatefulWidget {
 }
 
 class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
+  late final StudentActivitySocket _activitySocket;
   String? _lastErrorShown;
+
+  @override
+  void initState() {
+    super.initState();
+    _activitySocket = ref.read(studentActivitySocketProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _activitySocket.emitSpeakingStart();
+    });
+  }
 
   String _formatDuration(Duration d) {
     final m = d.inMinutes.toString().padLeft(2, '0');
@@ -157,6 +169,12 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _activitySocket.emitSpeakingEnd();
+    super.dispose();
   }
 
   String? _statusText(SpeakingState state) {

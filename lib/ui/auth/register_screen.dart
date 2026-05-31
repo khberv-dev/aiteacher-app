@@ -32,6 +32,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _referralController = TextEditingController();
   AuthIdentifierKind _identifierKind = AuthIdentifierKind.phone;
+  bool _hasReferral = false;
 
   @override
   void dispose() {
@@ -66,9 +67,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final lastName = parts.length > 1 ? parts.skip(1).join(' ') : '';
 
     final survey = widget.surveyAnswers;
-    final referral = _referralController.text.trim().isEmpty
-        ? null
-        : _referralController.text.trim();
+    final referral = _hasReferral && _referralController.text.trim().isNotEmpty
+        ? _referralController.text.trim()
+        : null;
     if (_identifierKind == AuthIdentifierKind.phone) {
       final draft = await ref
           .read(registerControllerProvider.notifier)
@@ -208,15 +209,59 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         textInputAction: TextInputAction.next,
                         validator: _validatePassword,
                       ),
-                      const SizedBox(height: 16),
-                      LabeledField(
-                        label: "REFERAL KOD (IXTIYORIY)",
-                        hint: 'A1B2C3D4',
-                        controller: _referralController,
-                        textInputAction: TextInputAction.done,
-                        keyboardType: TextInputType.text,
-                        onFieldSubmitted: (_) => _onSubmit(),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () => setState(() {
+                          _hasReferral = !_hasReferral;
+                          if (!_hasReferral) _referralController.clear();
+                        }),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: Checkbox(
+                                  value: _hasReferral,
+                                  onChanged: (v) => setState(() {
+                                    _hasReferral = v ?? false;
+                                    if (!_hasReferral) {
+                                      _referralController.clear();
+                                    }
+                                  }),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'Menda referal kod bor',
+                                style: TextStyle(
+                                  color: Color(0xFF64748B),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
+                      if (_hasReferral) ...[
+                        const SizedBox(height: 12),
+                        LabeledField(
+                          label: 'REFERAL KOD',
+                          hint: 'A1B2C3D4',
+                          controller: _referralController,
+                          textInputAction: TextInputAction.done,
+                          keyboardType: TextInputType.text,
+                          onFieldSubmitted: (_) => _onSubmit(),
+                        ),
+                      ],
                     ],
                   ),
                 ),

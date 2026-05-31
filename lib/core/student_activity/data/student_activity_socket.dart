@@ -70,6 +70,18 @@ class StudentActivitySocket {
     debugPrint('activity: battle-game end emitted');
   }
 
+  void emitSpeakingStart() {
+    _ensureConnected();
+    _socket?.emit('action', {'type': 'speaking'});
+    debugPrint('activity: speaking start emitted');
+  }
+
+  void emitSpeakingEnd() {
+    if (!_connected) return;
+    _socket?.emit('action', {'type': 'end-speaking'});
+    debugPrint('activity: speaking end emitted');
+  }
+
   void dispose() {
     _socket?.dispose();
     _socket = null;
