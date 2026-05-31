@@ -18,6 +18,8 @@ import 'package:ai_teacher/ui/speaking/speaking_report_screen.dart';
 import 'package:ai_teacher/ui/survey/survey_data.dart';
 import 'package:ai_teacher/ui/survey/survey_screen.dart';
 import 'package:ai_teacher/ui/vocabulary/vocabulary_training_screen.dart';
+import 'package:ai_teacher/ui/writing_task/writing_task_list_screen.dart';
+import 'package:ai_teacher/ui/writing_task/writing_task_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -127,6 +129,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           return CourseWebScreen(title: course.title, url: course.url);
         },
       ),
+      GoRoute(
+        path: AppRoute.writingTask.path,
+        name: AppRoute.writingTask.name,
+        builder: (context, state) => const WritingTaskListScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.writingTaskDetail.path,
+        name: AppRoute.writingTaskDetail.name,
+        builder: (context, state) =>
+            WritingTaskScreen(taskId: state.extra as String?),
+      ),
     ],
   );
 });
@@ -144,6 +157,8 @@ enum AppRoute {
   vocabularyTraining('/vocabulary-training'),
   wordBattle('/word-battle'),
   courseWeb('/course-web'),
+  writingTask('/writing-task'),
+  writingTaskDetail('/writing-task/detail'),
   chat('/chat'),
   call('/call');
 

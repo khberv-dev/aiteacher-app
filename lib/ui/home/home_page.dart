@@ -9,6 +9,7 @@ import 'package:ai_teacher/ui/home/widget/radar_card.dart';
 import 'package:ai_teacher/ui/home/widget/section_header.dart';
 import 'package:ai_teacher/ui/home/widget/stats_card.dart';
 import 'package:ai_teacher/ui/home/widget/streak_card.dart';
+import 'package:ai_teacher/ui/home/widget/writing_task_card.dart';
 import 'package:ai_teacher/ui/streak/streak_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,6 +57,10 @@ class HomePage extends ConsumerWidget {
                   onStart: () => context.pushNamed(AppRoute.speaking.name),
                 ),
                 const MiniCardsRow(),
+                const SectionHeader(title: 'AI Writing Task'),
+                WritingTaskCard(
+                  onStart: () => context.pushNamed(AppRoute.writingTask.name),
+                ),
                 const SectionHeader(title: 'Cashback'),
                 const CashbackCard(),
                 const SectionHeader(title: "Mening o'sishim raqamlarda"),
