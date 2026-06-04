@@ -5,6 +5,7 @@ import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.d
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/ui/profile/edit_password_dialog.dart';
 import 'package:ai_teacher/ui/profile/edit_profile_dialog.dart';
+import 'package:ai_teacher/ui/profile/cards_sheet.dart';
 import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:ai_teacher/ui/profile/widget/profile_group_card.dart';
 import 'package:ai_teacher/ui/profile/widget/profile_pill_badge.dart';
@@ -208,6 +209,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         : null,
                   ),
                   onTap: () => SubscriptionDetailsSheet.show(context),
+                ),
+                ProfileRow(
+                  icon: Icons.credit_card_rounded,
+                  iconColor: const Color(0xFF2563EB),
+                  iconBackground: const Color(0xFFEFF6FF),
+                  title: 'Kartalar',
+                  subtitle: "To'lov kartalari",
+                  trailing: const ProfileTrailingValue(),
+                  onTap: () => CardsSheet.show(context),
                 ),
                 ProfileRow(
                   icon: Icons.description_outlined,

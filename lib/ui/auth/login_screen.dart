@@ -185,6 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
+              if (MediaQuery.viewInsetsOf(context).bottom == 0)
               SafeArea(
                 top: false,
                 child: Padding(
