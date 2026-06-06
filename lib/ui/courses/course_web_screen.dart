@@ -1,3 +1,7 @@
+import 'dart:collection';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/chatbot/presentation/chatbot_controller.dart';
 import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
@@ -8,10 +12,18 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CourseWebScreen extends ConsumerStatefulWidget {
-  const CourseWebScreen({super.key, required this.title, required this.url});
+  const CourseWebScreen({
+    super.key,
+    required this.title,
+    required this.url,
+    this.login,
+    this.password,
+  });
 
   final String title;
   final String url;
+  final String? login;
+  final String? password;
 
   @override
   ConsumerState<CourseWebScreen> createState() => _CourseWebScreenState();
@@ -26,6 +38,11 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
   void initState() {
     super.initState();
     _activitySocket = ref.read(studentActivitySocketProvider);
+    InAppWebViewController.clearAllCache();
+    if (Platform.isAndroid) {
+      WebStorageManager.instance().deleteAllData();
+    }
+    CookieManager.instance().deleteAllCookies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _activitySocket.emitCourseStart();
@@ -99,6 +116,69 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
     _controller?.evaluateJavascript(source: _observerScript);
   }
 
+  void _tryAutoFill(WebUri? url) {
+    final urlStr = url?.toString() ?? '';
+    if (!urlStr.contains('/auth/login')) return;
+
+    final login = widget.login;
+    final password = widget.password;
+    if (login == null || login.isEmpty || password == null || password.isEmpty) {
+      return;
+    }
+
+    final idJson = jsonEncode(login);
+    final pwJson = jsonEncode(password);
+
+    final script =
+        '''
+(function() {
+  if (window._appAutoFillDone) return;
+
+  function setReactInputValue(el, value) {
+    var setter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype, 'value'
+    ).set;
+    setter.call(el, value);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  var attempts = 0;
+  var maxAttempts = 30;
+
+  function tryFill() {
+    var emailEl = document.querySelector('input[name="email"]');
+    var passwordEl = document.querySelector('input[name="password"]');
+
+    if (!emailEl || !passwordEl) {
+      if (++attempts < maxAttempts) setTimeout(tryFill, 300);
+      return;
+    }
+
+    window._appAutoFillDone = true;
+    setReactInputValue(emailEl, $idJson);
+    setReactInputValue(passwordEl, $pwJson);
+
+    setTimeout(function() {
+      var btn = document.querySelector('button[type="submit"]');
+      if (btn) {
+        btn.click();
+      } else {
+        var form = emailEl.closest('form');
+        if (form) form.dispatchEvent(
+          new Event('submit', { bubbles: true, cancelable: true })
+        );
+      }
+    }, 400);
+  }
+
+  tryFill();
+})();
+''';
+
+    _controller?.evaluateJavascript(source: script);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Keep the chatbot session alive for the entire duration of this screen.
@@ -159,6 +239,17 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
         ),
         body: InAppWebView(
           initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+          initialUserScripts: UnmodifiableListView([
+            UserScript(
+              source: '''
+                try {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                } catch(e) {}
+              ''',
+              injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
+            ),
+          ]),
           initialSettings: InAppWebViewSettings(
             javaScriptEnabled: true,
             mediaPlaybackRequiresUserGesture: false,
@@ -184,9 +275,14 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
           onProgressChanged: (_, progress) {
             setState(() => _progress = progress / 100);
           },
-          onLoadStop: (controller, url) => _injectObserver(),
-          onUpdateVisitedHistory: (controller, url, isReload) =>
-              _injectObserver(),
+          onLoadStop: (controller, url) {
+            _injectObserver();
+            _tryAutoFill(url);
+          },
+          onUpdateVisitedHistory: (controller, url, isReload) {
+            _injectObserver();
+            _tryAutoFill(url);
+          },
         ),
       ),
     );

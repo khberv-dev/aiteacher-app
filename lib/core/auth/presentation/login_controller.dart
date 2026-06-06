@@ -1,3 +1,4 @@
+import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/core/auth/data/auth_dtos.dart';
 import 'package:ai_teacher/core/auth/data/auth_exception.dart';
 import 'package:ai_teacher/core/auth/data/auth_repository.dart';
@@ -30,6 +31,9 @@ class LoginController extends Notifier<AuthActionState> {
         // Non-fatal: profile screen will retry on its own watch.
       }
       await ref.read(sessionControllerProvider.notifier).claimSession();
+      final cache = ref.read(cacheServiceProvider);
+      await cache.setWebIdentifier(email ?? phoneNumber ?? '');
+      await cache.setWebPassword(password);
       state = const AuthIdle();
       return tokens;
     } on AuthException catch (e) {

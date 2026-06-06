@@ -12,6 +12,13 @@ class CourseRepository {
 
   final Dio _dio;
 
+  Future<List<Course>> listActive() async {
+    final response = await _dio.get<List<dynamic>>('courses');
+    return (response.data ?? [])
+        .map((e) => Course.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+  }
+
   Future<List<Course>> listMine() async {
     final response = await _dio.get<List<dynamic>>('courses/mine');
     return (response.data ?? [])

@@ -2,10 +2,26 @@ import 'package:ai_teacher/core/course/data/course_dtos.dart';
 import 'package:ai_teacher/core/course/data/course_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CoursesController extends AutoDisposeAsyncNotifier<List<Course>> {
+class CoursesState {
+  const CoursesState({this.mine = const [], this.available = const []});
+
+  final List<Course> mine;
+
+  /// Active courses the user is not enrolled in.
+  final List<Course> available;
+}
+
+class CoursesController extends AutoDisposeAsyncNotifier<CoursesState> {
   @override
-  Future<List<Course>> build() {
-    return ref.watch(courseRepositoryProvider).listMine();
+  Future<CoursesState> build() async {
+    final repo = ref.watch(courseRepositoryProvider);
+    final results = await Future.wait([repo.listMine(), repo.listActive()]);
+    final mine = results[0];
+    final enrolledIds = mine.map((c) => c.id).toSet();
+    final available = results[1]
+        .where((c) => !enrolledIds.contains(c.id))
+        .toList();
+    return CoursesState(mine: mine, available: available);
   }
 
   Future<void> refresh() async {
@@ -15,6 +31,6 @@ class CoursesController extends AutoDisposeAsyncNotifier<List<Course>> {
 }
 
 final coursesControllerProvider =
-    AutoDisposeAsyncNotifierProvider<CoursesController, List<Course>>(
+    AutoDisposeAsyncNotifierProvider<CoursesController, CoursesState>(
       CoursesController.new,
     );

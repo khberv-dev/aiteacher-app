@@ -20,6 +20,8 @@ class CacheService {
   static const String _refreshTokenKey = 'refresh_token';
   static const String _sessionIdKey = 'session_id';
   static const String _fcmTokenKey = 'fcm_token';
+  static const String _webIdentifierKey = 'web_identifier';
+  static const String _webPasswordKey = 'web_password';
 
   String? get accessToken => _prefs.getString(_accessTokenKey);
 
@@ -52,6 +54,15 @@ class CacheService {
       _prefs.setString(_fcmTokenKey, token);
 
   Future<bool> removeFcmToken() => _prefs.remove(_fcmTokenKey);
+
+  String? get webIdentifier => _prefs.getString(_webIdentifierKey);
+
+  Future<bool> setWebIdentifier(String v) =>
+      _prefs.setString(_webIdentifierKey, v);
+
+  String? get webPassword => _prefs.getString(_webPasswordKey);
+
+  Future<bool> setWebPassword(String v) => _prefs.setString(_webPasswordKey, v);
 
   String? getString(String key) => _prefs.getString(key);
 

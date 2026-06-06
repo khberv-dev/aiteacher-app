@@ -127,7 +127,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: AppRoute.courseWeb.name,
         builder: (context, state) {
           final course = state.extra as Course;
-          return CourseWebScreen(title: course.title, url: course.url);
+          return CourseWebScreen(
+            title: course.title,
+            url: course.url,
+            login: course.login,
+            password: course.password,
+          );
         },
       ),
       GoRoute(
