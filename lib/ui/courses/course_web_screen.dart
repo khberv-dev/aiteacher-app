@@ -32,7 +32,6 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
     });
   }
 
-
   static const _observerScript = '''
 (function() {
   if (window._appVideoObserver) {

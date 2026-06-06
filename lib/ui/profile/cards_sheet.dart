@@ -69,8 +69,7 @@ class CardsSheet extends ConsumerWidget {
             const Divider(height: 1, color: Color(0xFFE2E8F0)),
             Expanded(
               child: async.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -102,8 +101,7 @@ class CardsSheet extends ConsumerWidget {
                         controller: scrollController,
                         padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottom),
                         itemCount: cards.length,
-                        separatorBuilder: (_, _) =>
-                            const SizedBox(height: 10),
+                        separatorBuilder: (_, _) => const SizedBox(height: 10),
                         itemBuilder: (_, i) => _CardTile(
                           card: cards[i],
                           onDelete: () =>
@@ -145,9 +143,7 @@ class CardsSheet extends ConsumerWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Kartani o\'chirish',
           style: TextStyle(
@@ -158,10 +154,7 @@ class CardsSheet extends ConsumerWidget {
         ),
         content: Text(
           '${card.maskedNumber} kartasini o\'chirishni tasdiqlaysizmi?',
-          style: const TextStyle(
-            color: Color(0xFF475569),
-            fontSize: 13.5,
-          ),
+          style: const TextStyle(color: Color(0xFF475569), fontSize: 13.5),
         ),
         actions: [
           TextButton(
@@ -271,6 +264,7 @@ class _CardTile extends StatelessWidget {
 
 class _SheetHandle extends StatelessWidget {
   const _SheetHandle();
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -287,6 +281,7 @@ class _SheetHandle extends StatelessWidget {
 
 class _EmptyCardsView extends StatelessWidget {
   const _EmptyCardsView();
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 48),

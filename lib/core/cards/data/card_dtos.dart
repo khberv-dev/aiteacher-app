@@ -11,10 +11,9 @@ class UserCard {
   final String expireDate; // YYMM
   final DateTime createdAt;
 
-  String get lastFour =>
-      cardNumber.length >= 4
-          ? cardNumber.substring(cardNumber.length - 4)
-          : cardNumber;
+  String get lastFour => cardNumber.length >= 4
+      ? cardNumber.substring(cardNumber.length - 4)
+      : cardNumber;
 
   String get maskedNumber => '**** **** **** $lastFour';
 

@@ -60,36 +60,55 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
 
   Future<void> _onInitiate() async {
     if (_formKey.currentState?.validate() != true) return;
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       _cardNumber = _cardCtrl.text.replaceAll(' ', '');
       _expireDate = _toApiExpiry(_expiryCtrl.text);
       final phone = UzPhoneFormatter.toE164(_phoneCtrl.text);
-      _addResult = await ref.read(cardRepositoryProvider).initiateAdd(
-        cardNumber: _cardNumber,
-        expireDate: _expireDate,
-        userPhone: phone,
-      );
-      setState(() { _step = _Step.otp; _loading = false; });
+      _addResult = await ref
+          .read(cardRepositoryProvider)
+          .initiateAdd(
+            cardNumber: _cardNumber,
+            expireDate: _expireDate,
+            userPhone: phone,
+          );
+      setState(() {
+        _step = _Step.otp;
+        _loading = false;
+      });
     } catch (e) {
-      setState(() { _error = _parseError(e); _loading = false; });
+      setState(() {
+        _error = _parseError(e);
+        _loading = false;
+      });
     }
   }
 
   Future<void> _onConfirm() async {
     if (_otpFormKey.currentState?.validate() != true) return;
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
-      await ref.read(cardRepositoryProvider).confirmAdd(
-        session: _addResult.session,
-        otp: _otpCtrl.text.trim(),
-        cardNumber: _cardNumber,
-        expireDate: _expireDate,
-      );
+      await ref
+          .read(cardRepositoryProvider)
+          .confirmAdd(
+            session: _addResult.session,
+            otp: _otpCtrl.text.trim(),
+            cardNumber: _cardNumber,
+            expireDate: _expireDate,
+          );
       ref.invalidate(cardsControllerProvider);
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
-      setState(() { _error = _parseError(e); _loading = false; });
+      setState(() {
+        _error = _parseError(e);
+        _loading = false;
+      });
     }
   }
 
@@ -223,22 +242,33 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
           onPressed: _loading ? null : () => Navigator.of(context).pop(),
           child: const Text(
             'Bekor qilish',
-            style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: Color(0xFF64748B),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         FilledButton(
           onPressed: _loading ? null : _onInitiate,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
           child: _loading
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
-              : const Text("Davom etish", style: TextStyle(fontWeight: FontWeight.w700)),
+              : const Text(
+                  "Davom etish",
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
         ),
       ],
     );
@@ -298,25 +328,40 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
         TextButton(
           onPressed: _loading
               ? null
-              : () => setState(() { _step = _Step.form; _error = null; _otpCtrl.clear(); }),
+              : () => setState(() {
+                  _step = _Step.form;
+                  _error = null;
+                  _otpCtrl.clear();
+                }),
           child: const Text(
             'Orqaga',
-            style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: Color(0xFF64748B),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         FilledButton(
           onPressed: _loading ? null : _onConfirm,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
           child: _loading
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
-              : const Text("Tasdiqlash", style: TextStyle(fontWeight: FontWeight.w700)),
+              : const Text(
+                  "Tasdiqlash",
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
         ),
       ],
     );
@@ -358,7 +403,9 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
 
 class _FieldLabel extends StatelessWidget {
   const _FieldLabel(this.text);
+
   final String text;
+
   @override
   Widget build(BuildContext context) => Text(
     text,
@@ -373,7 +420,9 @@ class _FieldLabel extends StatelessWidget {
 
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner(this.message);
+
   final String message;
+
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -394,7 +443,10 @@ class _ErrorBanner extends StatelessWidget {
 
 class _CardNumberFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue old, TextEditingValue next) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue old,
+    TextEditingValue next,
+  ) {
     final digits = next.text.replaceAll(' ', '');
     if (digits.length > 16) return old;
     final buf = StringBuffer();
@@ -403,13 +455,19 @@ class _CardNumberFormatter extends TextInputFormatter {
       buf.write(digits[i]);
     }
     final s = buf.toString();
-    return TextEditingValue(text: s, selection: TextSelection.collapsed(offset: s.length));
+    return TextEditingValue(
+      text: s,
+      selection: TextSelection.collapsed(offset: s.length),
+    );
   }
 }
 
 class _ExpiryFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue old, TextEditingValue next) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue old,
+    TextEditingValue next,
+  ) {
     final digits = next.text.replaceAll('/', '');
     if (digits.length > 4) return old;
     final buf = StringBuffer();
@@ -418,6 +476,9 @@ class _ExpiryFormatter extends TextInputFormatter {
       buf.write(digits[i]);
     }
     final s = buf.toString();
-    return TextEditingValue(text: s, selection: TextSelection.collapsed(offset: s.length));
+    return TextEditingValue(
+      text: s,
+      selection: TextSelection.collapsed(offset: s.length),
+    );
   }
 }

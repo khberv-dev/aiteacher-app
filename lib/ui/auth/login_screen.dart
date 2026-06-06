@@ -186,48 +186,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               if (MediaQuery.viewInsetsOf(context).bottom == 0)
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-                  child: Column(
-                    children: [
-                      PrimaryButton(
-                        label: loading ? 'Kuting...' : 'Kirish  →',
-                        enabled: !loading,
-                        onPressed: _onSubmit,
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Hisobingiz yo'qmi?",
-                            style: TextStyle(
-                              color: Color(0xFF888888),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: _onSignUp,
-                            child: const Text(
-                              "Ro'yxatdan o'tish",
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                    child: Column(
+                      children: [
+                        PrimaryButton(
+                          label: loading ? 'Kuting...' : 'Kirish  →',
+                          enabled: !loading,
+                          onPressed: _onSubmit,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Hisobingiz yo'qmi?",
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: Color(0xFF888888),
                                 fontSize: 13,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            const SizedBox(width: 6),
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: _onSignUp,
+                              child: const Text(
+                                "Ro'yxatdan o'tish",
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

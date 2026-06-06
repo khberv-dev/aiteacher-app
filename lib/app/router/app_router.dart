@@ -15,6 +15,7 @@ import 'package:ai_teacher/ui/onboarding/onboarding_screen.dart';
 import 'package:ai_teacher/ui/speaking/assessment_history_screen.dart';
 import 'package:ai_teacher/ui/speaking/speaking_partner_screen.dart';
 import 'package:ai_teacher/ui/speaking/speaking_report_screen.dart';
+import 'package:ai_teacher/ui/support/support_screen.dart';
 import 'package:ai_teacher/ui/survey/survey_data.dart';
 import 'package:ai_teacher/ui/survey/survey_screen.dart';
 import 'package:ai_teacher/ui/vocabulary/vocabulary_training_screen.dart';
@@ -130,6 +131,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: AppRoute.support.path,
+        name: AppRoute.support.name,
+        builder: (context, state) => const SupportScreen(),
+      ),
+      GoRoute(
         path: AppRoute.writingTask.path,
         name: AppRoute.writingTask.name,
         builder: (context, state) => const WritingTaskListScreen(),
@@ -157,6 +163,7 @@ enum AppRoute {
   vocabularyTraining('/vocabulary-training'),
   wordBattle('/word-battle'),
   courseWeb('/course-web'),
+  support('/support'),
   writingTask('/writing-task'),
   writingTaskDetail('/writing-task/detail'),
   chat('/chat'),

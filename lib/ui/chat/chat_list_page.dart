@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/router/app_router.dart';
+import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/assignment/data/assignment_dtos.dart';
 import 'package:ai_teacher/core/assignment/presentation/my_assignments_controller.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
@@ -33,14 +34,21 @@ class ChatListPage extends ConsumerWidget {
               error: (_, _) =>
                   const _Empty(text: "Suhbatlarni yuklab bo'lmadi"),
               data: (items) {
-                if (items.isEmpty || currentUserId == null) {
-                  return const _Empty(text: "Hozircha suhbatlar yo'q");
-                }
+                final chats = currentUserId == null
+                    ? <ChatListItem>[]
+                    : items
+                          .map((a) => _toChatListItem(a, currentUserId))
+                          .toList();
                 return ListView.builder(
                   padding: EdgeInsets.zero,
-                  itemCount: items.length,
+                  itemCount: chats.length + 1,
                   itemBuilder: (context, index) {
-                    final chat = _toChatListItem(items[index], currentUserId);
+                    if (index == 0) {
+                      return _SupportItem(
+                        onTap: () => context.pushNamed(AppRoute.support.name),
+                      );
+                    }
+                    final chat = chats[index - 1];
                     return ChatListItemView(
                       item: chat,
                       onTap: () =>
@@ -139,6 +147,75 @@ class _Header extends StatelessWidget {
           color: Color(0xFF111111),
           fontSize: 24,
           fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _SupportItem extends StatelessWidget {
+  const _SupportItem({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Color(0x0A000000), width: 1),
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                ),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.headset_mic_rounded,
+                size: 22,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Yordam markazi',
+                    style: TextStyle(
+                      color: Color(0xFF111111),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'AI Teacher qo\'llab-quvvatlash',
+                    style: TextStyle(
+                      color: Color(0xFF999999),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
