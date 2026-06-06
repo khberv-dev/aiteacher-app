@@ -29,6 +29,7 @@ class Plan {
     required this.prices,
     required this.availableFeatures,
     required this.notAvailableFeatures,
+    this.color,
   });
 
   final String id;
@@ -38,6 +39,9 @@ class Plan {
   final List<PlanPrice> prices;
   final List<String> availableFeatures;
   final List<String> notAvailableFeatures;
+
+  /// Brand hex color for the plan card, e.g. `#6C63FF`. Null = use default.
+  final String? color;
 
   factory Plan.fromJson(Map<String, dynamic> json) {
     final rawPrices = json['prices'];
@@ -60,6 +64,7 @@ class Plan {
       notAvailableFeatures: rawUnavailable is List
           ? rawUnavailable.whereType<String>().toList(growable: false)
           : const [],
+      color: json['color'] as String?,
     );
   }
 }

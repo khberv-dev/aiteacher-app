@@ -3,6 +3,11 @@ import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/course/data/course_dtos.dart';
 import 'package:ai_teacher/core/course/presentation/courses_controller.dart';
+import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
+import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
+import 'package:ai_teacher/core/user/data/user_dtos.dart';
+import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +18,9 @@ class CoursesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(coursesControllerProvider);
+    final user = ref.watch(currentUserProvider).valueOrNull;
+    final plans =
+        ref.watch(availablePlansProvider).valueOrNull ?? const <Plan>[];
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -39,7 +47,7 @@ class CoursesPage extends ConsumerWidget {
             ],
           ),
         ),
-        data: (courses) => RefreshIndicator(
+        data: (state) => RefreshIndicator(
           onRefresh: () =>
               ref.read(coursesControllerProvider.notifier).refresh(),
           child: CustomScrollView(
@@ -50,7 +58,7 @@ class CoursesPage extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
                   child: Text(
-                    'Mening kurslarim',
+                    'Kurslar',
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 24,
@@ -60,28 +68,57 @@ class CoursesPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              courses.isEmpty
-                  ? SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(
-                        child: Text(
-                          "Biriktirilgan kurslar yo'q",
-                          style: const TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    )
-                  : SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverList.separated(
-                        itemCount: courses.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
-                        itemBuilder: (_, i) => _CourseCard(course: courses[i]),
+              if (state.mine.isNotEmpty) ...[
+                _SectionHeader(title: 'Mening kurslarim'),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList.separated(
+                    itemCount: state.mine.length,
+                    separatorBuilder: (_, i) => const SizedBox(height: 10),
+                    itemBuilder: (_, i) =>
+                        _EnrolledCourseCard(course: state.mine[i]),
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              ],
+              if (state.available.isNotEmpty) ...[
+                _SectionHeader(title: "Mavjud kurslar"),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList.separated(
+                    itemCount: state.available.length,
+                    separatorBuilder: (_, i) => const SizedBox(height: 12),
+                    itemBuilder: (_, i) => _AvailableCourseCard(
+                      course: state.available[i],
+                      onBuyDemo: () => context.pushNamed(
+                        AppRoute.courseWeb.name,
+                        extra: state.available[i],
                       ),
                     ),
+                  ),
+                ),
+              ],
+              if (state.mine.isEmpty && state.available.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(
+                      "Hozircha kurslar yo'q",
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              SliverToBoxAdapter(
+                child: _SubscriptionSection(
+                  subscription: user?.activeSubscription,
+                  plans: plans,
+                ),
+              ),
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           ),
@@ -91,8 +128,34 @@ class CoursesPage extends ConsumerWidget {
   }
 }
 
-class _CourseCard extends StatelessWidget {
-  const _CourseCard({required this.course});
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+        child: Text(
+          title,
+          style: const TextStyle(
+            color: Color(0xFF64748B),
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Enrolled course card ─────────────────────────────────────────────────────
+
+class _EnrolledCourseCard extends StatelessWidget {
+  const _EnrolledCourseCard({required this.course});
 
   final Course course;
 
@@ -117,31 +180,53 @@ class _CourseCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: () =>
               context.pushNamed(AppRoute.courseWeb.name, extra: course),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                _CourseThumbnail(coverUrl: course.coverUrl),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    course.title,
-                    style: const TextStyle(
-                      color: Color(0xFF0F172A),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      height: 1.3,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _CourseCover(coverUrl: course.coverUrl),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            course.title,
+                            style: const TextStyle(
+                              color: Color(0xFF0F172A),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 14,
+                          color: Color(0xFFCBD5E1),
+                        ),
+                      ],
                     ),
-                  ),
+                    if ((course.description ?? '').isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        course.description!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 13,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: Color(0xFFCBD5E1),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -149,8 +234,469 @@ class _CourseCard extends StatelessWidget {
   }
 }
 
-class _CourseThumbnail extends StatelessWidget {
-  const _CourseThumbnail({required this.coverUrl});
+// ─── Available course card ────────────────────────────────────────────────────
+
+class _AvailableCourseCard extends StatelessWidget {
+  const _AvailableCourseCard({required this.course, required this.onBuyDemo});
+
+  final Course course;
+  final VoidCallback onBuyDemo;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CourseCover(coverUrl: course.coverUrl),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  course.title,
+                  style: const TextStyle(
+                    color: Color(0xFF0F172A),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    height: 1.3,
+                  ),
+                ),
+                if ((course.description ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    course.description!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 13,
+                      height: 1.45,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                _OutlineButton(
+                  label: "Demo · 5 000 so'm",
+                  icon: Icons.play_circle_outline_rounded,
+                  onTap: onBuyDemo,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OutlineButton extends StatelessWidget {
+  const _OutlineButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 14, color: const Color(0xFF64748B)),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Subscription section ─────────────────────────────────────────────────────
+
+class _SubscriptionSection extends StatelessWidget {
+  const _SubscriptionSection({required this.subscription, required this.plans});
+
+  final ActiveSubscription? subscription;
+  final List<Plan> plans;
+
+  @override
+  Widget build(BuildContext context) {
+    if (subscription != null) {
+      return _ActiveSubscriptionBanner(subscription: subscription!);
+    }
+    if (plans.isEmpty) return const SizedBox.shrink();
+    return _PlanOfferList(plans: plans);
+  }
+}
+
+class _ActiveSubscriptionBanner extends StatelessWidget {
+  const _ActiveSubscriptionBanner({required this.subscription});
+
+  final ActiveSubscription subscription;
+
+  @override
+  Widget build(BuildContext context) {
+    final daysLeft = _daysLeft(subscription.endDate);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.tintTeal,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.verified_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Obuna faol',
+                    style: TextStyle(
+                      color: Color(0xFF0F172A),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${_formatDate(subscription.endDate)} gacha · $daysLeft kun qoldi',
+                    style: const TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanOfferList extends StatelessWidget {
+  const _PlanOfferList({required this.plans});
+
+  final List<Plan> plans;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [for (final plan in plans) _PlanOfferCard(plan: plan)],
+      ),
+    );
+  }
+}
+
+class _PlanOfferCard extends StatelessWidget {
+  const _PlanOfferCard({required this.plan});
+
+  final Plan plan;
+
+  @override
+  Widget build(BuildContext context) {
+    final firstPrice = plan.prices.isNotEmpty ? plan.prices.first : null;
+    final color = _planColor(plan.color);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: plan.color != null
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.55),
+                    blurRadius: 40,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 16),
+                  ),
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header ──────────────────────────────────────────────────
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      plan.hasMentor
+                          ? Icons.person_rounded
+                          : Icons.star_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      plan.name.isEmpty ? 'Tarif' : plan.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  if (plan.hasMentor)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'Mentor',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              // ── Prices ──────────────────────────────────────────────────
+              if (plan.prices.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                Text(
+                  'MUDDAT',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                for (final p in plan.prices) _PlanPriceRow(price: p),
+              ],
+              // ── Features ────────────────────────────────────────────────
+              if (plan.availableFeatures.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                for (final f in plan.availableFeatures)
+                  _PlanFeatureRow(text: f, available: true),
+              ],
+              if (plan.notAvailableFeatures.isNotEmpty)
+                for (final f in plan.notAvailableFeatures)
+                  _PlanFeatureRow(text: f, available: false),
+              // ── Buy button ──────────────────────────────────────────────
+              if (firstPrice != null) ...[
+                const SizedBox(height: 16),
+                Divider(height: 1, color: Colors.white.withValues(alpha: 0.2)),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: () => PaymentTypesSheet.show(
+                      context,
+                      amount: firstPrice.price,
+                      title:
+                          '${plan.name.isEmpty ? "Tarif" : plan.name} · ${firstPrice.month} oy',
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: color,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      "Obuna bo'lish · ${_formatPrice(firstPrice.price)}",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanPriceRow extends StatelessWidget {
+  const _PlanPriceRow({required this.price});
+
+  final PlanPrice price;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          Text(
+            '${price.month} oy',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const Spacer(),
+          if (price.hasDiscount) ...[
+            Text(
+              _formatPrice(price.actualPrice),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.5),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.lineThrough,
+                decorationColor: Colors.white.withValues(alpha: 0.5),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            _formatPrice(price.price),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanFeatureRow extends StatelessWidget {
+  const _PlanFeatureRow({required this.text, required this.available});
+
+  final String text;
+  final bool available;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            available ? Icons.check_circle_rounded : Icons.cancel_rounded,
+            size: 16,
+            color: available
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.35),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: available
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.45),
+                fontSize: 13,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Shared widgets ───────────────────────────────────────────────────────────
+
+class _CourseCover extends StatelessWidget {
+  const _CourseCover({required this.coverUrl});
 
   final String? coverUrl;
 
@@ -161,26 +707,77 @@ class _CourseThumbnail extends StatelessWidget {
         : null;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: SizedBox(
-        width: 64,
-        height: 64,
+        width: double.infinity,
+        height: 160,
         child: fullUrl != null
             ? Image.network(
                 fullUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stack) => _placeholder(),
+                errorBuilder: (_, _, _) => _placeholder(),
               )
             : _placeholder(),
       ),
     );
   }
 
-  Widget _placeholder() {
-    return Container(
-      color: AppColors.primary.withValues(alpha: 0.1),
-      alignment: Alignment.center,
-      child: Icon(Icons.school_rounded, size: 30, color: AppColors.primary),
-    );
+  Widget _placeholder() => Container(
+    color: AppColors.primary.withValues(alpha: 0.08),
+    alignment: Alignment.center,
+    child: Icon(
+      Icons.school_rounded,
+      size: 48,
+      color: AppColors.primary.withValues(alpha: 0.4),
+    ),
+  );
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const _uzMonths = [
+  'yanvar',
+  'fevral',
+  'mart',
+  'aprel',
+  'may',
+  'iyun',
+  'iyul',
+  'avgust',
+  'sentabr',
+  'oktabr',
+  'noyabr',
+  'dekabr',
+];
+
+String _formatDate(DateTime d) {
+  final local = d.toLocal();
+  final month = (local.month >= 1 && local.month <= 12)
+      ? _uzMonths[local.month - 1]
+      : '';
+  return '${local.day}-$month ${local.year}';
+}
+
+int _daysLeft(DateTime endDate) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final delta = endDate.toLocal().difference(today).inDays;
+  return delta < 0 ? 0 : delta;
+}
+
+Color _planColor(String? hex) {
+  if (hex == null || hex.isEmpty) return AppColors.primary;
+  final clean = hex.startsWith('#') ? hex.substring(1) : hex;
+  final value = int.tryParse(clean.length == 6 ? 'FF$clean' : clean, radix: 16);
+  return value != null ? Color(value) : AppColors.primary;
+}
+
+String _formatPrice(num value) {
+  final s = value.toInt().toString();
+  final buf = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
+    buf.write(s[i]);
   }
+  return "${buf.toString()} so'm";
 }

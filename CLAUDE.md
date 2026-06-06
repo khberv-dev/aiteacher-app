@@ -14,15 +14,14 @@ Clean-architecture layout under `lib/`:
 
 ```
 lib/
-├── main.dart                    # bootstraps SharedPreferences + ProviderScope
+├── main.dart                    # bootstraps Firebase + SharedPreferences + ProviderScope
 ├── app.dart                     # MaterialApp.router
 ├── app/                         # app-wide infrastructure
 │   ├── router/                  # go_router config (AppRoute enum + routerProvider)
 │   ├── theme/                   # AppColors, AppRadius, AppTheme (light only)
 │   └── data/                    # NetworkConfig, dioProvider, AuthInterceptor, CacheService
 ├── core/<feature>/              # business logic per feature
-│   ├── data/                    # repositories, dtos, datasources
-│   ├── domain/                  # entities, use cases
+│   ├── data/                    # repositories, dtos, sockets
 │   └── presentation/            # Riverpod controllers / Notifiers (no widgets)
 ├── ui/<feature>/                # widgets per feature
 │   ├── <feature>_screen.dart    # screen / page / dialog files live HERE — NOT in a screen/ subfolder
@@ -31,6 +30,8 @@ lib/
 │   └── widget/                  # globally reusable widgets
 └── utils/                       # extensions, formatters, helpers
 ```
+
+No `domain/` layer is used — features only have `data/` and `presentation/`.
 
 ## Conventions
 
@@ -43,7 +44,13 @@ lib/
 - **Riverpod controllers live in `core/<feature>/presentation/`**, never in `ui/`.
 - **`SharedPreferences` is bootstrapped in `main()`** and injected by overriding `sharedPreferencesProvider`. All key-value reads/writes go through `CacheService` (`cacheServiceProvider`), not `SharedPreferences` directly.
 - **Light theme only.** Component styles (TextField, FilledButton, IconButton, Card) are centralized in `AppTheme.light` and pull from `AppColors` / `AppRadius`.
-- **Dio**: there are two providers — `dioProvider` (auth-aware, used by features) and a private `_refreshDioProvider` (no `AuthInterceptor`, used internally by `AuthInterceptor` to call `auth/refresh` and retry without recursion).
+- **Dio**: three providers — `dioProvider` (auth-aware, used by all authenticated endpoints), `unauthDioProvider` (no `AuthInterceptor`, for login/register/OTP so a stale token can't trigger a refresh loop), and a private `_refreshDioProvider` (used internally by `AuthInterceptor` to call `auth/refresh`).
+- **AuthSession** (`authSessionProvider`): thin wrapper over `CacheService` that exposes `accessToken` and decodes `currentUserId` from the JWT `sub` claim. Used by socket providers that need the token at connect time.
+- **Sockets**: `battle`, `call`, `chat`, `support`, and `student_activity` features use Socket.IO via `socket_io_client`. Each socket class is provided as an `autoDispose` Provider. Sockets authenticate by passing `setAuth({'token': accessToken})` in `OptionBuilder` and connect manually (`.disableAutoConnect()` + explicit `.connect()`). Events are exposed as broadcast Streams via `StreamController`s, all closed in `dispose()`.
+- **Route navigation**: routes pass typed objects via `state.extra` (not path parameters). Cast with `state.extra is SomeType ? state.extra as SomeType : fallback`. The `AppRoute` enum holds all paths.
+- **MainScreen tabs**: IndexedStack with five tabs — chat (0), courses (1), home (2), comments (3), profile (4). Use `MainScreen.homeTab` / `.chatTab` etc. constants when pushing with extra.
+- **Firebase**: `firebase_core` + `firebase_messaging` are initialized in `main()` (errors are caught silently so the app still runs without Firebase). FCM token is stored via `CacheService.setFcmToken`.
+- **Local development**: update `NetworkConfig.devHostUrl` (`lib/app/data/network_config.dart`) to your machine's LAN IP before running against a local API server.
 
 ## Commands
 
