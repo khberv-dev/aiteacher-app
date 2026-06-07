@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/chatbot/presentation/chatbot_controller.dart';
 import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
@@ -18,12 +20,18 @@ class CourseWebScreen extends ConsumerStatefulWidget {
     required this.url,
     this.login,
     this.password,
+    this.isDemo = false,
+    this.courseId,
   });
 
   final String title;
   final String url;
   final String? login;
   final String? password;
+  final bool isDemo;
+  final String? courseId;
+
+  static const int dailyLimitSeconds = 600; // 10 minutes
 
   @override
   ConsumerState<CourseWebScreen> createState() => _CourseWebScreenState();
@@ -34,10 +42,20 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
   double _progress = 0;
   late final StudentActivitySocket _activitySocket;
 
+  // Captured in initState so it is safe to use in dispose (ref may be invalid then).
+  late final CacheService _cache;
+
+  // Demo time-limit tracking
+  Timer? _ticker;
+  int _secondsUsed = 0;
+  bool _limitReached = false;
+
   @override
   void initState() {
     super.initState();
     _activitySocket = ref.read(studentActivitySocketProvider);
+    _cache = ref.read(cacheServiceProvider);
+
     InAppWebViewController.clearAllCache();
     if (Platform.isAndroid) {
       WebStorageManager.instance().deleteAllData();
@@ -47,6 +65,53 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
       if (!mounted) return;
       _activitySocket.emitCourseStart();
     });
+
+    final courseId = widget.courseId;
+    if (widget.isDemo && courseId != null && courseId.isNotEmpty) {
+      _secondsUsed = _cache.getDemoSecondsUsed(courseId);
+      if (_secondsUsed >= CourseWebScreen.dailyLimitSeconds) {
+        _limitReached = true;
+      } else {
+        _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+      }
+    }
+  }
+
+  void _tick() {
+    if (!mounted) return;
+    _secondsUsed++;
+    if (_secondsUsed >= CourseWebScreen.dailyLimitSeconds) {
+      _ticker?.cancel();
+      _ticker = null;
+      _saveSecondsUsed();
+      setState(() => _limitReached = true);
+    } else {
+      setState(() {});
+    }
+  }
+
+  int get _remainingSeconds =>
+      (CourseWebScreen.dailyLimitSeconds - _secondsUsed)
+          .clamp(0, CourseWebScreen.dailyLimitSeconds);
+
+  String get _remainingLabel {
+    final r = _remainingSeconds;
+    final m = (r ~/ 60).toString().padLeft(2, '0');
+    final s = (r % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
+  void _saveSecondsUsed() {
+    final courseId = widget.courseId;
+    if (courseId == null || courseId.isEmpty) return;
+    _cache.setDemoSecondsUsed(courseId, _secondsUsed);
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    if (widget.isDemo) _saveSecondsUsed();
+    super.dispose();
   }
 
   static const _observerScript = '''
@@ -122,7 +187,10 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
 
     final login = widget.login;
     final password = widget.password;
-    if (login == null || login.isEmpty || password == null || password.isEmpty) {
+    if (login == null ||
+        login.isEmpty ||
+        password == null ||
+        password.isEmpty) {
       return;
     }
 
@@ -216,6 +284,11 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
             ),
           ),
           actions: [
+            if (widget.isDemo && !_limitReached)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: _TimerChip(label: _remainingLabel, seconds: _remainingSeconds),
+              ),
             IconButton(
               icon: const Icon(Icons.close_rounded),
               color: const Color(0xFF0F172A),
@@ -237,52 +310,191 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
                 : const SizedBox(height: 3),
           ),
         ),
-        body: InAppWebView(
-          initialUrlRequest: URLRequest(url: WebUri(widget.url)),
-          initialUserScripts: UnmodifiableListView([
-            UserScript(
-              source: '''
+        body: Stack(
+          children: [
+            InAppWebView(
+              initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+              initialUserScripts: UnmodifiableListView([
+                UserScript(
+                  source: '''
                 try {
                   localStorage.clear();
                   sessionStorage.clear();
                 } catch(e) {}
               ''',
-              injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
-            ),
-          ]),
-          initialSettings: InAppWebViewSettings(
-            javaScriptEnabled: true,
-            mediaPlaybackRequiresUserGesture: false,
-            allowsInlineMediaPlayback: true,
-          ),
-          onWebViewCreated: (controller) {
-            _controller = controller;
-            controller.addJavaScriptHandler(
-              handlerName: 'playVideo',
-              callback: (args) {
-                if (args.isNotEmpty && mounted) {
-                  debugPrint('[CourseWebScreen] Opening video: ${args[0]}');
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          CourseVideoScreen(videoUrl: args[0].toString()),
-                    ),
-                  );
-                }
+                  injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
+                ),
+              ]),
+              initialSettings: InAppWebViewSettings(
+                javaScriptEnabled: true,
+                mediaPlaybackRequiresUserGesture: false,
+                allowsInlineMediaPlayback: true,
+              ),
+              onWebViewCreated: (controller) {
+                _controller = controller;
+                controller.addJavaScriptHandler(
+                  handlerName: 'playVideo',
+                  callback: (args) {
+                    if (args.isNotEmpty && mounted) {
+                      debugPrint('[CourseWebScreen] Opening video: ${args[0]}');
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              CourseVideoScreen(videoUrl: args[0].toString()),
+                        ),
+                      );
+                    }
+                  },
+                );
               },
-            );
-          },
-          onProgressChanged: (_, progress) {
-            setState(() => _progress = progress / 100);
-          },
-          onLoadStop: (controller, url) {
-            _injectObserver();
-            _tryAutoFill(url);
-          },
-          onUpdateVisitedHistory: (controller, url, isReload) {
-            _injectObserver();
-            _tryAutoFill(url);
-          },
+              onProgressChanged: (_, progress) {
+                setState(() => _progress = progress / 100);
+              },
+              onLoadStop: (controller, url) {
+                _injectObserver();
+                _tryAutoFill(url);
+              },
+              onUpdateVisitedHistory: (controller, url, isReload) {
+                _injectObserver();
+                _tryAutoFill(url);
+              },
+            ),
+            if (_limitReached)
+              _DailyLimitOverlay(
+                onClose: () {
+                  _activitySocket.emitCourseEnd();
+                  Navigator.of(context).pop();
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimerChip extends StatelessWidget {
+  const _TimerChip({required this.label, required this.seconds});
+
+  final String label;
+  final int seconds;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color color;
+    final Color bg;
+    if (seconds <= 30) {
+      color = const Color(0xFFDC2626);
+      bg = const Color(0xFFFEF2F2);
+    } else if (seconds <= 120) {
+      color = const Color(0xFFF97316);
+      bg = const Color(0xFFFFF7ED);
+    } else {
+      color = const Color(0xFF0D9488);
+      bg = const Color(0xFFF0FDFA);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.timer_outlined, size: 13, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DailyLimitOverlay extends StatelessWidget {
+  const _DailyLimitOverlay({required this.onClose});
+
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black.withValues(alpha: 0.7),
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Container(
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF7ED),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.lock_clock_rounded,
+                  size: 32,
+                  color: Color(0xFFF97316),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'Kunlik limit tugadi',
+                style: TextStyle(
+                  color: Color(0xFF0F172A),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Demo kurs uchun kunlik 10 daqiqalik vaqtingiz tugadi. '
+                'Ertaga qaytib keling yoki to\'liq obuna oling.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: onClose,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF0F172A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                  child: const Text(
+                    'Yopish',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -34,14 +34,14 @@ class PaymentTypesSheet extends ConsumerStatefulWidget {
   /// payment lands in `success`) and we start the report-screen wait state.
   final String? conversationId;
 
-  static Future<bool?> show(
+  static Future<String?> show(
     BuildContext context, {
     required num amount,
     String? title,
     String? callbackUrl,
     String? conversationId,
   }) {
-    return showModalBottomSheet<bool>(
+    return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
@@ -97,7 +97,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
       }
 
       if (!mounted) return;
-      Navigator.of(context).pop(true);
+      Navigator.of(context).pop(payment.id);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(

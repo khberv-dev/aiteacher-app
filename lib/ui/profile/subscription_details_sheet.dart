@@ -66,7 +66,7 @@ class _SubscriptionDetailsSheetState
       amount: price.price,
       title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
     );
-    if (created == true && mounted) {
+    if (created != null && mounted) {
       Navigator.of(context).pop();
     }
   }

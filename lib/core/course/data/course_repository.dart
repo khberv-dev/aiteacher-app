@@ -19,6 +19,17 @@ class CourseRepository {
         .toList();
   }
 
+  Future<DemoEnrollment> requestDemo({
+    required String paymentId,
+    required String courseId,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      'courses/demo',
+      data: {'paymentId': paymentId, 'courseId': courseId},
+    );
+    return DemoEnrollment.fromJson(response.data ?? const {});
+  }
+
   Future<List<Course>> listMine() async {
     final response = await _dio.get<List<dynamic>>('courses/mine');
     return (response.data ?? [])

@@ -59,9 +59,22 @@ class SessionController extends Notifier<String?> {
       }
       // Session already exists — update os/fcmToken if authenticated.
       if (isLoggedIn) {
-        await ref
-            .read(sessionRepositoryProvider)
-            .update(sessionId: id, fcmToken: fcmToken);
+        try {
+          await ref
+              .read(sessionRepositoryProvider)
+              .update(sessionId: id, fcmToken: fcmToken);
+        } catch (e) {
+          debugPrint('session update failed, creating new session: $e');
+          final session = await ref
+              .read(sessionRepositoryProvider)
+              .create(fcmToken: fcmToken);
+          if (session.id.isEmpty) return;
+          await cache.setSessionId(session.id);
+          state = session.id;
+          await ref
+              .read(sessionRepositoryProvider)
+              .attachUser(sessionId: session.id, fcmToken: fcmToken);
+        }
       }
     } catch (e, st) {
       debugPrint('session sync failed: $e\n$st');

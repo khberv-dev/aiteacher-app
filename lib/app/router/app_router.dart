@@ -11,6 +11,7 @@ import 'package:ai_teacher/ui/chat/chat_list_data.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
 import 'package:ai_teacher/ui/courses/course_web_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
+import 'package:ai_teacher/ui/notifications/notifications_screen.dart';
 import 'package:ai_teacher/ui/onboarding/onboarding_screen.dart';
 import 'package:ai_teacher/ui/speaking/assessment_history_screen.dart';
 import 'package:ai_teacher/ui/speaking/speaking_partner_screen.dart';
@@ -132,8 +133,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             url: course.url,
             login: course.login,
             password: course.password,
+            isDemo: course.isDemo,
+            courseId: course.id,
           );
         },
+      ),
+      GoRoute(
+        path: AppRoute.notifications.path,
+        name: AppRoute.notifications.name,
+        builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
         path: AppRoute.support.path,
@@ -171,6 +179,7 @@ enum AppRoute {
   support('/support'),
   writingTask('/writing-task'),
   writingTaskDetail('/writing-task/detail'),
+  notifications('/notifications'),
   chat('/chat'),
   call('/call');
 

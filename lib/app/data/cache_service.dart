@@ -77,6 +77,38 @@ class CacheService {
 
   Future<bool> setInt(String key, int value) => _prefs.setInt(key, value);
 
+  /// Returns seconds used in the current 24-hour window.
+  /// Records the window start date immediately (synchronous memory write) so
+  /// it is always present before the first tick saves anything.
+  /// If the stored start date is ≥ 24 h old the window resets to 0.
+  int getDemoSecondsUsed(String courseId) {
+    final startKey = 'demo_start_$courseId';
+    final secsKey = 'demo_secs_$courseId';
+    final startStr = _prefs.getString(startKey);
+
+    if (startStr == null) {
+      // First access — open a new window right now.
+      _prefs.setString(startKey, DateTime.now().toIso8601String());
+      return 0;
+    }
+
+    final startDate = DateTime.tryParse(startStr);
+    if (startDate == null ||
+        DateTime.now().difference(startDate).inHours >= 24) {
+      // Expired — open a fresh window.
+      _prefs.setString(startKey, DateTime.now().toIso8601String());
+      _prefs.remove(secsKey);
+      return 0;
+    }
+
+    return _prefs.getInt(secsKey) ?? 0;
+  }
+
+  /// Persists elapsed seconds for the current demo window.
+  Future<void> setDemoSecondsUsed(String courseId, int seconds) {
+    return _prefs.setInt('demo_secs_$courseId', seconds);
+  }
+
   Future<bool> remove(String key) => _prefs.remove(key);
 
   Future<bool> clear() => _prefs.clear();

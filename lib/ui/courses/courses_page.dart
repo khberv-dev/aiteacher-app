@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:ai_teacher/app/data/network_config.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/course/data/course_dtos.dart';
+import 'package:ai_teacher/core/course/data/course_repository.dart';
 import 'package:ai_teacher/core/course/presentation/courses_controller.dart';
+import 'package:ai_teacher/core/payment/data/payment_dtos.dart';
+import 'package:ai_teacher/core/payment/data/payment_repository.dart';
 import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
 import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
@@ -88,13 +93,8 @@ class CoursesPage extends ConsumerWidget {
                   sliver: SliverList.separated(
                     itemCount: state.available.length,
                     separatorBuilder: (_, i) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => _AvailableCourseCard(
-                      course: state.available[i],
-                      onBuyDemo: () => context.pushNamed(
-                        AppRoute.courseWeb.name,
-                        extra: state.available[i],
-                      ),
-                    ),
+                    itemBuilder: (_, i) =>
+                        _AvailableCourseCard(course: state.available[i]),
                   ),
                 ),
               ],
@@ -236,14 +236,169 @@ class _EnrolledCourseCard extends StatelessWidget {
 
 // ─── Available course card ────────────────────────────────────────────────────
 
-class _AvailableCourseCard extends StatelessWidget {
-  const _AvailableCourseCard({required this.course, required this.onBuyDemo});
+class _AvailableCourseCard extends ConsumerStatefulWidget {
+  const _AvailableCourseCard({required this.course});
 
   final Course course;
-  final VoidCallback onBuyDemo;
+
+  @override
+  ConsumerState<_AvailableCourseCard> createState() =>
+      _AvailableCourseCardState();
+}
+
+class _AvailableCourseCardState extends ConsumerState<_AvailableCourseCard>
+    with WidgetsBindingObserver {
+  bool _loading = false;
+  bool _checkingPayment = false;
+  String? _pendingPaymentId;
+  Timer? _pollTimer;
+  int _pollAttempts = 0;
+
+  static const _pollInterval = Duration(seconds: 2);
+  static const _maxAttempts = 30; // 60 s total
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _pendingPaymentId != null) {
+      _ensurePolling();
+    }
+  }
+
+  void _ensurePolling() {
+    if (_pollTimer?.isActive ?? false) return;
+    _pollTimer = Timer.periodic(_pollInterval, (_) => _checkPayment());
+  }
+
+  void _stopPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+  }
+
+  Future<void> _checkPayment() async {
+    final paymentId = _pendingPaymentId;
+    if (paymentId == null) {
+      _stopPolling();
+      return;
+    }
+
+    _pollAttempts++;
+    if (_pollAttempts > _maxAttempts) {
+      _stopPolling();
+      if (!mounted) return;
+      setState(() {
+        _checkingPayment = false;
+        _pendingPaymentId = null;
+      });
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text("To'lov tasdiqlanmadi. Qayta urinib ko'ring"),
+          ),
+        );
+      return;
+    }
+
+    try {
+      final payment = await ref
+          .read(paymentRepositoryProvider)
+          .findById(paymentId);
+      if (payment == null) return;
+
+      switch (payment.status) {
+        case PaymentStatus.success:
+          _stopPolling();
+          await _activateDemo(paymentId);
+        case PaymentStatus.failed:
+        case PaymentStatus.declined:
+          _stopPolling();
+          if (!mounted) return;
+          setState(() {
+            _checkingPayment = false;
+            _pendingPaymentId = null;
+          });
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(content: Text("To'lov amalga oshmadi")),
+            );
+        case PaymentStatus.created:
+          break;
+      }
+    } catch (_) {
+      // Network error — keep polling
+    }
+  }
+
+  Future<void> _activateDemo(String paymentId) async {
+    if (!mounted) return;
+    setState(() {
+      _checkingPayment = false;
+      _loading = true;
+      _pendingPaymentId = null;
+    });
+    try {
+      final enrollment = await ref
+          .read(courseRepositoryProvider)
+          .requestDemo(paymentId: paymentId, courseId: widget.course.id);
+      if (!mounted) return;
+      context.pushNamed(
+        AppRoute.courseWeb.name,
+        extra: widget.course.copyWith(
+          login: enrollment.login,
+          password: enrollment.password,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text("Demo faollashtirish amalga oshmadi")),
+        );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _onDemo() async {
+    if (_loading || _checkingPayment) return;
+    final demoPrice = widget.course.demoPrice;
+    if (demoPrice == null) return;
+
+    final paymentId = await PaymentTypesSheet.show(
+      context,
+      amount: demoPrice,
+      title: '${widget.course.title} · Demo (24 soat)',
+    );
+    if (paymentId == null || !mounted) return;
+
+    setState(() {
+      _pendingPaymentId = paymentId;
+      _checkingPayment = true;
+      _pollAttempts = 0;
+    });
+    _ensurePolling();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final course = widget.course;
+    final demoPrice = course.demoPrice;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -287,12 +442,20 @@ class _AvailableCourseCard extends StatelessWidget {
                     ),
                   ),
                 ],
-                const SizedBox(height: 12),
-                _OutlineButton(
-                  label: "Demo · 5 000 so'm",
-                  icon: Icons.play_circle_outline_rounded,
-                  onTap: onBuyDemo,
-                ),
+                if (demoPrice != null) ...[
+                  const SizedBox(height: 12),
+                  _OutlineButton(
+                    label: _loading
+                        ? 'Faollashtirilmoqda...'
+                        : _checkingPayment
+                        ? "To'lov tekshirilmoqda..."
+                        : "Sinab ko'rish · ${_formatPrice(demoPrice)}",
+                    icon: (_loading || _checkingPayment)
+                        ? Icons.hourglass_empty_rounded
+                        : Icons.play_circle_outline_rounded,
+                    onTap: (_loading || _checkingPayment) ? () {} : _onDemo,
+                  ),
+                ],
               ],
             ),
           ),
@@ -572,30 +735,14 @@ class _PlanOfferCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 Divider(height: 1, color: Colors.white.withValues(alpha: 0.2)),
                 const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: FilledButton(
-                    onPressed: () => PaymentTypesSheet.show(
-                      context,
-                      amount: firstPrice.price,
-                      title:
-                          '${plan.name.isEmpty ? "Tarif" : plan.name} · ${firstPrice.month} oy',
-                    ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: color,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      "Obuna bo'lish · ${_formatPrice(firstPrice.price)}",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                _AnimatedBuyButton(
+                  label: "Obuna bo'lish · ${_formatPrice(firstPrice.price)}",
+                  color: color,
+                  onPressed: () => PaymentTypesSheet.show(
+                    context,
+                    amount: firstPrice.price,
+                    title:
+                        '${plan.name.isEmpty ? "Tarif" : plan.name} · ${firstPrice.month} oy',
                   ),
                 ),
               ],
@@ -731,6 +878,118 @@ class _CourseCover extends StatelessWidget {
       color: AppColors.primary.withValues(alpha: 0.4),
     ),
   );
+}
+
+// ─── Animated buy button ─────────────────────────────────────────────────────
+
+class _AnimatedBuyButton extends StatefulWidget {
+  const _AnimatedBuyButton({
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  @override
+  State<_AnimatedBuyButton> createState() => _AnimatedBuyButtonState();
+}
+
+class _AnimatedBuyButtonState extends State<_AnimatedBuyButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2400),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const ColoredBox(color: Colors.white),
+            AnimatedBuilder(
+              animation: _ctrl,
+              builder: (_, child) => CustomPaint(
+                painter: _BuyButtonPainter(
+                  progress: _ctrl.value,
+                  color: widget.color,
+                ),
+              ),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: widget.onPressed,
+                splashColor: widget.color.withValues(alpha: 0.12),
+                highlightColor: widget.color.withValues(alpha: 0.06),
+                child: Center(
+                  child: Text(
+                    widget.label,
+                    style: TextStyle(
+                      color: widget.color,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BuyButtonPainter extends CustomPainter {
+  const _BuyButtonPainter({required this.progress, required this.color});
+
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = Curves.easeInOut.transform(progress);
+    final cx = -size.width * 0.4 + size.width * 1.8 * t;
+    final hw = size.width * 0.32;
+    final tilt = size.height * 0.7;
+
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          color.withValues(alpha: 0.0),
+          color.withValues(alpha: 0.3),
+          color.withValues(alpha: 0.0),
+        ],
+      ).createShader(Rect.fromLTWH(cx - hw, 0, hw * 2, size.height));
+
+    final path = Path()
+      ..moveTo(cx - hw + tilt, 0)
+      ..lineTo(cx + hw + tilt, 0)
+      ..lineTo(cx + hw - tilt, size.height)
+      ..lineTo(cx - hw - tilt, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_BuyButtonPainter old) =>
+      old.progress != progress || old.color != color;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

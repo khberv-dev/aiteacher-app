@@ -4,7 +4,6 @@ import 'package:ai_teacher/core/student_activity/data/student_activity_socket.da
 import 'package:ai_teacher/ui/speaking/limit_reached_sheet.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_avatar.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_controls.dart';
-import 'package:ai_teacher/ui/speaking/widget/partner_dots.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -114,8 +113,9 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
 
     final statusText = _statusText(state);
     const fallback =
-        "Hi! I'm ready to help you practice English. "
-        "Just tap the button and let's talk!";
+        "Assalomu alaykum! Men sizning sun'iy intellekt yordamchingizman. "
+        "Qo'rqmasdan pastdagi mikrofon tugmasini bosing va o'zingizni inglizchada tanishtiring🤗 "
+        "(yoki shunchaki 'Hello' deb ko'ring😉)";
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -156,13 +156,13 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
                   padding: const EdgeInsets.fromLTRB(40, 0, 40, 8),
                   child: _AnalyzeHint(loading: state.analyzingReport),
                 ),
-              const PartnerDots(),
               PartnerControls(
                 onHistory: () =>
                     context.pushNamed(AppRoute.speakingHistory.name),
                 onMic: state.isBusy ? () {} : _onMicTap,
                 onMagic: state.analyzingReport ? () {} : _onAnalyzeTap,
                 recording: state.phase == SpeakingPhase.recording,
+                reportReady: state.readyForAnalyze,
               ),
             ],
           ),

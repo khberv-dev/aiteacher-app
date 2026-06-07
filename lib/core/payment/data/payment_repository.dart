@@ -21,6 +21,15 @@ class PaymentRepository {
         .toList(growable: false);
   }
 
+  Future<Payment?> findById(String id) async {
+    final response = await _dio.get<List<dynamic>>('payments/me');
+    for (final e in (response.data ?? []).whereType<Map>()) {
+      final payment = Payment.fromJson(e.cast<String, dynamic>());
+      if (payment.id == id) return payment;
+    }
+    return null;
+  }
+
   Future<Payment> create({
     required String paymentTypeId,
     required num amount,

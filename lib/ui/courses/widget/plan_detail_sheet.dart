@@ -26,8 +26,9 @@ class PlanDetailSheet extends ConsumerStatefulWidget {
 }
 
 class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
-  late int? _selectedMonth =
-      widget.plan.prices.isNotEmpty ? widget.plan.prices.first.month : null;
+  late int? _selectedMonth = widget.plan.prices.isNotEmpty
+      ? widget.plan.prices.first.month
+      : null;
 
   Plan get plan => widget.plan;
 
@@ -47,7 +48,7 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
       amount: price.price,
       title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
     );
-    if (created == true && mounted) Navigator.of(context).pop();
+    if (created != null && mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -285,9 +286,7 @@ class _FeatureRow extends StatelessWidget {
         Icon(
           available ? Icons.check_circle_rounded : Icons.cancel_rounded,
           size: 18,
-          color: available
-              ? const Color(0xFF22C55E)
-              : const Color(0xFFCBD5E1),
+          color: available ? const Color(0xFF22C55E) : const Color(0xFFCBD5E1),
         ),
         const SizedBox(width: 8),
         Expanded(
