@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Flutter app named `ai_teacher` (Dart SDK `^3.11.5`). Targets all six Flutter platforms — `android/`, `ios/`, `linux/`, `macos/`, `web/`, `windows/` directories are present and should stay buildable.
 
-Stack: `flutter_riverpod` (state), `go_router` (nav), `dio` + `talker_dio_logger` (network/logging), `shared_preferences` (persistence).
+Stack: `flutter_riverpod` (state), `go_router` (nav), `dio` + `talker_dio_logger` (network/logging), `shared_preferences` (persistence). Target market is Uzbekistan — phone numbers are 9 digits formatted `XX XXX XX XX` via `UzPhoneFormatter`.
+
+Notable packages: `record` (mic capture in speaking), `flutter_webrtc` (peer-to-peer video/audio in call feature), `audioplayers` (playback), `lottie` (animations), `flutter_inappwebview` (course web view with auto-login injection), `chewie` + `video_player` (video courses), `pinput` (OTP input).
 
 ## Architecture
 
@@ -50,6 +52,8 @@ No `domain/` layer is used — features only have `data/` and `presentation/`.
 - **Route navigation**: routes pass typed objects via `state.extra` (not path parameters). Cast with `state.extra is SomeType ? state.extra as SomeType : fallback`. The `AppRoute` enum holds all paths.
 - **MainScreen tabs**: IndexedStack with five tabs — chat (0), courses (1), home (2), comments (3), profile (4). Use `MainScreen.homeTab` / `.chatTab` etc. constants when pushing with extra.
 - **Firebase**: `firebase_core` + `firebase_messaging` are initialized in `main()` (errors are caught silently so the app still runs without Firebase). FCM token is stored via `CacheService.setFcmToken`.
+- **Router auth guard**: `routerProvider` reads `cacheService.accessToken` once at startup to pick `AppRoute.main` vs `AppRoute.onboarding`. The guard is **not reactive** — a token that expires mid-session won't redirect automatically; that's handled by `AuthInterceptor` triggering a refresh or clearing tokens on 401.
+- **CacheService time-limit tracking**: two 24-hour sliding-window helpers track usage seconds — `getDemoSecondsUsed(courseId)` / `setDemoSecondsUsed` (per demo course) and `getSpeakingSecondsUsed` / `setSpeakingSecondsUsed` (global speaking partner limit). Window resets automatically when ≥ 24 h have elapsed since the stored start timestamp.
 - **Local development**: update `NetworkConfig.devHostUrl` (`lib/app/data/network_config.dart`) to your machine's LAN IP before running against a local API server.
 
 ## Commands

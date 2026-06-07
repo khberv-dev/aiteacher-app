@@ -1,11 +1,14 @@
+import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
 import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class SubscriptionDetailsSheet extends ConsumerStatefulWidget {
   const SubscriptionDetailsSheet({super.key});
@@ -29,56 +32,10 @@ class SubscriptionDetailsSheet extends ConsumerStatefulWidget {
 
 class _SubscriptionDetailsSheetState
     extends ConsumerState<SubscriptionDetailsSheet> {
-  String? _selectedPlanId;
-  int? _selectedMonth;
-
-  void _select(String planId, int month) {
-    setState(() {
-      _selectedPlanId = planId;
-      _selectedMonth = month;
-    });
-  }
-
-  Plan? _findSelectedPlan(List<Plan> plans) {
-    if (_selectedPlanId == null) return null;
-    for (final p in plans) {
-      if (p.id == _selectedPlanId) return p;
-    }
-    return null;
-  }
-
-  PlanPrice? _findSelectedPrice(Plan? plan) {
-    if (plan == null || _selectedMonth == null) return null;
-    for (final p in plan.prices) {
-      if (p.month == _selectedMonth) return p;
-    }
-    return null;
-  }
-
-  Future<void> _onPurchase() async {
-    final plans =
-        ref.read(availablePlansProvider).valueOrNull ?? const <Plan>[];
-    final plan = _findSelectedPlan(plans);
-    final price = _findSelectedPrice(plan);
-    if (plan == null || price == null) return;
-    final created = await PaymentTypesSheet.show(
-      context,
-      amount: price.price,
-      title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
-    );
-    if (created != null && mounted) {
-      Navigator.of(context).pop();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider).valueOrNull;
     final plansAsync = ref.watch(availablePlansProvider);
-    final plans = plansAsync.valueOrNull ?? const <Plan>[];
-    final selectedPlan = _findSelectedPlan(plans);
-    final selectedPrice = _findSelectedPrice(selectedPlan);
-    final canPurchase = selectedPlan != null && selectedPrice != null;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -140,15 +97,7 @@ class _SubscriptionDetailsSheetState
                         }
                         return Column(
                           children: [
-                            for (final plan in items)
-                              _PlanCard(
-                                plan: plan,
-                                selectedMonth: _selectedPlanId == plan.id
-                                    ? _selectedMonth
-                                    : null,
-                                onSelectPrice: (price) =>
-                                    _select(plan.id, price.month),
-                              ),
+                            for (final plan in items) _PlanCard(plan: plan),
                           ],
                         );
                       },
@@ -156,15 +105,6 @@ class _SubscriptionDetailsSheetState
                   ],
                 ),
               ),
-              if (canPurchase)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: _PurchaseButton(
-                    planName: selectedPlan.name,
-                    price: selectedPrice,
-                    onPressed: _onPurchase,
-                  ),
-                ),
             ],
           ),
         );
@@ -173,61 +113,114 @@ class _SubscriptionDetailsSheetState
   }
 }
 
-class _PurchaseButton extends StatelessWidget {
-  const _PurchaseButton({
-    required this.planName,
-    required this.price,
+class _AnimatedBuyButton extends StatefulWidget {
+  const _AnimatedBuyButton({
+    required this.label,
+    required this.color,
     required this.onPressed,
   });
 
-  final String planName;
-  final PlanPrice price;
+  final String label;
+  final Color color;
   final VoidCallback onPressed;
+
+  @override
+  State<_AnimatedBuyButton> createState() => _AnimatedBuyButtonState();
+}
+
+class _AnimatedBuyButtonState extends State<_AnimatedBuyButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2400),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 54,
-      child: FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      height: 48,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Text(
-              '${planName.isEmpty ? 'Tarif' : planName} · ${price.month} oy',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
+            const ColoredBox(color: Colors.white),
+            AnimatedBuilder(
+              animation: _ctrl,
+              builder: (_, _) => CustomPaint(
+                painter: _BuyButtonPainter(
+                  progress: _ctrl.value,
+                  color: widget.color,
+                ),
               ),
             ),
-            const SizedBox(width: 10),
-            Text(
-              _formatPrice(price.price),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: widget.onPressed,
+                splashColor: widget.color.withValues(alpha: 0.12),
+                highlightColor: widget.color.withValues(alpha: 0.06),
+                child: Center(
+                  child: Text(
+                    widget.label,
+                    style: TextStyle(
+                      color: widget.color,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            const Icon(
-              Icons.arrow_forward_rounded,
-              color: Colors.white,
-              size: 18,
             ),
           ],
         ),
       ),
     );
   }
+}
+
+class _BuyButtonPainter extends CustomPainter {
+  const _BuyButtonPainter({required this.progress, required this.color});
+
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = Curves.easeInOut.transform(progress);
+    final cx = -size.width * 0.4 + size.width * 1.8 * t;
+    final hw = size.width * 0.32;
+    final tilt = size.height * 0.7;
+
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          color.withValues(alpha: 0.0),
+          color.withValues(alpha: 0.3),
+          color.withValues(alpha: 0.0),
+        ],
+      ).createShader(Rect.fromLTWH(cx - hw, 0, hw * 2, size.height));
+
+    final path = Path()
+      ..moveTo(cx - hw + tilt, 0)
+      ..lineTo(cx + hw + tilt, 0)
+      ..lineTo(cx + hw - tilt, size.height)
+      ..lineTo(cx - hw - tilt, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_BuyButtonPainter old) =>
+      old.progress != progress || old.color != color;
 }
 
 class _Grabber extends StatelessWidget {
@@ -388,30 +381,55 @@ class _Detail extends StatelessWidget {
   }
 }
 
-class _PlanCard extends StatelessWidget {
-  const _PlanCard({
-    required this.plan,
-    required this.selectedMonth,
-    required this.onSelectPrice,
-  });
+class _PlanCard extends StatefulWidget {
+  const _PlanCard({required this.plan});
 
   final Plan plan;
-  final int? selectedMonth;
-  final ValueChanged<PlanPrice> onSelectPrice;
+
+  @override
+  State<_PlanCard> createState() => _PlanCardState();
+}
+
+class _PlanCardState extends State<_PlanCard> {
+  late int? _selectedMonth =
+      widget.plan.prices.isNotEmpty ? widget.plan.prices.first.month : null;
+
+  PlanPrice? get _selectedPrice {
+    if (_selectedMonth == null) return null;
+    for (final p in widget.plan.prices) {
+      if (p.month == _selectedMonth) return p;
+    }
+    return null;
+  }
+
+  Future<void> _onSubscribe() async {
+    final price = _selectedPrice;
+    if (price == null) return;
+    final plan = widget.plan;
+    final created = await PaymentTypesSheet.show(
+      context,
+      amount: price.price,
+      title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
+    );
+    if (created != null && mounted) {
+      Navigator.of(context).pop();
+      context.goNamed(AppRoute.main.name, extra: MainScreen.coursesTab);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = selectedMonth != null;
+    final plan = widget.plan;
+    final color = _planColor(plan.color);
+    final selectedPrice = _selectedPrice;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isSelected ? AppColors.primary : AppColors.border,
-          width: isSelected ? 2 : 1,
-        ),
+        border: Border.all(color: AppColors.border),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0F000000),
@@ -463,8 +481,8 @@ class _PlanCard extends StatelessWidget {
                 for (final p in plan.prices)
                   _PriceRow(
                     price: p,
-                    selected: selectedMonth == p.month,
-                    onTap: () => onSelectPrice(p),
+                    selected: _selectedMonth == p.month,
+                    onTap: () => setState(() => _selectedMonth = p.month),
                   ),
               ],
             ),
@@ -477,6 +495,16 @@ class _PlanCard extends StatelessWidget {
           if (plan.notAvailableFeatures.isNotEmpty)
             for (final f in plan.notAvailableFeatures)
               _FeatureRow(text: f, available: false),
+          if (selectedPrice != null) ...[
+            const SizedBox(height: 14),
+            Divider(height: 1, color: const Color(0xFFEDEAE4)),
+            const SizedBox(height: 14),
+            _AnimatedBuyButton(
+              label: "Obuna bo'lish · ${_formatPrice(selectedPrice.price)}",
+              color: color,
+              onPressed: _onSubscribe,
+            ),
+          ],
         ],
       ),
     );
@@ -653,6 +681,13 @@ int _daysLeft(DateTime endDate) {
   final today = DateTime(now.year, now.month, now.day);
   final delta = endDate.toLocal().difference(today).inDays;
   return delta < 0 ? 0 : delta;
+}
+
+Color _planColor(String? hex) {
+  if (hex == null || hex.isEmpty) return AppColors.primary;
+  final clean = hex.startsWith('#') ? hex.substring(1) : hex;
+  final value = int.tryParse(clean.length == 6 ? 'FF$clean' : clean, radix: 16);
+  return value != null ? Color(value) : AppColors.primary;
 }
 
 String _formatPrice(num value) {

@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/speaking/presentation/speaking_controller.dart';
 import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
+import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:ai_teacher/ui/speaking/limit_reached_sheet.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_avatar.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_controls.dart';
@@ -20,15 +25,68 @@ class SpeakingPartnerScreen extends ConsumerStatefulWidget {
 
 class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
   late final StudentActivitySocket _activitySocket;
+  late final CacheService _cache;
   String? _lastErrorShown;
+
+  // Daily free-tier time limit (2.5 min = 150 s)
+  static const int _dailyLimitSeconds = 240;
+  bool _limitEnabled = false;
+  int _speakingSeconds = 0;
+  Timer? _speakingTicker;
 
   @override
   void initState() {
     super.initState();
     _activitySocket = ref.read(studentActivitySocketProvider);
+    _cache = ref.read(cacheServiceProvider);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _activitySocket.emitSpeakingStart();
+      _initDailyLimit();
+    });
+  }
+
+  void _initDailyLimit() {
+    final hasSub =
+        ref.read(currentUserProvider).valueOrNull?.activeSubscription != null;
+    if (hasSub) return;
+
+    _speakingSeconds = _cache.getSpeakingSecondsUsed();
+    _limitEnabled = true;
+
+    if (_speakingSeconds >= _dailyLimitSeconds) {
+      _showDailyLimitSheet();
+    } else {
+      setState(() {}); // draw the arc at stored fraction
+    }
+  }
+
+  void _speakingTick() {
+    if (!mounted) return;
+    _speakingSeconds++;
+    if (_speakingSeconds >= _dailyLimitSeconds) {
+      _speakingTicker?.cancel();
+      _speakingTicker = null;
+      _cache.setSpeakingSecondsUsed(_speakingSeconds);
+      setState(() {});
+      _showDailyLimitSheet();
+    } else {
+      setState(() {});
+    }
+  }
+
+  void _showDailyLimitSheet() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final wantsSubscribe = await LimitReachedSheet.show(context);
+      if (!mounted) return;
+      if (wantsSubscribe == true) {
+        await SubscriptionDetailsSheet.show(context);
+      }
+      if (!mounted) return;
+      ref.read(speakingControllerProvider.notifier).endConversation();
+      _onBack();
     });
   }
 
@@ -53,6 +111,13 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
     if (state.phase == SpeakingPhase.recording) {
       await controller.stopAndSend();
     } else if (!state.isBusy) {
+      // Start the daily limit ticker on first recording start.
+      if (_limitEnabled && _speakingTicker == null) {
+        _speakingTicker = Timer.periodic(
+          const Duration(seconds: 1),
+          (_) => _speakingTick(),
+        );
+      }
       await controller.startRecording();
     }
   }
@@ -77,6 +142,14 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(currentUserProvider, (_, next) {
+      if (next.valueOrNull?.activeSubscription != null) {
+        _speakingTicker?.cancel();
+        _speakingTicker = null;
+        if (_limitEnabled) setState(() => _limitEnabled = false);
+      }
+    });
+
     ref.listen<SpeakingState>(speakingControllerProvider, (prev, next) {
       final wasLimited = prev?.limitReached ?? false;
       if (!wasLimited && next.limitReached) {
@@ -129,7 +202,13 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
             children: [
               PartnerTopBar(timerLabel: timerLabel, onBack: _onBack),
               const SizedBox(height: 24),
-              const PartnerAvatar(),
+              PartnerAvatar(
+                limitFraction: _limitEnabled
+                    ? (_dailyLimitSeconds - _speakingSeconds)
+                          .clamp(0, _dailyLimitSeconds) /
+                        _dailyLimitSeconds
+                    : null,
+              ),
               const SizedBox(height: 24),
               Expanded(
                 child: Padding(
@@ -173,6 +252,10 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
 
   @override
   void dispose() {
+    _speakingTicker?.cancel();
+    if (_limitEnabled && _speakingSeconds > 0) {
+      _cache.setSpeakingSecondsUsed(_speakingSeconds);
+    }
     _activitySocket.emitSpeakingEnd();
     super.dispose();
   }

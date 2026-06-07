@@ -12,6 +12,7 @@ import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
 import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -738,12 +739,20 @@ class _PlanOfferCard extends StatelessWidget {
                 _AnimatedBuyButton(
                   label: "Obuna bo'lish · ${_formatPrice(firstPrice.price)}",
                   color: color,
-                  onPressed: () => PaymentTypesSheet.show(
-                    context,
-                    amount: firstPrice.price,
-                    title:
-                        '${plan.name.isEmpty ? "Tarif" : plan.name} · ${firstPrice.month} oy',
-                  ),
+                  onPressed: () async {
+                    final paymentId = await PaymentTypesSheet.show(
+                      context,
+                      amount: firstPrice.price,
+                      title:
+                          '${plan.name.isEmpty ? "Tarif" : plan.name} · ${firstPrice.month} oy',
+                    );
+                    if (paymentId != null && context.mounted) {
+                      context.goNamed(
+                        AppRoute.main.name,
+                        extra: MainScreen.coursesTab,
+                      );
+                    }
+                  },
                 ),
               ],
             ],

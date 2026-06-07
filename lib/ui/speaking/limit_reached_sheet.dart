@@ -1,12 +1,12 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
-import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:flutter/material.dart';
 
 class LimitReachedSheet extends StatelessWidget {
   const LimitReachedSheet({super.key});
 
-  static Future<void> show(BuildContext context) {
-    return showModalBottomSheet<void>(
+  /// Returns `true` if the user tapped the subscribe button.
+  static Future<bool?> show(BuildContext context) {
+    return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -61,7 +61,7 @@ class LimitReachedSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       const Text(
-                        "Bugungi bepul 2 daqiqa tugadi. "
+                        "Bugungi bepul 4 daqiqa tugadi. "
                         "Pro paketga obuna bo'ling — "
                         "ingliz tilingiz pauza qilmasin.",
                         textAlign: TextAlign.center,
@@ -112,10 +112,7 @@ class LimitReachedSheet extends StatelessWidget {
                   child: Column(
                     children: [
                       _PrimaryCta(
-                        onTap: () async {
-                          Navigator.of(context).pop();
-                          await SubscriptionDetailsSheet.show(context);
-                        },
+                        onTap: () => Navigator.of(context).pop(true),
                       ),
                       const SizedBox(height: 10),
                       _SecondaryAction(

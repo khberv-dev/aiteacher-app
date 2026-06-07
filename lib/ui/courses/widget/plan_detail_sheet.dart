@@ -1,8 +1,11 @@
+import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
+import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class PlanDetailSheet extends ConsumerStatefulWidget {
   const PlanDetailSheet({super.key, required this.plan});
@@ -48,7 +51,10 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
       amount: price.price,
       title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
     );
-    if (created != null && mounted) Navigator.of(context).pop();
+    if (created != null && mounted) {
+      Navigator.of(context).pop();
+      context.goNamed(AppRoute.main.name, extra: MainScreen.coursesTab);
+    }
   }
 
   @override
