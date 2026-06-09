@@ -45,7 +45,8 @@ class ChatListPage extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return _SupportItem(
-                        onTap: () => context.pushNamed(AppRoute.support.name),
+                        onTap: () =>
+                            context.pushNamed(AppRoute.aiManager.name),
                       );
                     }
                     final chat = chats[index - 1];

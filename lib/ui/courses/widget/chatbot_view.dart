@@ -15,6 +15,7 @@ class ChatbotView extends ConsumerStatefulWidget {
     this.onInputTyped,
     this.trailingAction,
     this.emptyHintText,
+    this.assistantIcon = Icons.auto_awesome_rounded,
   });
 
   final VoidCallback? onClose;
@@ -22,6 +23,7 @@ class ChatbotView extends ConsumerStatefulWidget {
   final VoidCallback? onInputTyped;
   final Widget? trailingAction;
   final String? emptyHintText;
+  final IconData assistantIcon;
 
   @override
   ConsumerState<ChatbotView> createState() => _ChatbotViewState();
@@ -123,6 +125,7 @@ class _ChatbotViewState extends ConsumerState<ChatbotView> {
               error: state.error,
               scrollController: _scrollCtrl,
               emptyHintText: widget.emptyHintText,
+              assistantIcon: widget.assistantIcon,
             ),
           ),
         ),
@@ -143,6 +146,7 @@ class _MessageList extends StatelessWidget {
     required this.messages,
     required this.isSending,
     required this.scrollController,
+    required this.assistantIcon,
     this.error,
     this.emptyHintText,
   });
@@ -152,6 +156,7 @@ class _MessageList extends StatelessWidget {
   final String? error;
   final ScrollController scrollController;
   final String? emptyHintText;
+  final IconData assistantIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -168,8 +173,15 @@ class _MessageList extends StatelessWidget {
         if (messages.isEmpty && !isSending && i == 0 && error == null) {
           return _EmptyHint(text: emptyHintText);
         }
-        if (i < messages.length) return _MessageBubble(message: messages[i]);
-        if (isSending && i == messages.length) return const _TypingIndicator();
+        if (i < messages.length) {
+          return _MessageBubble(
+            message: messages[i],
+            assistantIcon: assistantIcon,
+          );
+        }
+        if (isSending && i == messages.length) {
+          return _TypingIndicator(assistantIcon: assistantIcon);
+        }
         if (error != null) return _ErrorBubble(text: error!);
         return const SizedBox.shrink();
       },
@@ -211,9 +223,10 @@ class _EmptyHint extends StatelessWidget {
 }
 
 class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.message});
+  const _MessageBubble({required this.message, required this.assistantIcon});
 
   final ChatbotMessage message;
+  final IconData assistantIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -235,11 +248,7 @@ class _MessageBubble extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: Icon(
-                Icons.auto_awesome_rounded,
-                size: 13,
-                color: AppColors.primary,
-              ),
+              child: Icon(assistantIcon, size: 13, color: AppColors.primary),
             ),
             const SizedBox(width: 6),
           ],
@@ -320,7 +329,9 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class _TypingIndicator extends StatefulWidget {
-  const _TypingIndicator();
+  const _TypingIndicator({required this.assistantIcon});
+
+  final IconData assistantIcon;
 
   @override
   State<_TypingIndicator> createState() => _TypingIndicatorState();
@@ -354,7 +365,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
             ),
             alignment: Alignment.center,
             child: Icon(
-              Icons.auto_awesome_rounded,
+              widget.assistantIcon,
               size: 13,
               color: AppColors.primary,
             ),
