@@ -1,18 +1,13 @@
-import 'package:ai_teacher/ui/chat/chat_data.dart';
 import 'package:flutter/material.dart';
 
 class ChatComposeArea extends StatelessWidget {
   const ChatComposeArea({
     super.key,
     required this.controller,
-    required this.activeType,
-    required this.onTypeChanged,
     required this.onSend,
   });
 
   final TextEditingController controller;
-  final ActivityType activeType;
-  final ValueChanged<ActivityType> onTypeChanged;
   final VoidCallback onSend;
 
   @override
@@ -25,87 +20,7 @@ class ChatComposeArea extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       child: SafeArea(
         top: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _TypeSelector(activeType: activeType, onChanged: onTypeChanged),
-            const SizedBox(height: 10),
-            _ComposeRow(controller: controller, onSend: onSend),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TypeSelector extends StatelessWidget {
-  const _TypeSelector({required this.activeType, required this.onChanged});
-
-  final ActivityType activeType;
-  final ValueChanged<ActivityType> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (var i = 0; i < kComposeTypes.length; i++) ...[
-            if (i > 0) const SizedBox(width: 6),
-            _TypeChip(
-              type: kComposeTypes[i],
-              active: kComposeTypes[i] == activeType,
-              onTap: () => onChanged(kComposeTypes[i]),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({
-    required this.type,
-    required this.active,
-    required this.onTap,
-  });
-
-  final ActivityType type;
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = kActivityTypeStyles[type]!;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-        decoration: BoxDecoration(
-          color: active ? style.badgeBackground : const Color(0xFFEDEAE4),
-          borderRadius: BorderRadius.circular(10),
-          border: active
-              ? Border.all(color: style.badgeForeground, width: 1.5)
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(style.icon, color: style.badgeForeground, size: 11),
-            const SizedBox(width: 5),
-            Text(
-              style.label,
-              style: TextStyle(
-                color: style.badgeForeground,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
+        child: _ComposeRow(controller: controller, onSend: onSend),
       ),
     );
   }

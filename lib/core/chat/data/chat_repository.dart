@@ -21,14 +21,6 @@ class ChatRepository {
         .toList(growable: false);
   }
 
-  Future<ChatRoom> getOrCreateRoom(String peerId) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      'chat/rooms',
-      data: {'peerId': peerId},
-    );
-    return ChatRoom.fromJson(response.data ?? const {});
-  }
-
   Future<List<ChatMessage>> listMessages(
     String roomId, {
     int limit = 50,
@@ -47,14 +39,10 @@ class ChatRepository {
         .toList(growable: false);
   }
 
-  Future<ChatMessage> sendMessage(
-    String roomId, {
-    required String text,
-    required ChatMessageType type,
-  }) async {
+  Future<ChatMessage> sendMessage(String roomId, {required String text}) async {
     final response = await _dio.post<Map<String, dynamic>>(
       'chat/rooms/$roomId/messages',
-      data: {'text': text, 'type': type.apiName},
+      data: {'text': text},
     );
     return ChatMessage.fromJson(response.data ?? const {});
   }

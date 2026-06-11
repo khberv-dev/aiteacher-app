@@ -45,12 +45,18 @@ class _AppState extends ConsumerState<App> {
         sound: true,
       );
 
-      FirebaseMessaging.onMessage.listen((message) {
-        debugPrint(
-          'FCM foreground: ${message.notification?.title ?? '(no title)'} — '
-          'data=${message.data}',
-        );
-      });
+      FirebaseMessaging.onMessage.listen(
+        (msg) => _logMessage('foreground', msg),
+      );
+
+      // App opened from a notification while it was terminated.
+      final initial = await messaging.getInitialMessage();
+      if (initial != null) _handleLaunchMessage('launch:terminated', initial);
+
+      // App brought to foreground by tapping a notification.
+      FirebaseMessaging.onMessageOpenedApp.listen(
+        (msg) => _handleLaunchMessage('launch:background', msg),
+      );
 
       // iOS needs an APNs token before getToken() can succeed; Android has
       // no APNs round-trip so we call getToken() directly.
@@ -93,6 +99,17 @@ class _AppState extends ConsumerState<App> {
     }
   }
 
+  void _handleLaunchMessage(String source, RemoteMessage msg) {
+    _logMessage(source, msg);
+    if (!mounted) return;
+    final screen = msg.data['screen'] as String?;
+    if (screen == 'chat') {
+      ref.read(routerProvider).push(AppRoute.chat.path);
+    } else if (screen == 'notifications') {
+      ref.read(routerProvider).push(AppRoute.notifications.path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
@@ -102,4 +119,22 @@ class _AppState extends ConsumerState<App> {
       routerConfig: router,
     );
   }
+}
+
+void _logMessage(String source, RemoteMessage msg) {
+  final n = msg.notification;
+  final lines = [
+    '── FCM [$source] ──────────────────────',
+    'messageId : ${msg.messageId ?? '-'}',
+    'from      : ${msg.from ?? '-'}',
+    'sentTime  : ${msg.sentTime?.toIso8601String() ?? '-'}',
+    if (n != null) ...[
+      'title     : ${n.title ?? '-'}',
+      'body      : ${n.body ?? '-'}',
+    ],
+    if (msg.data.isNotEmpty)
+      ...msg.data.entries.map((e) => 'data.${e.key.padRight(10)}: ${e.value}'),
+    '─────────────────────────────────────',
+  ];
+  debugPrint(lines.join('\n'));
 }

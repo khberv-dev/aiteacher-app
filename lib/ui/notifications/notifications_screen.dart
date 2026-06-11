@@ -1,9 +1,9 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:ai_teacher/core/notification/data/notification_dtos.dart';
 import 'package:ai_teacher/core/notification/presentation/notifications_controller.dart';
 import 'package:ai_teacher/ui/notifications/widget/notification_detail_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotificationsScreen extends ConsumerWidget {
@@ -203,45 +203,25 @@ class _NotificationItem extends StatelessWidget {
                       ClipRect(
                         child: SizedBox(
                           height: 38,
-                          child: Stack(
-                            children: [
-                              MarkdownBody(
-                                data: notification.body,
-                                softLineBreak: true,
-                                shrinkWrap: true,
-                                styleSheet: MarkdownStyleSheet(
-                                  p: const TextStyle(
-                                    color: Color(0xFF64748B),
-                                    fontSize: 13,
-                                    height: 1.45,
-                                  ),
-                                  strong: const TextStyle(
-                                    color: Color(0xFF334155),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.45,
-                                  ),
-                                ),
+                          child: AbsorbPointer(
+                            child: MarkdownBody(
+                            data: notification.body,
+                            softLineBreak: true,
+                            shrinkWrap: true,
+                            styleSheet: MarkdownStyleSheet(
+                              p: const TextStyle(
+                                color: Color(0xFF64748B),
+                                fontSize: 13,
+                                height: 1.45,
                               ),
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                child: Container(
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        bgColor.withValues(alpha: 0),
-                                        bgColor,
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                              strong: const TextStyle(
+                                color: Color(0xFF334155),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                height: 1.45,
                               ),
-                            ],
+                            ),
+                          ),
                           ),
                         ),
                       ),

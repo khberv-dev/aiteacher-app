@@ -28,4 +28,8 @@ class CallRepository {
         .map((e) => Call.fromJson(e.cast<String, dynamic>()))
         .toList(growable: false);
   }
+
+  Future<void> rate(String callId, int rating) async {
+    await _dio.patch<void>('calls/$callId/rate', data: {'rating': rating});
+  }
 }

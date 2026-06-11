@@ -1,19 +1,68 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
+import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LimitReachedSheet extends StatelessWidget {
-  const LimitReachedSheet({super.key});
+enum LimitSheetAction { addonPurchased, wantsSubscribe }
 
-  /// Returns `true` if the user tapped the subscribe button.
-  static Future<bool?> show(BuildContext context) {
-    return showModalBottomSheet<bool>(
+class LimitReachedSheet extends ConsumerStatefulWidget {
+  const LimitReachedSheet({
+    super.key,
+    this.addonPrice = 5000,
+    this.addonGrant = 3,
+  });
+
+  final int addonPrice;
+  final int addonGrant;
+
+  static Future<LimitSheetAction?> show(
+    BuildContext context, {
+    int addonPrice = 5000,
+    int addonGrant = 3,
+  }) {
+    return showModalBottomSheet<LimitSheetAction>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isDismissible: true,
-      builder: (_) => const LimitReachedSheet(),
+      builder: (_) =>
+          LimitReachedSheet(addonPrice: addonPrice, addonGrant: addonGrant),
     );
+  }
+
+  @override
+  ConsumerState<LimitReachedSheet> createState() => _LimitReachedSheetState();
+}
+
+class _LimitReachedSheetState extends ConsumerState<LimitReachedSheet> {
+  bool _purchasing = false;
+
+  Future<void> _onAddonTap() async {
+    if (_purchasing) return;
+    final paymentId = await PaymentTypesSheet.show(
+      context,
+      amount: widget.addonPrice,
+      title: '+${widget.addonGrant} ta qo\'shimcha suhbat',
+    );
+    if (!mounted || paymentId == null) return;
+    setState(() => _purchasing = true);
+    try {
+      await ref
+          .read(speakingRepositoryProvider)
+          .purchaseConversationAddon(paymentId);
+      if (!mounted) return;
+      Navigator.of(context).pop(LimitSheetAction.addonPurchased);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _purchasing = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text("To'lovni amalga oshirib bo'lmadi")),
+        );
+    }
   }
 
   @override
@@ -49,7 +98,7 @@ class LimitReachedSheet extends StatelessWidget {
                       const _Hero(),
                       const SizedBox(height: 24),
                       const Text(
-                        "Mashqni to'xtatmang ✨",
+                        "Suhbat limitingiz tugadi ✨",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color(0xFF0F172A),
@@ -61,9 +110,9 @@ class LimitReachedSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       const Text(
-                        "Bugungi bepul 4 daqiqa tugadi. "
-                        "Pro paketga obuna bo'ling — "
-                        "ingliz tilingiz pauza qilmasin.",
+                        "Bepul suhbatlar sarflandi. "
+                        "Davom etish uchun qo'shimcha paket oling "
+                        "yoki Pro paketga o'ting.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color(0xFF6B7280),
@@ -73,6 +122,15 @@ class LimitReachedSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 26),
+                      const Text(
+                        'Planlarga kiritilgan imkoniyatlar:',
+                        style: TextStyle(
+                          color: Color(0xFF0F172A),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       const _BenefitTile(
                         emoji: '♾️',
                         title: 'Cheksiz AI suhbat',
@@ -111,13 +169,20 @@ class LimitReachedSheet extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
                   child: Column(
                     children: [
-                      _PrimaryCta(
-                        onTap: () => Navigator.of(context).pop(true),
+                      _AddonButton(
+                        addonPrice: widget.addonPrice,
+                        addonGrant: widget.addonGrant,
+                        loading: _purchasing,
+                        onTap: _onAddonTap,
                       ),
                       const SizedBox(height: 10),
-                      _SecondaryAction(
-                        onTap: () => Navigator.of(context).pop(),
+                      _SubscribeButton(
+                        onTap: () => Navigator.of(
+                          context,
+                        ).pop(LimitSheetAction.wantsSubscribe),
                       ),
+                      const SizedBox(height: 10),
+                      _DismissAction(onTap: () => Navigator.of(context).pop()),
                     ],
                   ),
                 ),
@@ -135,26 +200,28 @@ class _Hero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 96,
-      height: 96,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFF5B700).withValues(alpha: 0.25),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+    return Center(
+      child: Container(
+        width: 96,
+        height: 96,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A)],
           ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFF5B700).withValues(alpha: 0.25),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: const Text('🚀', style: TextStyle(fontSize: 44)),
       ),
-      child: const Text('🚀', style: TextStyle(fontSize: 44)),
     );
   }
 }
@@ -235,11 +302,11 @@ class _SocialProof extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFFEF3C7), width: 1),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const Text('⭐', style: TextStyle(fontSize: 20)),
-          const SizedBox(width: 10),
-          const Expanded(
+          Text('⭐', style: TextStyle(fontSize: 20)),
+          SizedBox(width: 10),
+          Expanded(
             child: Text(
               "Minglab o'quvchilar Pro orqali ingliz tilini sevib o'rganmoqda.",
               style: TextStyle(
@@ -256,8 +323,74 @@ class _SocialProof extends StatelessWidget {
   }
 }
 
-class _PrimaryCta extends StatelessWidget {
-  const _PrimaryCta({required this.onTap});
+class _AddonButton extends StatelessWidget {
+  const _AddonButton({
+    required this.addonPrice,
+    required this.addonGrant,
+    required this.loading,
+    required this.onTap,
+  });
+
+  final int addonPrice;
+  final int addonGrant;
+  final bool loading;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: OutlinedButton(
+        onPressed: loading ? null : onTap,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          padding: EdgeInsets.zero,
+        ),
+        child: loading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add_circle_outline_rounded, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    "${_formatPrice(addonPrice)} so'm → +$addonGrant ta suhbat",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  String _formatPrice(int price) {
+    if (price >= 1000) {
+      final thousands = price ~/ 1000;
+      final remainder = price % 1000;
+      if (remainder == 0) return '$thousands 000';
+      return '$price';
+    }
+    return '$price';
+  }
+}
+
+class _SubscribeButton extends StatelessWidget {
+  const _SubscribeButton({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -317,8 +450,8 @@ class _PrimaryCta extends StatelessWidget {
   }
 }
 
-class _SecondaryAction extends StatelessWidget {
-  const _SecondaryAction({required this.onTap});
+class _DismissAction extends StatelessWidget {
+  const _DismissAction({required this.onTap});
 
   final VoidCallback onTap;
 

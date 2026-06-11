@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/data/dio_client.dart';
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/core/speaking/data/conversation_limit.dart';
 import 'package:ai_teacher/core/speaking/data/conversation_summary.dart';
 import 'package:ai_teacher/core/speaking/data/converse_result.dart';
 import 'package:dio/dio.dart';
@@ -150,7 +151,27 @@ class SpeakingRepository {
     );
     return ConversationPaymentStatus.fromJson(response.data ?? const {});
   }
+
+  Future<ConversationLimit> getConversationLimit() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      'assessments/conversation/limit',
+    );
+    return ConversationLimit.fromJson(response.data ?? const {});
+  }
+
+  Future<void> purchaseConversationAddon(String paymentId) async {
+    await _dio.post<void>(
+      'assessments/conversation/addon',
+      data: {'paymentId': paymentId},
+    );
+  }
 }
+
+final conversationLimitProvider = FutureProvider.autoDispose<ConversationLimit>(
+  (ref) {
+    return ref.read(speakingRepositoryProvider).getConversationLimit();
+  },
+);
 
 class ConversationPaymentStatus {
   const ConversationPaymentStatus({

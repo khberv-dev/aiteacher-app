@@ -1,11 +1,15 @@
+import 'dart:async';
+
+import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
 import 'package:ai_teacher/core/cashback/data/cashback_repository.dart';
+import 'package:ai_teacher/core/chat/data/chat_socket.dart';
+import 'package:ai_teacher/core/chat/presentation/chat_unread_provider.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
 import 'package:ai_teacher/ui/blog/blog_page.dart' show CommentsPage;
 import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
-import 'package:ai_teacher/ui/chat/chat_list_page.dart';
 import 'package:ai_teacher/ui/courses/courses_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
 import 'package:ai_teacher/ui/profile/profile_page.dart';
@@ -35,7 +39,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   late int _activeTab = widget.initialTab;
 
   static const _pages = <Widget>[
-    ChatListPage(),
+    SizedBox.shrink(),
     CoursesPage(),
     HomePage(),
     CommentsPage(),
@@ -43,6 +47,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   ];
 
   bool _cashbackToastShown = false;
+  StreamSubscription<dynamic>? _chatUnreadSub;
+
+  @override
+  void dispose() {
+    _chatUnreadSub?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -50,13 +61,22 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       ref.read(callControllerProvider.notifier).ensureListening();
+      _connectChatSocket();
       final streak = await ref
           .read(streakCheckInProvider.notifier)
           .runIfNeeded();
       if (!mounted) return;
       if (streak != null) {
-        await StreakSheet.show(context);
-        if (!mounted) return;
+        final cache = ref.read(cacheServiceProvider);
+        final last = cache.lastStreakSheetShownAt;
+        final shownToday =
+            last != null && DateTime.now().difference(last).inHours < 24;
+        if (!shownToday) {
+          await cache.setLastStreakSheetShownAt(DateTime.now());
+          if (!mounted) return;
+          await StreakSheet.show(context);
+          if (!mounted) return;
+        }
       }
       await _showCashbackToastIfAny();
     });
@@ -76,7 +96,26 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     }
   }
 
+  void _connectChatSocket() {
+    try {
+      final socket = ref.read(chatSocketProvider);
+      socket.connect().then((_) {
+        _chatUnreadSub = socket.incoming.listen((_) {
+          if (!mounted) return;
+          if (!ref.read(chatScreenActiveProvider)) {
+            ref.read(chatUnreadProvider.notifier).state = true;
+          }
+        });
+      }).catchError((_) {});
+    } catch (_) {}
+  }
+
   void _onTabTap(int index) {
+    if (index == MainScreen.chatTab) {
+      ref.read(chatUnreadProvider.notifier).state = false;
+      context.pushNamed(AppRoute.chat.name);
+      return;
+    }
     if (index == _activeTab) return;
     setState(() => _activeTab = index);
   }
@@ -109,6 +148,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         bottomNavigationBar: AppBottomNav(
           activeIndex: _activeTab,
           onTap: _onTabTap,
+          chatBadge: ref.watch(chatUnreadProvider),
         ),
       ),
     );

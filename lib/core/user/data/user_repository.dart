@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:ai_teacher/app/data/dio_client.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:dio/dio.dart';
@@ -33,5 +35,16 @@ class UserRepository {
       'users/me/password',
       data: {'oldPassword': oldPassword, 'newPassword': newPassword},
     );
+  }
+
+  Future<User> uploadAvatar(Uint8List bytes, String fileName) async {
+    final formData = FormData.fromMap({
+      'image': MultipartFile.fromBytes(bytes, filename: fileName),
+    });
+    final response = await _dio.patch<Map<String, dynamic>>(
+      'users/me/avatar',
+      data: formData,
+    );
+    return User.fromJson(response.data ?? const {});
   }
 }

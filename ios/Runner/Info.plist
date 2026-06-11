@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>AI Teacher kamerasiz audio qo'ng'iroqlardan foydalanadi; kamera talab qilinmaydi.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Profil rasmingizni yangilash uchun galereyaga kirish kerak.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>AI Teacher mikrofondan foydalanib siz aytgan gaplarni tahlil qiladi.</string>
 	<key>UIApplicationSceneManifest</key>

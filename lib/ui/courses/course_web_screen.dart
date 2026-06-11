@@ -91,8 +91,10 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
   }
 
   int get _remainingSeconds =>
-      (CourseWebScreen.dailyLimitSeconds - _secondsUsed)
-          .clamp(0, CourseWebScreen.dailyLimitSeconds);
+      (CourseWebScreen.dailyLimitSeconds - _secondsUsed).clamp(
+        0,
+        CourseWebScreen.dailyLimitSeconds,
+      );
 
   String get _remainingLabel {
     final r = _remainingSeconds;
@@ -287,7 +289,10 @@ class _CourseWebScreenState extends ConsumerState<CourseWebScreen> {
             if (widget.isDemo && !_limitReached)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                child: _TimerChip(label: _remainingLabel, seconds: _remainingSeconds),
+                child: _TimerChip(
+                  label: _remainingLabel,
+                  seconds: _remainingSeconds,
+                ),
               ),
             IconButton(
               icon: const Icon(Icons.close_rounded),

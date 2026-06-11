@@ -4,6 +4,7 @@ import 'package:ai_teacher/core/assignment/data/assignment_dtos.dart';
 import 'package:ai_teacher/core/assignment/presentation/my_assignments_controller.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/call/call_rating_sheet.dart';
 import 'package:ai_teacher/ui/call/widget/call_avatar_rings.dart';
 import 'package:ai_teacher/ui/call/widget/call_round_button.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ import 'package:go_router/go_router.dart';
 class CallScreen extends ConsumerWidget {
   const CallScreen({super.key});
 
+  static const _ratingThreshold = Duration(minutes: 7);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(callControllerProvider);
@@ -21,6 +24,20 @@ class CallScreen extends ConsumerWidget {
     final peerName = _resolvePeerName(ref, state.assignmentId);
     final peerSubtitle = _resolvePeerSubtitle(ref, state.assignmentId);
     final initials = _initialsFrom(peerName);
+
+    ref.listen(callControllerProvider, (prev, next) {
+      if (prev?.phase != CallPhase.ended &&
+          next.phase == CallPhase.ended &&
+          next.elapsed >= _ratingThreshold &&
+          next.callId != null) {
+        final callId = next.callId!;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            CallRatingSheet.show(context, callId: callId);
+          }
+        });
+      }
+    });
 
     if (state.phase == CallPhase.idle) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

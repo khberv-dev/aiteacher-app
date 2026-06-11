@@ -109,31 +109,15 @@ class CacheService {
     return _prefs.setInt('demo_secs_$courseId', seconds);
   }
 
-  /// Returns seconds used in the speaking partner today (24-hour window).
-  int getSpeakingSecondsUsed() {
-    const startKey = 'speaking_start';
-    const secsKey = 'speaking_secs';
-    final startStr = _prefs.getString(startKey);
+  static const String _streakSheetShownAtKey = 'streak_sheet_shown_at';
 
-    if (startStr == null) {
-      _prefs.setString(startKey, DateTime.now().toIso8601String());
-      return 0;
-    }
-
-    final startDate = DateTime.tryParse(startStr);
-    if (startDate == null ||
-        DateTime.now().difference(startDate).inHours >= 24) {
-      _prefs.setString(startKey, DateTime.now().toIso8601String());
-      _prefs.remove(secsKey);
-      return 0;
-    }
-
-    return _prefs.getInt(secsKey) ?? 0;
+  DateTime? get lastStreakSheetShownAt {
+    final raw = _prefs.getString(_streakSheetShownAtKey);
+    return raw != null ? DateTime.tryParse(raw) : null;
   }
 
-  Future<void> setSpeakingSecondsUsed(int seconds) {
-    return _prefs.setInt('speaking_secs', seconds);
-  }
+  Future<void> setLastStreakSheetShownAt(DateTime time) =>
+      _prefs.setString(_streakSheetShownAtKey, time.toIso8601String());
 
   Future<bool> remove(String key) => _prefs.remove(key);
 

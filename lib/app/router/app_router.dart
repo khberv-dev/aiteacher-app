@@ -8,7 +8,6 @@ import 'package:ai_teacher/ui/auth/register_screen.dart';
 import 'package:ai_teacher/ui/battle/battle_screen.dart';
 import 'package:ai_teacher/ui/call/call_screen.dart';
 import 'package:ai_teacher/ui/chat/ai_manager_screen.dart';
-import 'package:ai_teacher/ui/chat/chat_list_data.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
 import 'package:ai_teacher/ui/courses/course_web_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
@@ -97,12 +96,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoute.chat.path,
         name: AppRoute.chat.name,
-        builder: (context, state) {
-          if (state.extra is! ChatListItem) {
-            return const MainScreen(initialTab: MainScreen.chatTab);
-          }
-          return ChatScreen(chat: state.extra as ChatListItem);
-        },
+        builder: (context, state) => const ChatScreen(),
       ),
       GoRoute(
         path: AppRoute.call.path,

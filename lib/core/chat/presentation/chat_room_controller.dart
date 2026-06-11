@@ -4,6 +4,7 @@ import 'package:ai_teacher/core/auth/data/auth_session.dart';
 import 'package:ai_teacher/core/chat/data/chat_dtos.dart';
 import 'package:ai_teacher/core/chat/data/chat_repository.dart';
 import 'package:ai_teacher/core/chat/data/chat_socket.dart';
+import 'package:ai_teacher/core/chat/presentation/chat_unread_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -47,26 +48,40 @@ class ChatRoomState {
 
 const Object _sentinel = Object();
 
-final chatRoomControllerProvider = NotifierProvider.autoDispose
-    .family<ChatRoomController, ChatRoomState, String>(ChatRoomController.new);
+final chatRoomControllerProvider =
+    NotifierProvider.autoDispose<ChatRoomController, ChatRoomState>(
+      ChatRoomController.new,
+    );
 
-class ChatRoomController
-    extends AutoDisposeFamilyNotifier<ChatRoomState, String> {
+class ChatRoomController extends AutoDisposeNotifier<ChatRoomState> {
   StreamSubscription<ChatMessage>? _sub;
 
   @override
-  ChatRoomState build(String peerId) {
-    ref.onDispose(() => _sub?.cancel());
-    Future.microtask(_initialize);
+  ChatRoomState build() {
+    ref.onDispose(() {
+      _sub?.cancel();
+      ref.read(chatScreenActiveProvider.notifier).state = false;
+    });
+    Future.microtask(() {
+      ref.read(chatUnreadProvider.notifier).state = false;
+      ref.read(chatScreenActiveProvider.notifier).state = true;
+      _initialize();
+    });
     return ChatRoomState.initial;
   }
-
-  String get peerId => arg;
 
   Future<void> _initialize() async {
     try {
       final repo = ref.read(chatRepositoryProvider);
-      final room = await repo.getOrCreateRoom(peerId);
+      final rooms = await repo.listRooms();
+      if (rooms.isEmpty) {
+        state = state.copyWith(
+          loading: false,
+          error: "Suhbat xonasi topilmadi",
+        );
+        return;
+      }
+      final room = rooms.first;
       final history = await repo.listMessages(room.id);
       state = state.copyWith(
         loading: false,
@@ -84,14 +99,11 @@ class ChatRoomController
       });
     } catch (e, st) {
       debugPrint('chat room init failed: $e\n$st');
-      state = state.copyWith(
-        loading: false,
-        error: 'Suhbatni yuklab bo\'lmadi',
-      );
+      state = state.copyWith(loading: false, error: "Suhbatni yuklab bo'lmadi");
     }
   }
 
-  Future<bool> send(String text, ChatMessageType type) async {
+  Future<bool> send(String text) async {
     final body = text.trim();
     final room = state.room;
     if (body.isEmpty || room == null) return false;
@@ -99,9 +111,7 @@ class ChatRoomController
     try {
       final saved = await ref
           .read(chatRepositoryProvider)
-          .sendMessage(room.id, text: body, type: type);
-      // The server fans the message back over the socket; only optimistically
-      // append if we don't already have it (covers slow echoes).
+          .sendMessage(room.id, text: body);
       if (!state.messages.any((m) => m.id == saved.id)) {
         state = state.copyWith(messages: [saved, ...state.messages]);
       }

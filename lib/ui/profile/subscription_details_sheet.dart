@@ -391,8 +391,9 @@ class _PlanCard extends StatefulWidget {
 }
 
 class _PlanCardState extends State<_PlanCard> {
-  late int? _selectedMonth =
-      widget.plan.prices.isNotEmpty ? widget.plan.prices.first.month : null;
+  late int? _selectedMonth = widget.plan.prices.isNotEmpty
+      ? widget.plan.prices.first.month
+      : null;
 
   PlanPrice? get _selectedPrice {
     if (_selectedMonth == null) return null;

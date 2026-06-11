@@ -1,49 +1,20 @@
-enum ChatMessageType {
-  message,
-  comment,
-  task;
-
-  String get apiName => switch (this) {
-    ChatMessageType.message => 'message',
-    ChatMessageType.comment => 'comment',
-    ChatMessageType.task => 'task',
-  };
-
-  static ChatMessageType fromApi(String? raw) {
-    switch (raw) {
-      case 'comment':
-        return ChatMessageType.comment;
-      case 'task':
-        return ChatMessageType.task;
-      default:
-        return ChatMessageType.message;
-    }
-  }
-}
-
 class ChatRoom {
   const ChatRoom({
     required this.id,
-    required this.peerAId,
-    required this.peerBId,
+    required this.studentId,
     required this.createdAt,
     required this.updatedAt,
   });
 
   final String id;
-  final String peerAId;
-  final String peerBId;
+  final String studentId;
   final DateTime createdAt;
   final DateTime updatedAt;
-
-  String otherPeer(String currentUserId) =>
-      peerAId == currentUserId ? peerBId : peerAId;
 
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
       id: json['id'] as String? ?? '',
-      peerAId: json['peerAId'] as String? ?? '',
-      peerBId: json['peerBId'] as String? ?? '',
+      studentId: json['studentId'] as String? ?? '',
       createdAt: _parseDate(json['createdAt']),
       updatedAt: _parseDate(json['updatedAt']),
     );
@@ -55,26 +26,29 @@ class ChatMessage {
     required this.id,
     required this.text,
     required this.chatRoomId,
-    required this.sentFromId,
+    required this.authorUserId,
+    required this.authorFullName,
+    required this.authorRole,
     required this.sentAt,
-    required this.type,
   });
 
   final String id;
   final String text;
   final String chatRoomId;
-  final String sentFromId;
+  final String authorUserId;
+  final String authorFullName;
+  final String authorRole;
   final DateTime sentAt;
-  final ChatMessageType type;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
       id: json['id'] as String? ?? '',
       text: json['text'] as String? ?? '',
       chatRoomId: json['chatRoomId'] as String? ?? '',
-      sentFromId: json['sentFromId'] as String? ?? '',
+      authorUserId: json['authorUserId'] as String? ?? '',
+      authorFullName: json['authorFullName'] as String? ?? '',
+      authorRole: json['authorRole'] as String? ?? '',
       sentAt: _parseDate(json['sentAt']),
-      type: ChatMessageType.fromApi(json['type'] as String?),
     );
   }
 }

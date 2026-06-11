@@ -20,10 +20,12 @@ class AppBottomNav extends StatelessWidget {
     super.key,
     required this.activeIndex,
     required this.onTap,
+    this.chatBadge = false,
   });
 
   final int activeIndex;
   final ValueChanged<int> onTap;
+  final bool chatBadge;
 
   static const _tabs = <NavTab>[
     NavTab(
@@ -85,6 +87,7 @@ class AppBottomNav extends StatelessWidget {
                 child: _NavItem(
                   tab: _tabs[i],
                   active: i == activeIndex,
+                  badge: i == 0 && chatBadge,
                   onTap: () => onTap(i),
                 ),
               ),
@@ -100,10 +103,12 @@ class _NavItem extends StatelessWidget {
     required this.tab,
     required this.active,
     required this.onTap,
+    this.badge = false,
   });
 
   final NavTab tab;
   final bool active;
+  final bool badge;
   final VoidCallback onTap;
 
   @override
@@ -116,28 +121,47 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: active ? AppColors.primary : tab.iconBackground,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: active
-                    ? [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.35),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : null,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                tab.icon,
-                color: active ? Colors.white : tab.iconColor,
-                size: 20,
-              ),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: active ? AppColors.primary : tab.iconBackground,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: active
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    tab.icon,
+                    color: active ? Colors.white : tab.iconColor,
+                    size: 20,
+                  ),
+                ),
+                if (badge)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(

@@ -35,9 +35,10 @@ class _PartnerAvatarState extends State<PartnerAvatar>
     super.didUpdateWidget(old);
     final next = widget.limitFraction ?? 1.0;
     if (next == _target) return;
-    _anim = Tween<double>(begin: _anim.value, end: next).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _anim = Tween<double>(
+      begin: _anim.value,
+      end: next,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
     _target = next;
     _ctrl.forward(from: 0);
   }

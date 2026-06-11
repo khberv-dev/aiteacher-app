@@ -1,10 +1,7 @@
-import 'dart:async';
-
-import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
+import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
 import 'package:ai_teacher/core/speaking/presentation/speaking_controller.dart';
 import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
-import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:ai_teacher/ui/speaking/limit_reached_sheet.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_avatar.dart';
@@ -25,75 +22,17 @@ class SpeakingPartnerScreen extends ConsumerStatefulWidget {
 
 class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
   late final StudentActivitySocket _activitySocket;
-  late final CacheService _cache;
   String? _lastErrorShown;
-
-  // Daily free-tier time limit (2.5 min = 150 s)
-  static const int _dailyLimitSeconds = 240;
-  bool _limitEnabled = false;
-  int _speakingSeconds = 0;
-  Timer? _speakingTicker;
 
   @override
   void initState() {
     super.initState();
     _activitySocket = ref.read(studentActivitySocketProvider);
-    _cache = ref.read(cacheServiceProvider);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _activitySocket.emitSpeakingStart();
-      _initDailyLimit();
     });
-  }
-
-  void _initDailyLimit() {
-    final hasSub =
-        ref.read(currentUserProvider).valueOrNull?.activeSubscription != null;
-    if (hasSub) return;
-
-    _speakingSeconds = _cache.getSpeakingSecondsUsed();
-    _limitEnabled = true;
-
-    if (_speakingSeconds >= _dailyLimitSeconds) {
-      _showDailyLimitSheet();
-    } else {
-      setState(() {}); // draw the arc at stored fraction
-    }
-  }
-
-  void _speakingTick() {
-    if (!mounted) return;
-    _speakingSeconds++;
-    if (_speakingSeconds >= _dailyLimitSeconds) {
-      _speakingTicker?.cancel();
-      _speakingTicker = null;
-      _cache.setSpeakingSecondsUsed(_speakingSeconds);
-      setState(() {});
-      _showDailyLimitSheet();
-    } else {
-      setState(() {});
-    }
-  }
-
-  void _showDailyLimitSheet() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-      final wantsSubscribe = await LimitReachedSheet.show(context);
-      if (!mounted) return;
-      if (wantsSubscribe == true) {
-        await SubscriptionDetailsSheet.show(context);
-      }
-      if (!mounted) return;
-      ref.read(speakingControllerProvider.notifier).endConversation();
-      _onBack();
-    });
-  }
-
-  String _formatDuration(Duration d) {
-    final m = d.inMinutes.toString().padLeft(2, '0');
-    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
-    return '$m:$s';
   }
 
   void _onBack() {
@@ -105,18 +44,51 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
     }
   }
 
+  Future<void> _showConversationLimitSheet({
+    int addonPrice = 5000,
+    int addonGrant = 3,
+  }) async {
+    final action = await LimitReachedSheet.show(
+      context,
+      addonPrice: addonPrice,
+      addonGrant: addonGrant,
+    );
+    if (!mounted) return;
+    if (action == LimitSheetAction.addonPurchased) {
+      ref.invalidate(conversationLimitProvider);
+      ref.read(speakingControllerProvider.notifier).dismissLimit();
+      ref.read(speakingControllerProvider.notifier).resetError();
+    } else if (action == LimitSheetAction.wantsSubscribe) {
+      await SubscriptionDetailsSheet.show(context);
+      if (!mounted) return;
+      ref.invalidate(conversationLimitProvider);
+    } else {
+      ref.read(speakingControllerProvider.notifier).endConversation();
+      _onBack();
+    }
+  }
+
+  String _formatDuration(Duration d) {
+    final m = d.inMinutes.toString().padLeft(2, '0');
+    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   Future<void> _onMicTap() async {
     final controller = ref.read(speakingControllerProvider.notifier);
     final state = ref.read(speakingControllerProvider);
     if (state.phase == SpeakingPhase.recording) {
       await controller.stopAndSend();
     } else if (!state.isBusy) {
-      // Start the daily limit ticker on first recording start.
-      if (_limitEnabled && _speakingTicker == null) {
-        _speakingTicker = Timer.periodic(
-          const Duration(seconds: 1),
-          (_) => _speakingTick(),
-        );
+      if (state.conversationId == null) {
+        final limit = ref.read(conversationLimitProvider).valueOrNull;
+        if (limit != null && limit.remaining == 0 && !limit.isUnlimited) {
+          await _showConversationLimitSheet(
+            addonPrice: limit.addonPrice,
+            addonGrant: limit.addonGrant,
+          );
+          return;
+        }
       }
       await controller.startRecording();
     }
@@ -142,20 +114,16 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(currentUserProvider, (_, next) {
-      if (next.valueOrNull?.activeSubscription != null) {
-        _speakingTicker?.cancel();
-        _speakingTicker = null;
-        if (_limitEnabled) setState(() => _limitEnabled = false);
-      }
-    });
-
     ref.listen<SpeakingState>(speakingControllerProvider, (prev, next) {
       final wasLimited = prev?.limitReached ?? false;
       if (!wasLimited && next.limitReached) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!mounted) return;
-          await LimitReachedSheet.show(context);
+          final limit = ref.read(conversationLimitProvider).valueOrNull;
+          await _showConversationLimitSheet(
+            addonPrice: limit?.addonPrice ?? 5000,
+            addonGrant: limit?.addonGrant ?? 3,
+          );
           if (!mounted) return;
           ref.read(speakingControllerProvider.notifier).dismissLimit();
           ref.read(speakingControllerProvider.notifier).resetError();
@@ -178,6 +146,13 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
         ref.read(speakingControllerProvider.notifier).resetError();
       });
     }
+
+    final limitAsync = ref.watch(conversationLimitProvider);
+    final limit = limitAsync.valueOrNull;
+    final limitFraction =
+        (limit != null && !limit.isUnlimited && limit.effectiveLimit > 0)
+        ? (limit.remaining / limit.effectiveLimit).clamp(0.0, 1.0)
+        : null;
 
     final timerLabel = switch (state.phase) {
       SpeakingPhase.recording => _formatDuration(state.elapsed),
@@ -202,13 +177,7 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
             children: [
               PartnerTopBar(timerLabel: timerLabel, onBack: _onBack),
               const SizedBox(height: 24),
-              PartnerAvatar(
-                limitFraction: _limitEnabled
-                    ? (_dailyLimitSeconds - _speakingSeconds)
-                          .clamp(0, _dailyLimitSeconds) /
-                        _dailyLimitSeconds
-                    : null,
-              ),
+              PartnerAvatar(limitFraction: limitFraction),
               const SizedBox(height: 24),
               Expanded(
                 child: Padding(
@@ -252,10 +221,6 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
 
   @override
   void dispose() {
-    _speakingTicker?.cancel();
-    if (_limitEnabled && _speakingSeconds > 0) {
-      _cache.setSpeakingSecondsUsed(_speakingSeconds);
-    }
     _activitySocket.emitSpeakingEnd();
     super.dispose();
   }
@@ -451,10 +416,8 @@ class _TypingDotsState extends State<_TypingDots>
     );
   }
 
-  /// Each dot is offset by 1/3 of the cycle, so they bounce sequentially.
   double _phaseFor(int index) {
     final t = (_controller.value + index * (1 / 3)) % 1.0;
-    // Triangle wave: 0 → 1 → 0
     return t < 0.5 ? t * 2 : (1 - t) * 2;
   }
 }
@@ -462,13 +425,12 @@ class _TypingDotsState extends State<_TypingDots>
 class _Dot extends StatelessWidget {
   const _Dot({required this.progress});
 
-  /// 0..1, where 1 is the peak of the bounce.
   final double progress;
 
   @override
   Widget build(BuildContext context) {
-    final scale = 0.6 + 0.6 * progress; // 0.6 → 1.2
-    final opacity = 0.35 + 0.65 * progress; // 0.35 → 1.0
+    final scale = 0.6 + 0.6 * progress;
+    final opacity = 0.35 + 0.65 * progress;
     return Transform.translate(
       offset: Offset(0, -4 * progress),
       child: Opacity(
@@ -489,7 +451,6 @@ class _Dot extends StatelessWidget {
   }
 }
 
-/// Bar-style mic visualizer: latest amplitudes scroll in from the right.
 class _WaveVisualizer extends StatelessWidget {
   const _WaveVisualizer({required this.amplitudes});
 
@@ -531,7 +492,6 @@ class _WaveVisualizer extends StatelessWidget {
 class _Bar extends StatelessWidget {
   const _Bar({required this.level});
 
-  /// 0..1
   final double level;
 
   @override
@@ -556,8 +516,6 @@ class _Bar extends StatelessWidget {
   }
 }
 
-/// Hint shown above the analyze button when the server says there's enough
-/// speech to generate a report.
 class _AnalyzeHint extends StatelessWidget {
   const _AnalyzeHint({required this.loading});
 

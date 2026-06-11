@@ -1,9 +1,8 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
-import 'package:ai_teacher/core/chat/data/chat_dtos.dart';
+import 'package:ai_teacher/core/chat/data/chat_dtos.dart' show ChatMessage;
 import 'package:ai_teacher/core/chat/presentation/chat_room_controller.dart';
 import 'package:ai_teacher/ui/chat/chat_data.dart' as ui;
-import 'package:ai_teacher/ui/chat/chat_list_data.dart';
 import 'package:ai_teacher/ui/chat/widget/activity_date_separator.dart';
 import 'package:ai_teacher/ui/chat/widget/activity_item_view.dart';
 import 'package:ai_teacher/ui/chat/widget/chat_compose_area.dart';
@@ -15,9 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key, required this.chat});
-
-  final ChatListItem chat;
+  const ChatScreen({super.key});
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -25,8 +22,6 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _composeController = TextEditingController();
-  int _activeFilter = 0;
-  ui.ActivityType _composeType = ui.ActivityType.chat;
   String? _lastErrorShown;
 
   static const _meColors = [Color(0xFF0D9488), Color(0xFF0F766E)];
@@ -74,34 +69,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  bool _matchesFilter(ChatMessage msg) {
-    switch (_activeFilter) {
-      case 0:
-        return true;
-      case 1:
-        return msg.type == ChatMessageType.comment;
-      case 2:
-        return msg.type == ChatMessageType.task;
-      case 3:
-      case 4:
-        // call / complaint not supported by API — filter shows nothing.
-        return false;
-      default:
-        return true;
-    }
-  }
-
   Future<void> _onSend() async {
     final text = _composeController.text.trim();
     if (text.isEmpty) return;
-    final apiType = switch (_composeType) {
-      ui.ActivityType.comment => ChatMessageType.comment,
-      ui.ActivityType.task => ChatMessageType.task,
-      _ => ChatMessageType.message,
-    };
-    final ok = await ref
-        .read(chatRoomControllerProvider(widget.chat.peerId).notifier)
-        .send(text, apiType);
+    final ok = await ref.read(chatRoomControllerProvider.notifier).send(text);
     if (!mounted || !ok) return;
     _composeController.clear();
     FocusScope.of(context).unfocus();
@@ -109,7 +80,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(chatRoomControllerProvider(widget.chat.peerId));
+    final state = ref.watch(chatRoomControllerProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
 
     if (state.error != null && state.error != _lastErrorShown) {
@@ -136,24 +107,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           child: Column(
             children: [
               ChatHeader(
-                title: widget.chat.name,
-                subtitle: widget.chat.online
-                    ? 'Onlayn'
-                    : 'Oxirgi marta yaqinda onlayn edi',
-                online: widget.chat.online,
-                activeFilterIndex: _activeFilter,
-                onFilterTap: (i) => setState(() => _activeFilter = i),
-                onBack: _onBack,
-                onSearch: () {},
-                onMenu: () {},
+                title: 'Chat',
+                subtitle: 'Muloqot maydoni',
+                onClose: _onBack,
               ),
               Expanded(child: _buildBody(state, groups)),
-              ChatComposeArea(
-                controller: _composeController,
-                activeType: _composeType,
-                onTypeChanged: (t) => setState(() => _composeType = t),
-                onSend: _onSend,
-              ),
+              ChatComposeArea(controller: _composeController, onSend: _onSend),
             ],
           ),
         ),
@@ -217,11 +176,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     List<ChatMessage> messages,
     String? currentUserId,
   ) {
-    final filtered = messages.where(_matchesFilter).toList();
+    final filtered = messages;
     if (filtered.isEmpty) return const [];
 
-    // Messages arrive sorted DESC (newest first). Render oldest-first within
-    // a day, with newest day appearing first.
     final asc = filtered.reversed.toList();
     final byKey = <String, List<ChatMessage>>{};
     final order = <String>[];
@@ -245,23 +202,47 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   ui.ActivityItem _toActivityItem(ChatMessage msg, String? currentUserId) {
-    final mine = currentUserId != null && msg.sentFromId == currentUserId;
+    final mine = currentUserId != null && msg.authorUserId == currentUserId;
     return ui.ActivityItem(
-      authorName: mine ? 'Siz' : widget.chat.name,
-      initials: mine ? 'S' : widget.chat.initials,
-      avatarColors: mine ? _meColors : widget.chat.avatarColors,
-      type: _toUiType(msg.type),
+      authorName: mine ? 'Siz' : msg.authorFullName,
+      initials: mine ? 'S' : _initials(msg.authorFullName),
+      avatarColors: mine ? _meColors : _colorsFor(msg.authorUserId),
+      role: _roleLabel(msg.authorRole),
       time: _formatTime(msg.sentAt),
       body: msg.text,
+      mine: mine,
     );
   }
 
-  ui.ActivityType _toUiType(ChatMessageType type) {
-    return switch (type) {
-      ChatMessageType.comment => ui.ActivityType.comment,
-      ChatMessageType.task => ui.ActivityType.task,
-      ChatMessageType.message => ui.ActivityType.chat,
-    };
+  String _roleLabel(String role) => switch (role) {
+    'mentor' => 'Mentor',
+    'admin' => 'Admin',
+    _ => "O'quvchi",
+  };
+
+  String _initials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length >= 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    if (parts.isNotEmpty && parts[0].isNotEmpty) {
+      return parts[0][0].toUpperCase();
+    }
+    return '?';
+  }
+
+  List<Color> _colorsFor(String userId) {
+    const palette = <List<Color>>[
+      [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+      [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+      [Color(0xFFF59E0B), Color(0xFFD97706)],
+      [Color(0xFFF472B6), Color(0xFFEC4899)],
+      [Color(0xFF64748B), Color(0xFF334155)],
+      [Color(0xFF0D9488), Color(0xFF059669)],
+    ];
+    if (userId.isEmpty) return palette.first;
+    final hash = userId.codeUnits.fold<int>(0, (a, b) => a + b);
+    return palette[hash % palette.length];
   }
 
   String _formatTime(DateTime d) {

@@ -1,5 +1,5 @@
+import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/app/theme/app_radius.dart';
-import 'package:ai_teacher/ui/chat/widget/chat_filter_tabs.dart';
 import 'package:flutter/material.dart';
 
 class ChatHeader extends StatelessWidget {
@@ -7,22 +7,12 @@ class ChatHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
-    required this.online,
-    required this.activeFilterIndex,
-    required this.onFilterTap,
-    required this.onBack,
-    required this.onSearch,
-    required this.onMenu,
+    required this.onClose,
   });
 
   final String title;
   final String subtitle;
-  final bool online;
-  final int activeFilterIndex;
-  final ValueChanged<int> onFilterTap;
-  final VoidCallback onBack;
-  final VoidCallback onSearch;
-  final VoidCallback onMenu;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -32,84 +22,76 @@ class ChatHeader extends StatelessWidget {
         color: Colors.white,
         border: Border(bottom: BorderSide(color: Color(0x0F000000), width: 1)),
       ),
-      padding: const EdgeInsets.fromLTRB(12, 8, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
+          const _Pictogram(),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _BackChip(onTap: onBack),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        title,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Color(0xFF111111),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 1),
-                      Row(
-                        children: [
-                          if (online) ...[
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF22C55E),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                          ],
-                          Flexible(
-                            child: Text(
-                              subtitle,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: online
-                                    ? const Color(0xFF22C55E)
-                                    : const Color(0xFF888888),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Color(0xFF111111),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(width: 8),
-                _IconChip(icon: Icons.search_rounded, onTap: onSearch),
-                const SizedBox(width: 6),
-                _IconChip(icon: Icons.menu_rounded, onTap: onMenu),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: Color(0xFF999999),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ChatFilterTabs(
-              activeIndex: activeFilterIndex,
-              onTap: onFilterTap,
-            ),
-          ),
+          const SizedBox(width: 8),
+          _CloseButton(onTap: onClose),
         ],
       ),
     );
   }
 }
 
-class _BackChip extends StatelessWidget {
-  const _BackChip({required this.onTap});
+class _Pictogram extends StatelessWidget {
+  const _Pictogram();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primaryDark],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: const Icon(Icons.chat_rounded, size: 20, color: Colors.white),
+    );
+  }
+}
+
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -124,35 +106,7 @@ class _BackChip extends StatelessWidget {
         child: const SizedBox(
           width: 36,
           height: 36,
-          child: Icon(
-            Icons.arrow_back_rounded,
-            color: Color(0xFF555555),
-            size: 18,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _IconChip extends StatelessWidget {
-  const _IconChip({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFEDEAE4),
-      borderRadius: BorderRadius.circular(AppRadius.sm + 2),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.sm + 2),
-        child: SizedBox(
-          width: 36,
-          height: 36,
-          child: Icon(icon, color: const Color(0xFF555555), size: 16),
+          child: Icon(Icons.close_rounded, color: Color(0xFF555555), size: 18),
         ),
       ),
     );

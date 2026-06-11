@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/auth/data/auth_repository.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
+import 'package:ai_teacher/core/user/data/user_repository.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/ui/profile/cards_sheet.dart';
 import 'package:ai_teacher/ui/profile/edit_password_dialog.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -33,6 +35,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   bool _pushNotifications = true;
   bool _streakReminder = true;
   String? _appVersion;
+  bool _uploadingAvatar = false;
 
   @override
   void initState() {
@@ -88,6 +91,34 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ..showSnackBar(const SnackBar(content: Text('Referal kod nusxalandi')));
   }
 
+  Future<void> _pickAndUploadAvatar() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 85,
+    );
+    if (image == null || !mounted) return;
+
+    setState(() => _uploadingAvatar = true);
+    try {
+      final bytes = await image.readAsBytes();
+      await ref.read(userRepositoryProvider).uploadAvatar(bytes, image.name);
+      ref.invalidate(currentUserProvider);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(content: Text("Rasmni yuklab bo'lmadi")),
+          );
+      }
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
   Future<void> _openEditProfile() async {
     final user = ref.read(currentUserProvider).valueOrNull;
     if (user == null) return;
@@ -134,6 +165,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             name: displayName,
             subtitle: displayPhone,
             initial: displayInitial,
+            avatarPath: user?.avatar,
+            onTapAvatar: _pickAndUploadAvatar,
+            uploadingAvatar: _uploadingAvatar,
           ),
           const ProfileSectionLabel(text: 'HISOB'),
           ProfileGroupCard(

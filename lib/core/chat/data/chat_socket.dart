@@ -75,8 +75,7 @@ class ChatSocket {
 
   Future<ChatMessage> sendMessage({
     required String text,
-    required String sentToId,
-    required ChatMessageType type,
+    required String roomId,
   }) async {
     final socket = _socket;
     if (socket == null || !socket.connected) {
@@ -85,7 +84,7 @@ class ChatSocket {
     final completer = Completer<ChatMessage>();
     socket.emitWithAck(
       'message',
-      {'text': text, 'sentToId': sentToId, 'type': type.apiName},
+      {'text': text, 'roomId': roomId},
       ack: (response) {
         if (response is Map &&
             response.containsKey('error') &&
