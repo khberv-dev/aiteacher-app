@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
 import 'package:ai_teacher/core/speaking/presentation/speaking_controller.dart';
@@ -186,6 +189,7 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
                     turns: state.turns,
                     fallback: fallback,
                     statusText: statusText,
+                    isProcessing: state.phase == SpeakingPhase.processing,
                   ),
                 ),
               ),
@@ -242,11 +246,13 @@ class _ConversationCard extends StatefulWidget {
     required this.turns,
     required this.fallback,
     this.statusText,
+    this.isProcessing = false,
   });
 
   final List<SpeakingTurn> turns;
   final String fallback;
   final String? statusText;
+  final bool isProcessing;
 
   @override
   State<_ConversationCard> createState() => _ConversationCardState();
@@ -299,16 +305,18 @@ class _ConversationCardState extends State<_ConversationCard> {
         child: widget.turns.isEmpty
             ? Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text(
-                  widget.statusText ?? widget.fallback,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF0D1B4B),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.4,
-                  ),
-                ),
+                child: widget.isProcessing
+                    ? const _RotatingWaitText(large: true)
+                    : Text(
+                        widget.statusText ?? widget.fallback,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF0D1B4B),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
+                        ),
+                      ),
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -316,16 +324,19 @@ class _ConversationCardState extends State<_ConversationCard> {
                   for (final turn in widget.turns) _TurnBubble(turn: turn),
                   if (widget.statusText != null) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      widget.statusText!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Color(0xFF6B7A9F),
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w500,
+                    if (widget.isProcessing)
+                      const _RotatingWaitText()
+                    else
+                      Text(
+                        widget.statusText!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF6B7A9F),
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
                   ],
                 ],
               ),
@@ -372,6 +383,103 @@ class _TurnBubble extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RotatingWaitText extends StatefulWidget {
+  const _RotatingWaitText({this.large = false});
+
+  final bool large;
+
+  @override
+  State<_RotatingWaitText> createState() => _RotatingWaitTextState();
+}
+
+class _RotatingWaitTextState extends State<_RotatingWaitText> {
+  static const _texts = [
+    '💭 Bir lahza... javob tayyorlanmoqda.',
+    '🧠 AI miyasini isitmoqda...',
+    '📚 Oxford lug\'atiga qarayapman...',
+    '☕ Bir piyola choy ichib o\'ylayapman...',
+    '🌍 171,476 ingliz so\'zidan eng yaxshisini tanlayapman...',
+    '🤖 Beep boop... javob qurilmoqda...',
+    '🎭 Shekspir ham shuncha o\'ylagandir...',
+    '🔍 Google Tarjimondan yaxshiroq javob izlayapman...',
+    '🎯 Mukammal javob = AI + sabr...',
+    '😅 Bu savolni ChatGPT ham qiyin deb topdi...',
+    '🦜 Toʻtiqush ham bunday inglizchani bilmaydi...',
+    '🌀 Neyronlar ishlayapti, sabr qiling...',
+    '📡 Londonga signal yuborildi, javob kelmoqda...',
+    '🎩 Grammatika sehrgari ish ustida...',
+    '🧩 Jumlani yig\'ishtiryapman, deyarli tayyorlashdi...',
+    '🚀 Javob warp tezligida kelmoqda...',
+    '🌙 Hatto tunda ham inglizcha o\'rganiladi...',
+    '🎸 AI ham ba\'zan improvizatsiya qiladi...',
+    '🧊 Sovuqqonlik bilan eng zo\'r javobni izlayapman...',
+    '🎲 Random emas, puxta o\'ylaб javob berayapman...',
+    '🦁 Aslan ham inglizchani sekin o\'rgangan...',
+    '⌨️ 1000 so\'z per minut... lekin sifat bilan...',
+    '🌊 Fikrlar oqimi javobni shakllantiryapti...',
+    '🎪 Tilshunoslik sirki hozir ochiladi...',
+    '🍕 Yaxshi javob, xuddi yaxshi pizza — vaqt oladi...',
+    '🧲 Eng to\'g\'ri so\'zlarni tortib olayapman...',
+    '🪄 Hokimlik tayoqchasi ishga tushdi...',
+    '🦊 Ayyor AI hamma variantni ko\'rib chiqmoqda...',
+    '🌺 Gaplaring bog\'ida eng chiroyli javobni uzmoqdaman...',
+    '⚡ Tez bo\'laman deb va\'da bermagan edim, lekin urinaman...',
+  ];
+
+  int _index = 0;
+  late final Timer _timer;
+  final _random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    _index = _random.nextInt(_texts.length);
+    _timer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted) return;
+      int next;
+      do {
+        next = _random.nextInt(_texts.length);
+      } while (next == _index);
+      setState(() => _index = next);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 380),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.15),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+          child: child,
+        ),
+      ),
+      child: Text(
+        _texts[_index],
+        key: ValueKey(_index),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: widget.large ? const Color(0xFF0D1B4B) : const Color(0xFF6B7A9F),
+          fontSize: widget.large ? 16 : 13,
+          fontStyle: FontStyle.italic,
+          fontWeight: widget.large ? FontWeight.w600 : FontWeight.w500,
+          height: 1.4,
         ),
       ),
     );
