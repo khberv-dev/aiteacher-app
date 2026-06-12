@@ -8,7 +8,7 @@ Flutter app named `ai_teacher` (Dart SDK `^3.11.5`). Targets all six Flutter pla
 
 Stack: `flutter_riverpod` (state), `go_router` (nav), `dio` + `talker_dio_logger` (network/logging), `shared_preferences` (persistence). Target market is Uzbekistan — phone numbers are 9 digits formatted `XX XXX XX XX` via `UzPhoneFormatter`.
 
-Notable packages: `record` (mic capture in speaking), `flutter_webrtc` (peer-to-peer video/audio in call feature), `audioplayers` (playback), `lottie` (animations), `flutter_inappwebview` (course web view with auto-login injection), `chewie` + `video_player` (video courses), `pinput` (OTP input).
+Notable packages: `record` (mic capture in speaking), `flutter_webrtc` (peer-to-peer video/audio in call feature), `audioplayers` (playback), `lottie` (animations), `flutter_inappwebview` (course web view with auto-login injection), `chewie` + `video_player` (video courses), `pinput` (OTP input), `flutter_markdown_plus` (AI chat message rendering), `image_picker` (profile/avatar upload), `url_launcher` (external links), `package_info_plus` (app version display).
 
 ## Architecture
 
@@ -56,7 +56,9 @@ No `domain/` layer is used — features only have `data/` and `presentation/`.
 - **CacheService time-limit tracking**: two 24-hour sliding-window helpers track usage seconds — `getDemoSecondsUsed(courseId)` / `setDemoSecondsUsed` (per demo course) and `getSpeakingSecondsUsed` / `setSpeakingSecondsUsed` (global speaking partner limit). Window resets automatically when ≥ 24 h have elapsed since the stored start timestamp.
 - **Speaking conversation limits**: `ConversationLimit` model (`lib/core/speaking/data/conversation_limit.dart`) carries server-side per-plan limits (`baseLimit`, `addonExtra`, `effectiveLimit`, `remaining`, `isUnlimited`). This is the authoritative source for whether a user can start a session; the CacheService second-based tracker is a local UI safeguard, not the gating logic.
 - **Chatbot feature**: `lib/core/chatbot/` holds `ChatbotController` (an `AutoDisposeAsyncNotifier` that creates a session on `build` then accepts `sendMessage` calls), `chatbotRepositoryProvider`, and DTOs. The reusable `ChatbotView` widget (`lib/ui/courses/widget/chatbot_view.dart`) embeds the chat UI and is used in both the course web screen and `AiManagerScreen` (route `AppRoute.aiManager` → `/ai-manager`). A companion `ChatbotSheet` wraps it in a bottom sheet.
-- **Local development**: update `NetworkConfig.devHostUrl` (`lib/app/data/network_config.dart`) to your machine's LAN IP before running against a local API server.
+- **Local development**: update `NetworkConfig.devHostUrl` (`lib/app/data/network_config.dart`) to your machine's LAN IP before running against a local API server. Use `NetworkConfig.resolveStatic(path)` to build CDN media URLs — it prepends `baseCdnUrl` to relative paths and returns absolute URLs unchanged.
+- **Course web auto-login**: `CacheService` stores `webIdentifier` and `webPassword` which are injected as JavaScript into `flutter_inappwebview` pages to auto-authenticate the student on course web content.
+- **Auth controller pattern**: auth form controllers (`LoginController`, `RegisterController`, `OtpController`) use a sealed `AuthActionState` class (`AuthIdle` / `AuthLoading` / `AuthFailure`) rather than `AsyncValue`, giving finer-grained UI control without the `loading` state hiding the form.
 
 ## Commands
 

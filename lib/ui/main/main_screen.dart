@@ -99,14 +99,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void _connectChatSocket() {
     try {
       final socket = ref.read(chatSocketProvider);
-      socket.connect().then((_) {
-        _chatUnreadSub = socket.incoming.listen((_) {
-          if (!mounted) return;
-          if (!ref.read(chatScreenActiveProvider)) {
-            ref.read(chatUnreadProvider.notifier).state = true;
-          }
-        });
-      }).catchError((_) {});
+      socket
+          .connect()
+          .then((_) {
+            _chatUnreadSub = socket.incoming.listen((_) {
+              if (!mounted) return;
+              if (!ref.read(chatScreenActiveProvider)) {
+                ref.read(chatUnreadProvider.notifier).state = true;
+              }
+            });
+          })
+          .catchError((_) {});
     } catch (_) {}
   }
 

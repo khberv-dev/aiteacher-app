@@ -4,6 +4,8 @@ import 'dart:io' show Platform;
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_theme.dart';
 import 'package:ai_teacher/core/session/presentation/session_controller.dart';
+import 'package:ai_teacher/core/update/update_checker.dart';
+import 'package:ai_teacher/ui/shared/widget/update_dialog.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +35,9 @@ class _AppState extends ConsumerState<App> {
   Future<void> _bootstrap() async {
     if (!mounted) return;
     final sessionCtrl = ref.read(sessionControllerProvider.notifier);
+
+    // Run update check in parallel with FCM bootstrap.
+    final updateFuture = UpdateChecker.check();
 
     String? fcmToken;
     try {
@@ -96,6 +101,18 @@ class _AppState extends ConsumerState<App> {
       await sessionCtrl.updateFcmToken(fcmToken);
     } else {
       await sessionCtrl.syncSession();
+    }
+
+    final updateInfo = await updateFuture;
+    if (mounted && updateInfo != null) {
+      final navContext = ref
+          .read(routerProvider)
+          .routerDelegate
+          .navigatorKey
+          .currentContext;
+      if (navContext != null && navContext.mounted) {
+        await UpdateDialog.show(navContext, updateInfo);
+      }
     }
   }
 

@@ -475,7 +475,9 @@ class _RotatingWaitTextState extends State<_RotatingWaitText> {
         key: ValueKey(_index),
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: widget.large ? const Color(0xFF0D1B4B) : const Color(0xFF6B7A9F),
+          color: widget.large
+              ? const Color(0xFF0D1B4B)
+              : const Color(0xFF6B7A9F),
           fontSize: widget.large ? 16 : 13,
           fontStyle: FontStyle.italic,
           fontWeight: widget.large ? FontWeight.w600 : FontWeight.w500,

@@ -31,6 +31,7 @@ dependencies:
   chewie: ^1.13.1
   video_player: ^2.11.1
   image_picker: ^1.1.2
+  upgrader: ^11.4.0
 
 dev_dependencies:
   flutter_test:
