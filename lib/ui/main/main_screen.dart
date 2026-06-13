@@ -148,6 +148,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void _maybeFireIntroTrigger() {
     if (_introTriggered || !mounted) return;
     if (!kDebugMode && ref.read(cacheServiceProvider).introCompleted) return;
+    if (_processingQueue) return;
     if (ref.read(modalQueueProvider).isNotEmpty) return;
     _introTriggered = true;
     ref.read(introTriggerProvider.notifier).update((v) => v + 1);
