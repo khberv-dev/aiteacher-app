@@ -20,7 +20,7 @@ dependencies {
 }
 
 android {
-    namespace = "uz.myteacher.ai_teacher"
+    namespace = "com.myteacher.student"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "uz.myteacher.ai_teacher"
+        applicationId = "com.myteacher.student"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

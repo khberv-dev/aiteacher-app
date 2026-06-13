@@ -3,6 +3,7 @@ import 'package:ai_teacher/core/session/data/session_dtos.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
   return SessionRepository(
@@ -17,12 +18,23 @@ class SessionRepository {
   final Dio publicDio;
   final Dio authDio;
 
+  Future<String> _appVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    return info.version;
+  }
+
   /// Public — called on first launch (or whenever no session id is cached).
   Future<Session> create({String? fcmToken}) async {
     final os = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
+    final version = await _appVersion();
     final response = await publicDio.post<Map<String, dynamic>>(
       'sessions',
-      data: {'os': os, 'appName': 'student', 'fcmToken': ?fcmToken},
+      data: {
+        'os': os,
+        'appName': 'student',
+        'version': version,
+        'fcmToken': ?fcmToken,
+      },
     );
     return Session.fromJson(response.data ?? const {});
   }
@@ -34,9 +46,10 @@ class SessionRepository {
     String? fcmToken,
   }) async {
     final os = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
+    final version = await _appVersion();
     final response = await authDio.patch<Map<String, dynamic>>(
       'sessions/$sessionId',
-      data: {'os': os, 'fcmToken': ?fcmToken},
+      data: {'os': os, 'version': version, 'fcmToken': ?fcmToken},
     );
     return Session.fromJson(response.data ?? const {});
   }
@@ -45,9 +58,10 @@ class SessionRepository {
   /// belongs to the current user. Call on every app launch after login.
   Future<Session> update({required String sessionId, String? fcmToken}) async {
     final os = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
+    final version = await _appVersion();
     final response = await authDio.put<Map<String, dynamic>>(
       'sessions/$sessionId',
-      data: {'os': os, 'fcmToken': ?fcmToken},
+      data: {'os': os, 'version': version, 'fcmToken': ?fcmToken},
     );
     return Session.fromJson(response.data ?? const {});
   }

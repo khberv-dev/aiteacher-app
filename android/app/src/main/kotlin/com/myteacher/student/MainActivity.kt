@@ -1,4 +1,4 @@
-package uz.myteacher.ai_teacher
+package com.myteacher.student
 
 import io.flutter.embedding.android.FlutterActivity
 
