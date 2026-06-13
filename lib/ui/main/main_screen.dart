@@ -1,18 +1,24 @@
 import 'dart:async';
 
 import 'package:ai_teacher/app/data/cache_service.dart';
+import 'package:ai_teacher/app/modal_queue/modal_queue_notifier.dart';
+import 'package:ai_teacher/app/modal_queue/modal_task.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
 import 'package:ai_teacher/core/cashback/data/cashback_repository.dart';
 import 'package:ai_teacher/core/chat/data/chat_socket.dart';
 import 'package:ai_teacher/core/chat/presentation/chat_unread_provider.dart';
+import 'package:ai_teacher/core/promo/data/promo_dtos.dart';
+import 'package:ai_teacher/core/promo/data/promo_socket.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
 import 'package:ai_teacher/ui/blog/blog_page.dart' show CommentsPage;
 import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
 import 'package:ai_teacher/ui/courses/courses_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
 import 'package:ai_teacher/ui/profile/profile_page.dart';
+import 'package:ai_teacher/ui/promo/widget/promo_modal.dart';
+import 'package:ai_teacher/ui/promo/widget/promo_sheet.dart';
 import 'package:ai_teacher/ui/shared/widget/app_bottom_nav.dart';
 import 'package:ai_teacher/ui/streak/streak_sheet.dart';
 import 'package:flutter/material.dart';
@@ -46,12 +52,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     ProfilePage(),
   ];
 
-  bool _cashbackToastShown = false;
+  bool _processingQueue = false;
+  bool _cashbackFetched = false;
+
   StreamSubscription<dynamic>? _chatUnreadSub;
+  StreamSubscription<PromoEvent>? _promoSub;
 
   @override
   void dispose() {
     _chatUnreadSub?.cancel();
+    _promoSub?.cancel();
     super.dispose();
   }
 
@@ -62,9 +72,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       if (!mounted) return;
       ref.read(callControllerProvider.notifier).ensureListening();
       _connectChatSocket();
-      final streak = await ref
-          .read(streakCheckInProvider.notifier)
-          .runIfNeeded();
+      _listenPromos();
+
+      final streak = await ref.read(streakCheckInProvider.notifier).runIfNeeded();
       if (!mounted) return;
       if (streak != null) {
         final cache = ref.read(cacheServiceProvider);
@@ -73,26 +83,76 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             last != null && DateTime.now().difference(last).inHours < 24;
         if (!shownToday) {
           await cache.setLastStreakSheetShownAt(DateTime.now());
-          if (!mounted) return;
-          await StreakSheet.show(context);
-          if (!mounted) return;
+          ref.read(modalQueueProvider.notifier).enqueue(StreakTask());
         }
       }
-      await _showCashbackToastIfAny();
+
+      await _enqueueCashbackIfAny();
     });
   }
 
-  Future<void> _showCashbackToastIfAny() async {
-    if (_cashbackToastShown) return;
-    _cashbackToastShown = true;
+  Future<void> _enqueueCashbackIfAny() async {
+    if (_cashbackFetched) return;
+    _cashbackFetched = true;
     try {
       final cashbacks = await ref.read(cashbackRepositoryProvider).list();
       final unclaimed = cashbacks.where((c) => !c.claimed).toList();
       if (!mounted || unclaimed.isEmpty) return;
-      await CashbackEarnedToast.show(context, unclaimed: unclaimed);
+      ref.read(modalQueueProvider.notifier).enqueue(CashbackTask(unclaimed));
     } catch (_) {
-      // Silent — the user will see cashbacks the next time they relaunch.
-      _cashbackToastShown = false;
+      _cashbackFetched = false;
+    }
+  }
+
+  void _listenPromos() {
+    _promoSub?.cancel();
+    final socket = ref.read(promoSocketProvider);
+    _promoSub = socket.events.listen((event) {
+      if (ref.read(cacheServiceProvider).shownPromoIds.contains(event.id)) {
+        return;
+      }
+      ref.read(modalQueueProvider.notifier).enqueue(PromoTask(event));
+    });
+    socket.reconnect().catchError((_) {});
+  }
+
+  Future<void> _processQueue() async {
+    if (_processingQueue) return;
+    _processingQueue = true;
+    try {
+      final notifier = ref.read(modalQueueProvider.notifier);
+      while (true) {
+        if (!mounted) break;
+        final task = notifier.dequeue();
+        if (task == null) break;
+        try {
+          await _showTask(task);
+        } catch (_) {
+          // Skip failed task and continue with the rest.
+        }
+      }
+    } finally {
+      _processingQueue = false;
+    }
+  }
+
+  Future<void> _showTask(ModalTask task) async {
+    if (!mounted) return;
+    switch (task) {
+      case PromoTask(:final event):
+        switch (event.type) {
+          case PromoType.screen:
+            await context.push(AppRoute.promo.path, extra: event);
+          case PromoType.sheet:
+            await PromoSheet.show(context, event);
+          case PromoType.modal:
+            await PromoModal.show(context, event);
+        }
+        await ref.read(cacheServiceProvider).addShownPromoId(event.id);
+      case CashbackTask(:final unclaimed):
+        await CashbackEarnedToast.show(context, unclaimed: unclaimed);
+      case StreakTask():
+        await StreakSheet.show(context);
     }
   }
 
@@ -135,6 +195,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       if (wasIdle && isLive) {
         context.pushNamed(AppRoute.call.name);
       }
+    });
+
+    // Watch the global queue and drain it whenever new items arrive.
+    ref.listen<List<ModalTask>>(modalQueueProvider, (_, next) {
+      if (next.isNotEmpty) _processQueue();
     });
 
     return AnnotatedRegion<SystemUiOverlayStyle>(

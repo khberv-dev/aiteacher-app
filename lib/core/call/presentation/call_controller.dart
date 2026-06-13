@@ -92,9 +92,13 @@ class CallController extends Notifier<CallState> {
   MediaStream? _localStream;
   MediaStream? _remoteStream;
   Timer? _elapsedTimer;
+  Timer? _retryTimer;
   DateTime? _activeAt;
   bool _isCaller = false;
   bool _socketStarted = false;
+  int _retryCount = 0;
+
+  static const _retryDelays = [2, 4, 8, 16, 30];
 
   static const _iceServers = <Map<String, dynamic>>[
     {'urls': 'stun:stun.l.google.com:19302'},
@@ -112,18 +116,32 @@ class CallController extends Notifier<CallState> {
 
   /// Subscribe to the /call socket so we hear `incoming-call`. Call this once
   /// from a long-lived widget (e.g. the main shell) after the user is signed
-  /// in.
+  /// in. Retries with exponential backoff on failure.
   Future<void> ensureListening() async {
     if (_socketStarted) return;
     _socketStarted = true;
+    _retryTimer?.cancel();
+    _retryTimer = null;
     try {
       final socket = ref.read(callSocketProvider);
       await socket.connect();
       _eventsSub = socket.events.listen(_handleEvent);
+      _retryCount = 0;
     } catch (e) {
       _socketStarted = false;
       debugPrint('call socket connect failed: $e');
+      _scheduleRetry();
     }
+  }
+
+  void _scheduleRetry() {
+    final seconds = _retryDelays[_retryCount.clamp(0, _retryDelays.length - 1)];
+    _retryCount++;
+    debugPrint('call socket retry in ${seconds}s (attempt $_retryCount)');
+    _retryTimer = Timer(Duration(seconds: seconds), () {
+      _retryTimer = null;
+      ensureListening();
+    });
   }
 
   /// Mentor-initiated call. Posts to `/calls`, the server fires
@@ -414,6 +432,8 @@ class CallController extends Notifier<CallState> {
   }
 
   void _disposeAll() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
     _eventsSub?.cancel();
     _eventsSub = null;
     _stopElapsedTimer();

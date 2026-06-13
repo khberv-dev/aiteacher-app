@@ -20,6 +20,8 @@ import 'package:ai_teacher/ui/support/support_screen.dart';
 import 'package:ai_teacher/ui/survey/survey_data.dart';
 import 'package:ai_teacher/ui/survey/survey_screen.dart';
 import 'package:ai_teacher/ui/vocabulary/vocabulary_training_screen.dart';
+import 'package:ai_teacher/core/promo/data/promo_dtos.dart';
+import 'package:ai_teacher/ui/promo/promo_screen.dart';
 import 'package:ai_teacher/ui/writing_task/writing_task_list_screen.dart';
 import 'package:ai_teacher/ui/writing_task/writing_task_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -159,6 +161,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             WritingTaskScreen(taskId: state.extra as String?),
       ),
+      GoRoute(
+        path: AppRoute.promo.path,
+        name: AppRoute.promo.name,
+        builder: (context, state) =>
+            PromoScreen(promo: state.extra as PromoEvent),
+      ),
     ],
   );
 });
@@ -182,7 +190,8 @@ enum AppRoute {
   notifications('/notifications'),
   chat('/chat'),
   call('/call'),
-  aiManager('/ai-manager');
+  aiManager('/ai-manager'),
+  promo('/promo');
 
   const AppRoute(this.path);
 

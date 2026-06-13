@@ -119,6 +119,16 @@ class CacheService {
   Future<void> setLastStreakSheetShownAt(DateTime time) =>
       _prefs.setString(_streakSheetShownAtKey, time.toIso8601String());
 
+  static const String _shownPromoIdsKey = 'shown_promo_ids';
+
+  Set<String> get shownPromoIds =>
+      (_prefs.getStringList(_shownPromoIdsKey) ?? const []).toSet();
+
+  Future<void> addShownPromoId(String id) async {
+    final ids = shownPromoIds..add(id);
+    await _prefs.setStringList(_shownPromoIdsKey, ids.toList());
+  }
+
   Future<bool> remove(String key) => _prefs.remove(key);
 
   Future<bool> clear() => _prefs.clear();

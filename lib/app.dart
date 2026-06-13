@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_theme.dart';
+import 'package:ai_teacher/core/promo/data/promo_socket.dart';
 import 'package:ai_teacher/core/session/presentation/session_controller.dart';
 import 'package:ai_teacher/core/update/update_checker.dart';
 import 'package:ai_teacher/ui/shared/widget/update_dialog.dart';
@@ -35,6 +36,9 @@ class _AppState extends ConsumerState<App> {
   Future<void> _bootstrap() async {
     if (!mounted) return;
     final sessionCtrl = ref.read(sessionControllerProvider.notifier);
+
+    // Connect promo socket immediately — no auth required to attempt.
+    _connectPromoSocket();
 
     // Run update check in parallel with FCM bootstrap.
     final updateFuture = UpdateChecker.check();
@@ -103,17 +107,22 @@ class _AppState extends ConsumerState<App> {
       await sessionCtrl.syncSession();
     }
 
+    final navContext = ref
+        .read(routerProvider)
+        .routerDelegate
+        .navigatorKey
+        .currentContext;
+
     final updateInfo = await updateFuture;
-    if (mounted && updateInfo != null) {
-      final navContext = ref
-          .read(routerProvider)
-          .routerDelegate
-          .navigatorKey
-          .currentContext;
-      if (navContext != null && navContext.mounted) {
-        await UpdateDialog.show(navContext, updateInfo);
-      }
+    if (navContext != null && navContext.mounted && updateInfo != null) {
+      await UpdateDialog.show(navContext, updateInfo);
     }
+  }
+
+  void _connectPromoSocket() {
+    try {
+      ref.read(promoSocketProvider).connect().catchError((_) {});
+    } catch (_) {}
   }
 
   void _handleLaunchMessage(String source, RemoteMessage msg) {
