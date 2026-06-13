@@ -1,7 +1,10 @@
+import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/promo/data/promo_dtos.dart';
+import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:go_router/go_router.dart';
 
 class PromoScreen extends StatefulWidget {
   const PromoScreen({super.key, required this.promo});
@@ -14,6 +17,34 @@ class PromoScreen extends StatefulWidget {
 
 class _PromoScreenState extends State<PromoScreen> {
   double _progress = 0;
+
+  void _handleAppLink(String screen) {
+    context.pop();
+    switch (screen) {
+      case 'chat':
+        context.push(AppRoute.chat.path);
+      case 'notifications':
+        context.push(AppRoute.notifications.path);
+      case 'speaking':
+        context.push(AppRoute.speaking.path);
+      case 'speaking_history':
+        context.push(AppRoute.speakingHistory.path);
+      case 'vocabulary':
+        context.push(AppRoute.vocabularyTraining.path);
+      case 'word_battle':
+        context.push(AppRoute.wordBattle.path);
+      case 'writing_task':
+        context.push(AppRoute.writingTask.path);
+      case 'support':
+        context.push(AppRoute.support.path);
+      case 'home':
+        context.go(AppRoute.main.path, extra: MainScreen.homeTab);
+      case 'courses':
+        context.go(AppRoute.main.path, extra: MainScreen.coursesTab);
+      case 'profile':
+        context.go(AppRoute.main.path, extra: MainScreen.profileTab);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +67,14 @@ class _PromoScreenState extends State<PromoScreen> {
                 ),
                 onProgressChanged: (_, progress) {
                   setState(() => _progress = progress / 100);
+                },
+                shouldOverrideUrlLoading: (_, action) async {
+                  final uri = action.request.url;
+                  if (uri != null && uri.scheme == 'app') {
+                    if (mounted) _handleAppLink(uri.host);
+                    return NavigationActionPolicy.CANCEL;
+                  }
+                  return NavigationActionPolicy.ALLOW;
                 },
               ),
             ),
