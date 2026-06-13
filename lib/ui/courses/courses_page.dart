@@ -12,6 +12,7 @@ import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
 import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/ui/courses/widget/course_info_sheet.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
@@ -179,8 +180,12 @@ class _EnrolledCourseCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () =>
-              context.pushNamed(AppRoute.courseWeb.name, extra: course),
+          onTap: () => CourseInfoSheet.showEnrolled(
+            context,
+            course: course,
+            onNavigate: () =>
+                context.pushNamed(AppRoute.courseWeb.name, extra: course),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -395,10 +400,17 @@ class _AvailableCourseCardState extends ConsumerState<_AvailableCourseCard>
     _ensurePolling();
   }
 
+  Future<void> _openInfoSheet() {
+    return CourseInfoSheet.showAvailable(
+      context,
+      course: widget.course,
+      onDemo: _onDemo,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final course = widget.course;
-    final demoPrice = course.demoPrice;
 
     return Container(
       decoration: BoxDecoration(
@@ -412,97 +424,44 @@ class _AvailableCourseCardState extends ConsumerState<_AvailableCourseCard>
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _CourseCover(coverUrl: course.coverUrl),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  course.title,
-                  style: const TextStyle(
-                    color: Color(0xFF0F172A),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    height: 1.3,
-                  ),
-                ),
-                if ((course.description ?? '').isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    course.description!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF64748B),
-                      fontSize: 13,
-                      height: 1.45,
-                    ),
-                  ),
-                ],
-                if (demoPrice != null) ...[
-                  const SizedBox(height: 12),
-                  _OutlineButton(
-                    label: _loading
-                        ? 'Faollashtirilmoqda...'
-                        : _checkingPayment
-                        ? "To'lov tekshirilmoqda..."
-                        : "Sinab ko'rish · ${_formatPrice(demoPrice)}",
-                    icon: (_loading || _checkingPayment)
-                        ? Icons.hourglass_empty_rounded
-                        : Icons.play_circle_outline_rounded,
-                    onTap: (_loading || _checkingPayment) ? () {} : _onDemo,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OutlineButton extends StatelessWidget {
-  const _OutlineButton({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _openInfoSheet,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, size: 14, color: const Color(0xFF64748B)),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Color(0xFF64748B),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+              _CourseCover(coverUrl: course.coverUrl),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      course.title,
+                      style: const TextStyle(
+                        color: Color(0xFF0F172A),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        height: 1.3,
+                      ),
+                    ),
+                    if ((course.description ?? '').isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        course.description!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 13,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],

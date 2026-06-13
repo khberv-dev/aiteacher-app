@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CashbackCard extends ConsumerWidget {
-  const CashbackCard({super.key});
+  const CashbackCard({super.key, this.onTap});
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -12,19 +14,22 @@ class CashbackCard extends ConsumerWidget {
     final summary = summaryAsync.valueOrNull ?? CashbackSummary.zero;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: const Color(0xFF111111),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _CashbackTopRow(summary: summary),
-            const SizedBox(height: 10),
-            _CashbackMeta(summary: summary),
-          ],
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFF111111),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _CashbackTopRow(summary: summary),
+              const SizedBox(height: 10),
+              _CashbackMeta(summary: summary),
+            ],
+          ),
         ),
       ),
     );

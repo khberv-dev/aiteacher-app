@@ -2,28 +2,23 @@ enum CashbackType {
   register,
   referral,
   payment,
-  referralPayment;
+  referralPayment,
+  streak;
 
-  static CashbackType fromApi(String? raw) {
-    switch (raw) {
-      case 'referral':
-        return CashbackType.referral;
-      case 'payment':
-        return CashbackType.payment;
-      case 'referral_payment':
-        return CashbackType.referralPayment;
-      case 'register':
-      default:
-        return CashbackType.register;
-    }
-  }
+  static CashbackType fromApi(String? raw) => switch (raw) {
+    'referral' => CashbackType.referral,
+    'payment' => CashbackType.payment,
+    'referral_payment' => CashbackType.referralPayment,
+    'streak' => CashbackType.streak,
+    _ => CashbackType.register,
+  };
 
-  /// Short Uzbek label for the toast/source chip.
   String get sourceLabelUz => switch (this) {
     CashbackType.register => "Ro'yxatdan o'tganingiz uchun",
     CashbackType.referral => "Do'st referal kodi orqali keldi",
     CashbackType.payment => "Sizning to'lovingiz uchun",
     CashbackType.referralPayment => "Do'stingiz to'lovi uchun",
+    CashbackType.streak => "Streak seriyasi uchun",
   };
 }
 
