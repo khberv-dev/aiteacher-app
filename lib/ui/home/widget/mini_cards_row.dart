@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class MiniCardsRow extends StatelessWidget {
-  const MiniCardsRow({super.key});
+  const MiniCardsRow({super.key, this.vocabularyKey, this.battleKey});
+
+  final GlobalKey? vocabularyKey;
+  final GlobalKey? battleKey;
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +17,7 @@ class MiniCardsRow extends StatelessWidget {
         children: [
           Expanded(
             child: _MiniCard(
+              key: vocabularyKey,
               icon: Icons.menu_book_outlined,
               titleLines: const ['Kundalik', "lug'atlar"],
               gradient: const LinearGradient(
@@ -28,6 +32,7 @@ class MiniCardsRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: _MiniCard(
+              key: battleKey,
               icon: Icons.sports_esports_outlined,
               titleLines: const ["So'z", 'Jangi'],
               gradient: const LinearGradient(
@@ -47,6 +52,7 @@ class MiniCardsRow extends StatelessWidget {
 
 class _MiniCard extends StatelessWidget {
   const _MiniCard({
+    super.key,
     required this.icon,
     required this.titleLines,
     required this.gradient,

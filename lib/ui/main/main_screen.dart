@@ -20,7 +20,9 @@ import 'package:ai_teacher/ui/profile/profile_page.dart';
 import 'package:ai_teacher/ui/promo/widget/promo_modal.dart';
 import 'package:ai_teacher/ui/promo/widget/promo_sheet.dart';
 import 'package:ai_teacher/ui/shared/widget/app_bottom_nav.dart';
+import 'package:ai_teacher/ui/shared/widget/feature_intro_overlay.dart';
 import 'package:ai_teacher/ui/streak/streak_sheet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,6 +56,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   bool _processingQueue = false;
   bool _cashbackFetched = false;
+  bool _introTriggered = false;
 
   StreamSubscription<dynamic>? _chatUnreadSub;
   StreamSubscription<PromoEvent>? _promoSub;
@@ -78,11 +81,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           .read(streakCheckInProvider.notifier)
           .runIfNeeded();
       if (!mounted) return;
-      if (streak != null) {
+      if (streak != null || kDebugMode) {
         final cache = ref.read(cacheServiceProvider);
         final last = cache.lastStreakSheetShownAt;
-        final shownToday =
-            last != null && DateTime.now().difference(last).inHours < 24;
+        final shownToday = !kDebugMode &&
+            last != null &&
+            DateTime.now().difference(last).inHours < 24;
         if (!shownToday) {
           await cache.setLastStreakSheetShownAt(DateTime.now());
           ref.read(modalQueueProvider.notifier).enqueue(StreakTask());
@@ -90,6 +94,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       }
 
       await _enqueueCashbackIfAny();
+      _maybeFireIntroTrigger();
     });
   }
 
@@ -110,7 +115,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     _promoSub?.cancel();
     final socket = ref.read(promoSocketProvider);
     _promoSub = socket.events.listen((event) {
-      if (ref.read(cacheServiceProvider).shownPromoIds.contains(event.id)) {
+      if (!kDebugMode &&
+          ref.read(cacheServiceProvider).shownPromoIds.contains(event.id)) {
         return;
       }
       ref.read(modalQueueProvider.notifier).enqueue(PromoTask(event));
@@ -135,7 +141,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       }
     } finally {
       _processingQueue = false;
+      _maybeFireIntroTrigger();
     }
+  }
+
+  void _maybeFireIntroTrigger() {
+    if (_introTriggered || !mounted) return;
+    if (!kDebugMode && ref.read(cacheServiceProvider).introCompleted) return;
+    if (ref.read(modalQueueProvider).isNotEmpty) return;
+    _introTriggered = true;
+    ref.read(introTriggerProvider.notifier).update((v) => v + 1);
   }
 
   Future<void> _showTask(ModalTask task) async {
@@ -154,6 +169,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       case CashbackTask(:final unclaimed):
         await CashbackEarnedToast.show(context, unclaimed: unclaimed);
       case StreakTask():
+        if (ref.read(introActiveProvider)) return;
         await StreakSheet.show(context);
     }
   }

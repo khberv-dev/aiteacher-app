@@ -130,7 +130,7 @@ class AuthRepository {
     }
   }
 
-  Future<void> signOut() => cache.clearTokens();
+  Future<void> signOut() => cache.clear();
 
   Future<void> _persist(AuthTokens tokens) async {
     if (tokens.accessToken.isNotEmpty) {

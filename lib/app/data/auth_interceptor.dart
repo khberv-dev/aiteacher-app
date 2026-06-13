@@ -79,7 +79,7 @@ class AuthInterceptor extends QueuedInterceptor {
   }
 
   Future<void> _logout() async {
-    await cache.clearTokens();
+    await cache.clear();
     onUnauthorized?.call();
   }
 }

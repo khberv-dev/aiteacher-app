@@ -129,6 +129,12 @@ class CacheService {
     await _prefs.setStringList(_shownPromoIdsKey, ids.toList());
   }
 
+  static const String _introCompletedKey = 'feature_intro_completed';
+
+  bool get introCompleted => _prefs.getBool(_introCompletedKey) ?? false;
+
+  Future<void> setIntroCompleted() => _prefs.setBool(_introCompletedKey, true);
+
   Future<bool> remove(String key) => _prefs.remove(key);
 
   Future<bool> clear() => _prefs.clear();
