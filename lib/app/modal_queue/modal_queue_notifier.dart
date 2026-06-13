@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final modalQueueProvider =
     NotifierProvider<ModalQueueNotifier, List<ModalTask>>(
-  ModalQueueNotifier.new,
-);
+      ModalQueueNotifier.new,
+    );
 
 class ModalQueueNotifier extends Notifier<List<ModalTask>> {
   @override

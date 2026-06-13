@@ -37,12 +37,7 @@ class CourseInfoSheet extends StatelessWidget {
     final label = demoPrice != null
         ? "Demo olish · ${_formatPrice(demoPrice)}"
         : "Batafsil ma'lumot";
-    return _show(
-      context,
-      course: course,
-      actionLabel: label,
-      onAction: onDemo,
-    );
+    return _show(context, course: course, actionLabel: label, onAction: onDemo);
   }
 
   static Future<void> _show(

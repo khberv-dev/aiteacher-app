@@ -38,7 +38,9 @@ class PromoSocket {
   Future<void> reconnect() async {
     final userId = _session.currentUserId ?? '';
     if (_socket != null && _activeUserId == userId) {
-      debugPrint('promo socket already active userId=$userId, skipping reconnect');
+      debugPrint(
+        'promo socket already active userId=$userId, skipping reconnect',
+      );
       return;
     }
     _socket?.dispose();
@@ -86,7 +88,9 @@ class PromoSocket {
         if (payload is Map) {
           _events.add(PromoEvent.fromJson(payload.cast<String, dynamic>()));
         } else {
-          debugPrint('promo socket ignored unexpected payload type: ${payload.runtimeType}');
+          debugPrint(
+            'promo socket ignored unexpected payload type: ${payload.runtimeType}',
+          );
         }
       } catch (e, st) {
         debugPrint('promo socket parse error: $e\n$st');

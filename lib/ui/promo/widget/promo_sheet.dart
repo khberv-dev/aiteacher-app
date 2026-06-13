@@ -59,9 +59,7 @@ class _PromoSheetState extends State<PromoSheet> {
             Positioned(
               top: 12,
               right: 12,
-              child: _CloseButton(
-                onTap: () => Navigator.of(context).pop(),
-              ),
+              child: _CloseButton(onTap: () => Navigator.of(context).pop()),
             ),
           ],
         ),

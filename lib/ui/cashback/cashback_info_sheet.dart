@@ -449,8 +449,18 @@ class _HistoryRow extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     const months = [
-      'yan', 'fev', 'mar', 'apr', 'may', 'iyn',
-      'iyl', 'avg', 'sen', 'okt', 'noy', 'dek',
+      'yan',
+      'fev',
+      'mar',
+      'apr',
+      'may',
+      'iyn',
+      'iyl',
+      'avg',
+      'sen',
+      'okt',
+      'noy',
+      'dek',
     ];
     return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
   }

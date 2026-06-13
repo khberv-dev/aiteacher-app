@@ -74,7 +74,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       _connectChatSocket();
       _listenPromos();
 
-      final streak = await ref.read(streakCheckInProvider.notifier).runIfNeeded();
+      final streak = await ref
+          .read(streakCheckInProvider.notifier)
+          .runIfNeeded();
       if (!mounted) return;
       if (streak != null) {
         final cache = ref.read(cacheServiceProvider);
