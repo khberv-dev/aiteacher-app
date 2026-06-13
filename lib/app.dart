@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:ai_teacher/app/router/app_router.dart';
+import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/app/theme/app_theme.dart';
 import 'package:ai_teacher/core/promo/data/promo_socket.dart';
 import 'package:ai_teacher/core/session/presentation/session_controller.dart';
@@ -129,10 +130,33 @@ class _AppState extends ConsumerState<App> {
     _logMessage(source, msg);
     if (!mounted) return;
     final screen = msg.data['screen'] as String?;
-    if (screen == 'chat') {
-      ref.read(routerProvider).push(AppRoute.chat.path);
-    } else if (screen == 'notifications') {
-      ref.read(routerProvider).push(AppRoute.notifications.path);
+    if (screen == null) return;
+    final router = ref.read(routerProvider);
+    switch (screen) {
+      case 'chat':
+        router.push(AppRoute.chat.path);
+      case 'notifications':
+        router.push(AppRoute.notifications.path);
+      case 'speaking':
+        router.push(AppRoute.speaking.path);
+      case 'speaking_history':
+        router.push(AppRoute.speakingHistory.path);
+      case 'vocabulary':
+        router.push(AppRoute.vocabularyTraining.path);
+      case 'word_battle':
+        router.push(AppRoute.wordBattle.path);
+      case 'writing_task':
+        router.push(AppRoute.writingTask.path);
+      case 'support':
+        router.push(AppRoute.support.path);
+      case 'ai_manager':
+        router.push(AppRoute.aiManager.path);
+      case 'home':
+        router.go(AppRoute.main.path, extra: MainScreen.homeTab);
+      case 'courses':
+        router.go(AppRoute.main.path, extra: MainScreen.coursesTab);
+      case 'profile':
+        router.go(AppRoute.main.path, extra: MainScreen.profileTab);
     }
   }
 
