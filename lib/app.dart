@@ -149,8 +149,6 @@ class _AppState extends ConsumerState<App> {
         router.push(AppRoute.writingTask.path);
       case 'support':
         router.push(AppRoute.support.path);
-      case 'ai_manager':
-        router.push(AppRoute.aiManager.path);
       case 'home':
         router.go(AppRoute.main.path, extra: MainScreen.homeTab);
       case 'courses':

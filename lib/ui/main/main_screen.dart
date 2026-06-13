@@ -84,7 +84,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       if (streak != null || kDebugMode) {
         final cache = ref.read(cacheServiceProvider);
         final last = cache.lastStreakSheetShownAt;
-        final shownToday = !kDebugMode &&
+        final shownToday =
+            !kDebugMode &&
             last != null &&
             DateTime.now().difference(last).inHours < 24;
         if (!shownToday) {

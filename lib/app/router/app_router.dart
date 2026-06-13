@@ -8,7 +8,6 @@ import 'package:ai_teacher/ui/auth/otp_screen.dart';
 import 'package:ai_teacher/ui/auth/register_screen.dart';
 import 'package:ai_teacher/ui/battle/battle_screen.dart';
 import 'package:ai_teacher/ui/call/call_screen.dart';
-import 'package:ai_teacher/ui/chat/ai_manager_screen.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
 import 'package:ai_teacher/ui/courses/course_web_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
@@ -146,11 +145,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SupportScreen(),
       ),
       GoRoute(
-        path: AppRoute.aiManager.path,
-        name: AppRoute.aiManager.name,
-        builder: (context, state) => const AiManagerScreen(),
-      ),
-      GoRoute(
         path: AppRoute.writingTask.path,
         name: AppRoute.writingTask.name,
         builder: (context, state) => const WritingTaskListScreen(),
@@ -190,7 +184,6 @@ enum AppRoute {
   notifications('/notifications'),
   chat('/chat'),
   call('/call'),
-  aiManager('/ai-manager'),
   promo('/promo');
 
   const AppRoute(this.path);
