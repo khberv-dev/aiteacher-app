@@ -17,8 +17,7 @@ import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
 import 'package:ai_teacher/ui/courses/courses_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
 import 'package:ai_teacher/ui/profile/profile_page.dart';
-import 'package:ai_teacher/ui/promo/widget/promo_modal.dart';
-import 'package:ai_teacher/ui/promo/widget/promo_sheet.dart';
+import 'package:ai_teacher/ui/promo/promo_screen.dart' show PromoModal, PromoSheet;
 import 'package:ai_teacher/ui/shared/widget/app_bottom_nav.dart';
 import 'package:ai_teacher/ui/shared/widget/feature_intro_overlay.dart';
 import 'package:ai_teacher/ui/streak/streak_sheet.dart';
@@ -31,6 +30,10 @@ import 'package:go_router/go_router.dart';
 /// Set to a tab index to switch the MainScreen tab from anywhere in the app.
 /// Consumed and reset to null by MainScreen after switching.
 final pendingMainTabProvider = StateProvider<int?>((ref) => null);
+
+/// Set to a route path to push a screen from MainScreen after any promo
+/// overlay closes. Consumed and reset to null immediately after pushing.
+final pendingNavigationProvider = StateProvider<String?>((ref) => null);
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key, this.initialTab = MainScreen.homeTab});
@@ -230,6 +233,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       if (tab != null) {
         setState(() => _activeTab = tab);
         ref.read(pendingMainTabProvider.notifier).state = null;
+      }
+    });
+
+    ref.listen<String?>(pendingNavigationProvider, (_, path) {
+      if (path != null) {
+        ref.read(pendingNavigationProvider.notifier).state = null;
+        context.push(path);
       }
     });
 
