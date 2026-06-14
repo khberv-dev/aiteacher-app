@@ -150,11 +150,11 @@ class _AppState extends ConsumerState<App> {
       case 'support':
         router.push(AppRoute.support.path);
       case 'home':
-        router.go(AppRoute.main.path, extra: MainScreen.homeTab);
+        ref.read(pendingMainTabProvider.notifier).state = MainScreen.homeTab;
       case 'courses':
-        router.go(AppRoute.main.path, extra: MainScreen.coursesTab);
+        ref.read(pendingMainTabProvider.notifier).state = MainScreen.coursesTab;
       case 'profile':
-        router.go(AppRoute.main.path, extra: MainScreen.profileTab);
+        ref.read(pendingMainTabProvider.notifier).state = MainScreen.profileTab;
     }
   }
 

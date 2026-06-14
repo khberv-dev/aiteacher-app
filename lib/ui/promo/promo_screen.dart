@@ -4,18 +4,19 @@ import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PromoScreen extends StatefulWidget {
+class PromoScreen extends ConsumerStatefulWidget {
   const PromoScreen({super.key, required this.promo});
 
   final PromoEvent promo;
 
   @override
-  State<PromoScreen> createState() => _PromoScreenState();
+  ConsumerState<PromoScreen> createState() => _PromoScreenState();
 }
 
-class _PromoScreenState extends State<PromoScreen> {
+class _PromoScreenState extends ConsumerState<PromoScreen> {
   double _progress = 0;
 
   void _handleAppLink(String screen) {
@@ -38,11 +39,11 @@ class _PromoScreenState extends State<PromoScreen> {
       case 'support':
         context.push(AppRoute.support.path);
       case 'home':
-        context.go(AppRoute.main.path, extra: MainScreen.homeTab);
+        ref.read(pendingMainTabProvider.notifier).state = MainScreen.homeTab;
       case 'courses':
-        context.go(AppRoute.main.path, extra: MainScreen.coursesTab);
+        ref.read(pendingMainTabProvider.notifier).state = MainScreen.coursesTab;
       case 'profile':
-        context.go(AppRoute.main.path, extra: MainScreen.profileTab);
+        ref.read(pendingMainTabProvider.notifier).state = MainScreen.profileTab;
     }
   }
 

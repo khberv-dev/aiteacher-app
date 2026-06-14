@@ -28,6 +28,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+/// Set to a tab index to switch the MainScreen tab from anywhere in the app.
+/// Consumed and reset to null by MainScreen after switching.
+final pendingMainTabProvider = StateProvider<int?>((ref) => null);
+
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key, this.initialTab = MainScreen.homeTab});
 
@@ -220,6 +224,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     // Watch the global queue and drain it whenever new items arrive.
     ref.listen<List<ModalTask>>(modalQueueProvider, (_, next) {
       if (next.isNotEmpty) _processQueue();
+    });
+
+    ref.listen<int?>(pendingMainTabProvider, (_, tab) {
+      if (tab != null) {
+        setState(() => _activeTab = tab);
+        ref.read(pendingMainTabProvider.notifier).state = null;
+      }
     });
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
