@@ -20,30 +20,32 @@ class _PromoScreenState extends ConsumerState<PromoScreen> {
   double _progress = 0;
 
   void _handleAppLink(String screen) {
-    context.pop();
     switch (screen) {
       case 'chat':
-        context.push(AppRoute.chat.path);
+        context.pushReplacement(AppRoute.chat.path);
       case 'notifications':
-        context.push(AppRoute.notifications.path);
+        context.pushReplacement(AppRoute.notifications.path);
       case 'speaking':
-        context.push(AppRoute.speaking.path);
+        context.pushReplacement(AppRoute.speaking.path);
       case 'speaking_history':
-        context.push(AppRoute.speakingHistory.path);
+        context.pushReplacement(AppRoute.speakingHistory.path);
       case 'vocabulary':
-        context.push(AppRoute.vocabularyTraining.path);
+        context.pushReplacement(AppRoute.vocabularyTraining.path);
       case 'word_battle':
-        context.push(AppRoute.wordBattle.path);
+        context.pushReplacement(AppRoute.wordBattle.path);
       case 'writing_task':
-        context.push(AppRoute.writingTask.path);
+        context.pushReplacement(AppRoute.writingTask.path);
       case 'support':
-        context.push(AppRoute.support.path);
+        context.pushReplacement(AppRoute.support.path);
       case 'home':
         ref.read(pendingMainTabProvider.notifier).state = MainScreen.homeTab;
+        context.pop();
       case 'courses':
         ref.read(pendingMainTabProvider.notifier).state = MainScreen.coursesTab;
+        context.pop();
       case 'profile':
         ref.read(pendingMainTabProvider.notifier).state = MainScreen.profileTab;
+        context.pop();
     }
   }
 
