@@ -77,6 +77,12 @@ class _PromoScreenState extends ConsumerState<PromoScreen> {
                   }
                   return NavigationActionPolicy.ALLOW;
                 },
+                onLoadStart: (controller, url) async {
+                  if (url != null && url.scheme == 'app') {
+                    await controller.stopLoading();
+                    if (mounted) _handleAppLink(url.host);
+                  }
+                },
               ),
             ),
             if (_progress < 1)
