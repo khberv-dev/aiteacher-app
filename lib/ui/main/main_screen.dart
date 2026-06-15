@@ -261,8 +261,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           onTap: _onTabTap,
           chatBadge: ref.watch(chatUnreadProvider),
           hideCoursesTab:
-              ref.watch(currentUserProvider).valueOrNull?.phoneNumber ==
-              '998990000000',
+              ref.watch(currentUserProvider).valueOrNull?.phoneNumber
+                  .endsWith('990000000') ??
+              false,
         ),
       ),
     );
