@@ -21,47 +21,54 @@ class AppBottomNav extends StatelessWidget {
     required this.activeIndex,
     required this.onTap,
     this.chatBadge = false,
+    this.hideCoursesTab = false,
   });
 
   final int activeIndex;
   final ValueChanged<int> onTap;
   final bool chatBadge;
+  final bool hideCoursesTab;
 
-  static const _tabs = <NavTab>[
-    NavTab(
+  // Each entry: (originalIndex, NavTab)
+  static const _allTabs = <(int, NavTab)>[
+    (0, NavTab(
       label: 'Chat',
       icon: Icons.chat_bubble_outline_rounded,
       iconColor: AppColors.primary,
       iconBackground: Color(0xFFF0FDFA),
-    ),
-    NavTab(
+    )),
+    (1, NavTab(
       label: 'Kurslar',
       icon: Icons.school_rounded,
       iconColor: Color(0xFF22C55E),
       iconBackground: Color(0xFFF0FDF4),
-    ),
-    NavTab(
+    )),
+    (2, NavTab(
       label: 'Home',
       icon: Icons.home_rounded,
       iconColor: AppColors.primary,
       iconBackground: Color(0xFFCCFBF1),
-    ),
-    NavTab(
+    )),
+    (3, NavTab(
       label: 'Izohlar',
       icon: Icons.forum_outlined,
       iconColor: Color(0xFFFB923C),
       iconBackground: Color(0xFFFFF7ED),
-    ),
-    NavTab(
+    )),
+    (4, NavTab(
       label: 'Profil',
       icon: Icons.person_outline_rounded,
       iconColor: Color(0xFFA855F7),
       iconBackground: Color(0xFFFDF4FF),
-    ),
+    )),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final tabs = hideCoursesTab
+        ? _allTabs.where((e) => e.$1 != 1).toList()
+        : _allTabs;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -82,13 +89,13 @@ class AppBottomNav extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            for (var i = 0; i < _tabs.length; i++)
+            for (final (originalIndex, tab) in tabs)
               Expanded(
                 child: _NavItem(
-                  tab: _tabs[i],
-                  active: i == activeIndex,
-                  badge: i == 0 && chatBadge,
-                  onTap: () => onTap(i),
+                  tab: tab,
+                  active: originalIndex == activeIndex,
+                  badge: originalIndex == 0 && chatBadge,
+                  onTap: () => onTap(originalIndex),
                 ),
               ),
           ],

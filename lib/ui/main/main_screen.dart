@@ -5,6 +5,7 @@ import 'package:ai_teacher/app/modal_queue/modal_queue_notifier.dart';
 import 'package:ai_teacher/app/modal_queue/modal_task.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
 import 'package:ai_teacher/core/cashback/data/cashback_repository.dart';
 import 'package:ai_teacher/core/chat/data/chat_socket.dart';
@@ -259,6 +260,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           activeIndex: _activeTab,
           onTap: _onTabTap,
           chatBadge: ref.watch(chatUnreadProvider),
+          hideCoursesTab:
+              ref.watch(currentUserProvider).valueOrNull?.phoneNumber ==
+              '998990000000',
         ),
       ),
     );
