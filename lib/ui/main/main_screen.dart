@@ -17,7 +17,8 @@ import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
 import 'package:ai_teacher/ui/courses/courses_page.dart';
 import 'package:ai_teacher/ui/home/home_page.dart';
 import 'package:ai_teacher/ui/profile/profile_page.dart';
-import 'package:ai_teacher/ui/promo/promo_screen.dart' show PromoModal, PromoSheet;
+import 'package:ai_teacher/ui/promo/promo_screen.dart'
+    show PromoModal, PromoSheet;
 import 'package:ai_teacher/ui/shared/widget/app_bottom_nav.dart';
 import 'package:ai_teacher/ui/shared/widget/feature_intro_overlay.dart';
 import 'package:ai_teacher/ui/streak/streak_sheet.dart';

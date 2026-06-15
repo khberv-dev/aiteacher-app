@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:ai_teacher/app/router/app_router.dart';
-import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/app/theme/app_theme.dart';
 import 'package:ai_teacher/core/promo/data/promo_socket.dart';
 import 'package:ai_teacher/core/session/presentation/session_controller.dart';
 import 'package:ai_teacher/core/update/update_checker.dart';
+import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/shared/widget/update_dialog.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
