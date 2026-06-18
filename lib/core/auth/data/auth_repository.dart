@@ -18,11 +18,21 @@ class AuthRepository {
   final Dio dio;
   final CacheService cache;
 
-  Future<OtpRequestResult> requestOtp(String phoneNumber) async {
+  Future<OtpRequestResult> requestOtp({
+    String? phoneNumber,
+    String? email,
+  }) async {
+    assert(
+      (phoneNumber != null) ^ (email != null),
+      'Provide exactly one of phoneNumber or email',
+    );
     try {
       final response = await dio.post<Map<String, dynamic>>(
         'auth/otp/request',
-        data: {'phoneNumber': phoneNumber},
+        data: {
+          'phoneNumber': ?phoneNumber,
+          'email': ?email,
+        },
       );
       return OtpRequestResult.fromJson(response.data ?? const {});
     } on DioException catch (e) {
@@ -31,13 +41,22 @@ class AuthRepository {
   }
 
   Future<OtpVerifyResult> verifyOtp({
-    required String phoneNumber,
+    String? phoneNumber,
+    String? email,
     required String code,
   }) async {
+    assert(
+      (phoneNumber != null) ^ (email != null),
+      'Provide exactly one of phoneNumber or email',
+    );
     try {
       final response = await dio.post<Map<String, dynamic>>(
         'auth/otp/verify',
-        data: {'phoneNumber': phoneNumber, 'code': code},
+        data: {
+          'phoneNumber': ?phoneNumber,
+          'email': ?email,
+          'code': code,
+        },
       );
       return OtpVerifyResult.fromJson(response.data ?? const {});
     } on DioException catch (e) {
@@ -55,45 +74,14 @@ class AuthRepository {
         data: {
           'firstName': draft.firstName,
           'lastName': draft.lastName,
-          'phoneNumber': draft.phoneNumber,
+          'phoneNumber': ?draft.phoneNumber,
+          'email': ?draft.email,
           'password': draft.password,
           'verificationToken': verificationToken,
           'goal': ?draft.goal,
           'level': ?draft.level,
           'dailyTime': ?draft.dailyTime,
           'referralCode': ?draft.referralCode,
-        },
-      );
-      final tokens = AuthTokens.fromJson(response.data ?? const {});
-      await _persist(tokens);
-      return tokens;
-    } on DioException catch (e) {
-      throw AuthException.fromDio(e);
-    }
-  }
-
-  Future<AuthTokens> signUpWithEmail({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String password,
-    String? goal,
-    String? level,
-    String? dailyTime,
-    String? referralCode,
-  }) async {
-    try {
-      final response = await dio.post<Map<String, dynamic>>(
-        'auth/sign-up',
-        data: {
-          'firstName': firstName,
-          'lastName': lastName,
-          'email': email,
-          'password': password,
-          'goal': ?goal,
-          'level': ?level,
-          'dailyTime': ?dailyTime,
-          'referralCode': ?referralCode,
         },
       );
       final tokens = AuthTokens.fromJson(response.data ?? const {});

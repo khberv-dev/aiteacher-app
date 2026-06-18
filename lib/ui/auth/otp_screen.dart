@@ -71,7 +71,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Future<void> _onResend() async {
     final ok = await ref
         .read(otpControllerProvider.notifier)
-        .resend(widget.draft.phoneNumber!);
+        .resend(widget.draft);
     if (!mounted) return;
     if (ok) {
       _controller.clear();
@@ -97,7 +97,18 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     context.goNamed(AppRoute.main.name);
   }
 
-  String _maskedPhone() {
+  String _maskedIdentifier() {
+    final email = widget.draft.email;
+    if (email != null && email.isNotEmpty) {
+      final at = email.indexOf('@');
+      if (at > 1) {
+        final name = email.substring(0, at);
+        final domain = email.substring(at);
+        final masked = '${name.substring(0, 1)}${'•' * (name.length - 1)}$domain';
+        return '$masked ga';
+      }
+      return '$email ga';
+    }
     final phone = widget.draft.phoneNumber ?? '';
     final digits = phone.replaceAll(RegExp(r'\D'), '');
     if (digits.length < 6) return '$phone raqamiga';
@@ -201,9 +212,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       const SizedBox(height: 18),
                       const _MailIcon(),
                       const SizedBox(height: 22),
-                      const Text(
-                        'SMS kodni kiriting',
-                        style: TextStyle(
+                      Text(
+                        widget.draft.email != null
+                            ? 'Email kodni kiriting'
+                            : 'SMS kodni kiriting',
+                        style: const TextStyle(
                           color: Color(0xFF1A1A1A),
                           fontSize: 21,
                           fontWeight: FontWeight.w900,
@@ -212,7 +225,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        _maskedPhone(),
+                        _maskedIdentifier(),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppColors.primary,

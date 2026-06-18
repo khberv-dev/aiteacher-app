@@ -1,12 +1,18 @@
 class OtpRequestResult {
-  const OtpRequestResult({required this.phoneNumber, required this.expiresAt});
+  const OtpRequestResult({
+    required this.expiresAt,
+    this.phoneNumber,
+    this.email,
+  });
 
-  final String phoneNumber;
+  final String? phoneNumber;
+  final String? email;
   final DateTime expiresAt;
 
   factory OtpRequestResult.fromJson(Map<String, dynamic> json) {
     return OtpRequestResult(
-      phoneNumber: json['phoneNumber'] as String? ?? '',
+      phoneNumber: json['phoneNumber'] as String?,
+      email: json['email'] as String?,
       expiresAt:
           DateTime.tryParse(json['expiresAt'] as String? ?? '') ??
           DateTime.now().add(const Duration(minutes: 5)),

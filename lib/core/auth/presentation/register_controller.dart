@@ -1,10 +1,7 @@
-import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/core/auth/data/auth_dtos.dart';
 import 'package:ai_teacher/core/auth/data/auth_exception.dart';
 import 'package:ai_teacher/core/auth/data/auth_repository.dart';
 import 'package:ai_teacher/core/auth/presentation/auth_action_state.dart';
-import 'package:ai_teacher/core/session/presentation/session_controller.dart';
-import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final registerControllerProvider =
@@ -28,7 +25,9 @@ class RegisterController extends Notifier<AuthActionState> {
   }) async {
     state = const AuthLoading();
     try {
-      await ref.read(authRepositoryProvider).requestOtp(phoneNumber);
+      await ref
+          .read(authRepositoryProvider)
+          .requestOtp(phoneNumber: phoneNumber);
       state = const AuthIdle();
       return RegistrationDraft(
         firstName: firstName,
@@ -46,7 +45,7 @@ class RegisterController extends Notifier<AuthActionState> {
     }
   }
 
-  Future<AuthTokens?> signUpWithEmail({
+  Future<RegistrationDraft?> requestEmailOtp({
     required String firstName,
     required String lastName,
     required String email,
@@ -58,30 +57,18 @@ class RegisterController extends Notifier<AuthActionState> {
   }) async {
     state = const AuthLoading();
     try {
-      final tokens = await ref
-          .read(authRepositoryProvider)
-          .signUpWithEmail(
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: password,
-            goal: goal,
-            level: level,
-            dailyTime: dailyTime,
-            referralCode: referralCode,
-          );
-      ref.invalidate(currentUserProvider);
-      try {
-        await ref.read(currentUserProvider.future);
-      } catch (_) {
-        // Non-fatal: main/profile screens will retry on their own watch.
-      }
-      await ref.read(sessionControllerProvider.notifier).claimSession();
-      final cache = ref.read(cacheServiceProvider);
-      await cache.setWebIdentifier(email);
-      await cache.setWebPassword(password);
+      await ref.read(authRepositoryProvider).requestOtp(email: email);
       state = const AuthIdle();
-      return tokens;
+      return RegistrationDraft(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        goal: goal,
+        level: level,
+        dailyTime: dailyTime,
+        referralCode: referralCode,
+      );
     } on AuthException catch (e) {
       state = AuthFailure(e.message);
       return null;

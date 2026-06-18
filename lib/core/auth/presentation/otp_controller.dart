@@ -16,7 +16,7 @@ class OtpController extends Notifier<AuthActionState> {
   AuthActionState build() => const AuthIdle();
 
   /// Verifies the OTP and immediately exchanges the verification token for
-  /// auth tokens via sign-up. Returns the tokens on success.
+  /// auth tokens via sign-up. Works for both phone and email drafts.
   Future<AuthTokens?> verifyAndSignUp({
     required RegistrationDraft draft,
     required String code,
@@ -25,7 +25,8 @@ class OtpController extends Notifier<AuthActionState> {
     try {
       final repo = ref.read(authRepositoryProvider);
       final verify = await repo.verifyOtp(
-        phoneNumber: draft.phoneNumber!,
+        phoneNumber: draft.phoneNumber,
+        email: draft.email,
         code: code,
       );
       final tokens = await repo.signUp(
@@ -40,7 +41,8 @@ class OtpController extends Notifier<AuthActionState> {
       }
       await ref.read(sessionControllerProvider.notifier).claimSession();
       final cache = ref.read(cacheServiceProvider);
-      await cache.setWebIdentifier(draft.phoneNumber ?? '');
+      final identifier = draft.phoneNumber ?? draft.email ?? '';
+      await cache.setWebIdentifier(identifier);
       await cache.setWebPassword(draft.password);
       state = const AuthIdle();
       return tokens;
@@ -50,10 +52,13 @@ class OtpController extends Notifier<AuthActionState> {
     }
   }
 
-  Future<bool> resend(String phoneNumber) async {
+  Future<bool> resend(RegistrationDraft draft) async {
     state = const AuthLoading();
     try {
-      await ref.read(authRepositoryProvider).requestOtp(phoneNumber);
+      await ref.read(authRepositoryProvider).requestOtp(
+        phoneNumber: draft.phoneNumber,
+        email: draft.email,
+      );
       state = const AuthIdle();
       return true;
     } on AuthException catch (e) {

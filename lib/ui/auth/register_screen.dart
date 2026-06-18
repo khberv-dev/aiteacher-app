@@ -86,9 +86,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (!mounted || draft == null) return;
       context.pushNamed(AppRoute.otp.name, extra: draft);
     } else {
-      final tokens = await ref
+      final draft = await ref
           .read(registerControllerProvider.notifier)
-          .signUpWithEmail(
+          .requestEmailOtp(
             firstName: firstName,
             lastName: lastName,
             email: _emailController.text.trim(),
@@ -98,8 +98,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             dailyTime: survey?.dailyTime,
             referralCode: referral,
           );
-      if (!mounted || tokens == null) return;
-      context.goNamed(AppRoute.main.name);
+      if (!mounted || draft == null) return;
+      context.pushNamed(AppRoute.otp.name, extra: draft);
     }
   }
 
