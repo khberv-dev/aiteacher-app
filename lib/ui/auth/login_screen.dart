@@ -49,7 +49,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _onSignUp() {
-    context.goNamed(AppRoute.register.name);
+    context.goNamed(AppRoute.survey.name);
   }
 
   Future<void> _onSubmit() async {
