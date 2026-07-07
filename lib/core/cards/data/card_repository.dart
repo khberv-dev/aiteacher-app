@@ -33,7 +33,12 @@ class CardRepository {
         'userPhone': userPhone,
       },
     );
-    return AddCardResult.fromJson(response.data!);
+    final data = response.data!;
+    // Plum response leaks through: { result: {...}, error: null }
+    final payload = data['result'] is Map
+        ? (data['result'] as Map).cast<String, dynamic>()
+        : data;
+    return AddCardResult.fromJson(payload);
   }
 
   Future<UserCard> confirmAdd({
@@ -52,6 +57,16 @@ class CardRepository {
       },
     );
     return UserCard.fromJson(response.data!);
+  }
+
+  Future<void> payWithCard({
+    required String cardId,
+    required int amount,
+  }) async {
+    await _dio.post<Map<String, dynamic>>(
+      'cards/pay',
+      data: {'cardId': cardId, 'amount': amount},
+    );
   }
 
   Future<void> remove(String id) async {
