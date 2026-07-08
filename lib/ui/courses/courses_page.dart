@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ai_teacher/app/data/network_config.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
@@ -13,6 +15,7 @@ import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ─── Static testimonial data ──────────────────────────────────────────────────
 
@@ -785,6 +788,7 @@ class _PlanPriceBlock extends StatelessWidget {
               planName: plan.name.isEmpty ? 'Tarif' : plan.name,
               isPopular: i == popularIdx,
               dark: dark,
+              hasMentor: plan.hasMentor,
             ),
           ),
       ],
@@ -798,12 +802,19 @@ class _PriceRow extends StatelessWidget {
     required this.planName,
     required this.dark,
     this.isPopular = false,
+    this.hasMentor = false,
   });
 
   final PlanPrice price;
   final String planName;
   final bool dark;
   final bool isPopular;
+  final bool hasMentor;
+
+  // On iOS, platform (one-to-many) subscriptions must not go through in-app
+  // payment — Apple guideline 3.1.3(d). Redirect to website instead.
+  // Mentor plans are 1:1 person-to-person and are exempt (3.1.3(b)).
+  bool get _iosWebRedirect => Platform.isIOS && !hasMentor;
 
   @override
   Widget build(BuildContext context) {
@@ -827,6 +838,13 @@ class _PriceRow extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
+        if (_iosWebRedirect) {
+          final uri = Uri.parse(NetworkConfig.mainHostUrl);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+          return;
+        }
         final paymentId = await PaymentTypesSheet.show(
           context,
           amount: price.price,
