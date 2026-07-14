@@ -10,6 +10,7 @@ import 'package:ai_teacher/ui/battle/battle_screen.dart';
 import 'package:ai_teacher/ui/call/call_screen.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
 import 'package:ai_teacher/ui/courses/course_web_screen.dart';
+import 'package:ai_teacher/ui/dictionary/dictionary_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/notifications/notifications_screen.dart';
 import 'package:ai_teacher/ui/onboarding/onboarding_screen.dart';
@@ -156,6 +157,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             WritingTaskScreen(taskId: state.extra as String?),
       ),
       GoRoute(
+        path: AppRoute.dictionary.path,
+        name: AppRoute.dictionary.name,
+        builder: (context, state) => const DictionaryScreen(),
+      ),
+      GoRoute(
         path: AppRoute.promo.path,
         name: AppRoute.promo.name,
         builder: (context, state) =>
@@ -181,6 +187,7 @@ enum AppRoute {
   support('/support'),
   writingTask('/writing-task'),
   writingTaskDetail('/writing-task/detail'),
+  dictionary('/dictionary'),
   notifications('/notifications'),
   chat('/chat'),
   call('/call'),

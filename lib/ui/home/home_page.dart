@@ -4,6 +4,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/ui/cashback/cashback_info_sheet.dart';
 import 'package:ai_teacher/ui/home/widget/cashback_card.dart';
+import 'package:ai_teacher/ui/home/widget/dictionary_card.dart';
 import 'package:ai_teacher/ui/home/widget/home_header.dart';
 import 'package:ai_teacher/ui/home/widget/live_card.dart';
 import 'package:ai_teacher/ui/home/widget/mini_cards_row.dart';
@@ -163,6 +164,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                   onStart: () => context.pushNamed(AppRoute.speaking.name),
                 ),
                 MiniCardsRow(vocabularyKey: _vocabKey, battleKey: _battleKey),
+                DictionaryCard(
+                  onTap: () => context.pushNamed(AppRoute.dictionary.name),
+                ),
                 const SectionHeader(title: 'AI Writing Task'),
                 WritingTaskCard(
                   key: _writingTaskKey,
