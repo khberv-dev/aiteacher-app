@@ -10,7 +10,11 @@ import 'package:ai_teacher/ui/battle/battle_screen.dart';
 import 'package:ai_teacher/ui/call/call_screen.dart';
 import 'package:ai_teacher/ui/chat/chat_screen.dart';
 import 'package:ai_teacher/ui/courses/course_web_screen.dart';
-import 'package:ai_teacher/ui/dictionary/dictionary_screen.dart';
+import 'package:ai_teacher/ui/dictionary/dictionary_explanatory_screen.dart';
+import 'package:ai_teacher/ui/dictionary/dictionary_home_screen.dart';
+import 'package:ai_teacher/ui/dictionary/dictionary_saved_words_screen.dart';
+import 'package:ai_teacher/ui/dictionary/dictionary_search_screen.dart';
+import 'package:ai_teacher/ui/dictionary/dictionary_stats_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/notifications/notifications_screen.dart';
 import 'package:ai_teacher/ui/onboarding/onboarding_screen.dart';
@@ -159,7 +163,27 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoute.dictionary.path,
         name: AppRoute.dictionary.name,
-        builder: (context, state) => const DictionaryScreen(),
+        builder: (context, state) => const DictionaryHomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.dictionarySearch.path,
+        name: AppRoute.dictionarySearch.name,
+        builder: (context, state) => const DictionarySearchScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.dictionaryExplanatory.path,
+        name: AppRoute.dictionaryExplanatory.name,
+        builder: (context, state) => const DictionaryExplanatoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.dictionarySavedWords.path,
+        name: AppRoute.dictionarySavedWords.name,
+        builder: (context, state) => const DictionarySavedWordsScreen(),
+      ),
+      GoRoute(
+        path: AppRoute.dictionaryStats.path,
+        name: AppRoute.dictionaryStats.name,
+        builder: (context, state) => const DictionaryStatsScreen(),
       ),
       GoRoute(
         path: AppRoute.promo.path,
@@ -188,6 +212,10 @@ enum AppRoute {
   writingTask('/writing-task'),
   writingTaskDetail('/writing-task/detail'),
   dictionary('/dictionary'),
+  dictionarySearch('/dictionary/search'),
+  dictionaryExplanatory('/dictionary/explanatory'),
+  dictionarySavedWords('/dictionary/saved'),
+  dictionaryStats('/dictionary/stats'),
   notifications('/notifications'),
   chat('/chat'),
   call('/call'),

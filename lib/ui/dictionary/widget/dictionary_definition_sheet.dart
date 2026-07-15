@@ -1,22 +1,24 @@
-import 'package:ai_teacher/core/dictionary/presentation/dictionary_controller.dart';
+import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/core/dictionary/data/definition_parser.dart';
+import 'package:ai_teacher/core/dictionary/data/dictionary_word_ref.dart';
 import 'package:flutter/material.dart';
 
 class DictionaryDefinitionSheet extends StatefulWidget {
   const DictionaryDefinitionSheet._({
-    required this.item,
-    required this.isFavorite,
-    required this.onToggleFavorite,
+    required this.wordRef,
+    required this.isSaved,
+    required this.onToggleSaved,
   });
 
-  final DictionaryListItem item;
-  final bool isFavorite;
-  final VoidCallback onToggleFavorite;
+  final DictionaryWordRef wordRef;
+  final bool isSaved;
+  final VoidCallback onToggleSaved;
 
   static Future<void> show(
     BuildContext context, {
-    required DictionaryListItem item,
-    required bool isFavorite,
-    required VoidCallback onToggleFavorite,
+    required DictionaryWordRef wordRef,
+    required bool isSaved,
+    required VoidCallback onToggleSaved,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -24,9 +26,9 @@ class DictionaryDefinitionSheet extends StatefulWidget {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       builder: (_) => DictionaryDefinitionSheet._(
-        item: item,
-        isFavorite: isFavorite,
-        onToggleFavorite: onToggleFavorite,
+        wordRef: wordRef,
+        isSaved: isSaved,
+        onToggleSaved: onToggleSaved,
       ),
     );
   }
@@ -37,23 +39,23 @@ class DictionaryDefinitionSheet extends StatefulWidget {
 }
 
 class _DictionaryDefinitionSheetState extends State<DictionaryDefinitionSheet> {
-  late bool _isFavorite;
+  late bool _isSaved;
 
   @override
   void initState() {
     super.initState();
-    _isFavorite = widget.isFavorite;
+    _isSaved = widget.isSaved;
   }
 
-  void _handleToggleFavorite() {
-    setState(() => _isFavorite = !_isFavorite);
-    widget.onToggleFavorite();
+  void _handleToggleSaved() {
+    setState(() => _isSaved = !_isSaved);
+    widget.onToggleSaved();
   }
 
   @override
   Widget build(BuildContext context) {
-    final entry = widget.item.entry;
-    final hasDefinition = entry.definition.isNotEmpty;
+    final entry = widget.wordRef.entry;
+    final parsed = parseDefinition(entry.definition, entry.word);
 
     return Container(
       decoration: const BoxDecoration(
@@ -94,31 +96,66 @@ class _DictionaryDefinitionSheetState extends State<DictionaryDefinitionSheet> {
                 ),
               ),
               IconButton(
-                onPressed: _handleToggleFavorite,
+                onPressed: _handleToggleSaved,
                 icon: Icon(
-                  _isFavorite
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border_rounded,
-                  color: _isFavorite
-                      ? const Color(0xFFDC2626)
-                      : const Color(0xFF94A3B8),
+                  _isSaved
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
+                  color: _isSaved ? AppColors.primary : const Color(0xFF94A3B8),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          if (entry.phonetic.isNotEmpty || parsed.partOfSpeech != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (entry.phonetic.isNotEmpty)
+                    Text(
+                      '/${entry.phonetic}/',
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 13,
+                      ),
+                    ),
+                  if (entry.phonetic.isNotEmpty && parsed.partOfSpeech != null)
+                    const Text(
+                      '  ·  ',
+                      style: TextStyle(color: Color(0xFF94A3B8)),
+                    ),
+                  if (parsed.partOfSpeech != null)
+                    Text(
+                      parsed.partOfSpeech!,
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 18),
           const _Label("TA'RIF"),
           const SizedBox(height: 6),
-          if (hasDefinition)
-            Text(
-              entry.definition,
-              style: const TextStyle(
-                color: Color(0xFF334155),
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                height: 1.5,
-              ),
-            )
+          if (parsed.senses.isNotEmpty)
+            for (final sense in parsed.senses)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  sense.index != null
+                      ? '${sense.index}) ${sense.text}'
+                      : sense.text,
+                  style: const TextStyle(
+                    color: Color(0xFF334155),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    height: 1.5,
+                  ),
+                ),
+              )
           else
             Container(
               padding: const EdgeInsets.all(14),
