@@ -31,36 +31,51 @@ class AppBottomNav extends StatelessWidget {
 
   // Each entry: (originalIndex, NavTab)
   static const _allTabs = <(int, NavTab)>[
-    (0, NavTab(
-      label: 'Chat',
-      icon: Icons.chat_bubble_outline_rounded,
-      iconColor: AppColors.primary,
-      iconBackground: Color(0xFFF0FDFA),
-    )),
-    (1, NavTab(
-      label: 'Kurslar',
-      icon: Icons.school_rounded,
-      iconColor: Color(0xFF22C55E),
-      iconBackground: Color(0xFFF0FDF4),
-    )),
-    (2, NavTab(
-      label: 'Home',
-      icon: Icons.home_rounded,
-      iconColor: AppColors.primary,
-      iconBackground: Color(0xFFCCFBF1),
-    )),
-    (3, NavTab(
-      label: 'Izohlar',
-      icon: Icons.forum_outlined,
-      iconColor: Color(0xFFFB923C),
-      iconBackground: Color(0xFFFFF7ED),
-    )),
-    (4, NavTab(
-      label: 'Profil',
-      icon: Icons.person_outline_rounded,
-      iconColor: Color(0xFFA855F7),
-      iconBackground: Color(0xFFFDF4FF),
-    )),
+    (
+      0,
+      NavTab(
+        label: 'Chat',
+        icon: Icons.chat_bubble_outline_rounded,
+        iconColor: AppColors.primary,
+        iconBackground: Color(0xFFF0FDFA),
+      ),
+    ),
+    (
+      1,
+      NavTab(
+        label: 'Kurs',
+        icon: Icons.school_rounded,
+        iconColor: Color(0xFF22C55E),
+        iconBackground: Color(0xFFF0FDF4),
+      ),
+    ),
+    (
+      2,
+      NavTab(
+        label: 'Home',
+        icon: Icons.home_rounded,
+        iconColor: AppColors.primary,
+        iconBackground: Color(0xFFCCFBF1),
+      ),
+    ),
+    (
+      3,
+      NavTab(
+        label: 'Izohlar',
+        icon: Icons.forum_outlined,
+        iconColor: Color(0xFFFB923C),
+        iconBackground: Color(0xFFFFF7ED),
+      ),
+    ),
+    (
+      4,
+      NavTab(
+        label: 'Profil',
+        icon: Icons.person_outline_rounded,
+        iconColor: Color(0xFFA855F7),
+        iconBackground: Color(0xFFFDF4FF),
+      ),
+    ),
   ];
 
   @override

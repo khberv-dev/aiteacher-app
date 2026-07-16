@@ -5,3 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final myAssignmentsProvider = FutureProvider<List<Assignment>>((ref) {
   return ref.watch(assignmentRepositoryProvider).listMine();
 });
+
+final myMentorProvider = FutureProvider<MyMentor?>((ref) {
+  return ref.watch(assignmentRepositoryProvider).getMyMentor();
+});

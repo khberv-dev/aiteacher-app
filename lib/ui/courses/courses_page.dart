@@ -10,6 +10,7 @@ import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dar
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/ui/courses/widget/course_info_sheet.dart';
+import 'package:ai_teacher/ui/courses/widget/my_mentor_card.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
@@ -190,10 +191,18 @@ class CoursesPage extends ConsumerWidget {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                    child:
-                        _ActiveSubscriptionBanner(subscription: subscription),
+                    child: _ActiveSubscriptionBanner(
+                      subscription: subscription,
+                    ),
                   ),
                 ),
+              // ── My mentor ────────────────────────────────────────────────
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 20),
+                  child: MyMentorCard(),
+                ),
+              ),
               // ── Teacher mentoring hero ──────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
@@ -343,10 +352,8 @@ class _TeacherAvatarState extends State<_TeacherAvatar>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _float,
-      builder: (_, child) => Transform.translate(
-        offset: Offset(0, _float.value),
-        child: child,
-      ),
+      builder: (_, child) =>
+          Transform.translate(offset: Offset(0, _float.value), child: child),
       child: Container(
         width: 68,
         height: 68,
@@ -375,10 +382,7 @@ class _TeacherAvatarState extends State<_TeacherAvatar>
 // ─── Teacher hero section ─────────────────────────────────────────────────────
 
 class _TeacherHeroSection extends StatelessWidget {
-  const _TeacherHeroSection({
-    required this.plans,
-    required this.isSubscribed,
-  });
+  const _TeacherHeroSection({required this.plans, required this.isSubscribed});
   final List<Plan> plans;
   final bool isSubscribed;
 
@@ -447,8 +451,7 @@ class _TeacherHeroSection extends StatelessWidget {
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color:
-                                  AppColors.primary.withValues(alpha: 0.16),
+                              color: AppColors.primary.withValues(alpha: 0.16),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: AppColors.primary.withValues(
@@ -642,10 +645,7 @@ class _RowDivider extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Divider(
-            height: 1,
-            color: Colors.white.withValues(alpha: 0.1),
-          ),
+          child: Divider(height: 1, color: Colors.white.withValues(alpha: 0.1)),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -660,10 +660,7 @@ class _RowDivider extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: Divider(
-            height: 1,
-            color: Colors.white.withValues(alpha: 0.1),
-          ),
+          child: Divider(height: 1, color: Colors.white.withValues(alpha: 0.1)),
         ),
       ],
     );
@@ -722,9 +719,7 @@ class _TestimonialCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: data.color.withValues(alpha: 0.22),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: data.color.withValues(alpha: 0.35),
-                  ),
+                  border: Border.all(color: data.color.withValues(alpha: 0.35)),
                 ),
                 alignment: Alignment.center,
                 child: Text(
@@ -830,11 +825,12 @@ class _PriceRow extends StatelessWidget {
     final borderColor = isPopular
         ? AppColors.primary.withValues(alpha: 0.5)
         : (dark
-            ? Colors.white.withValues(alpha: 0.08)
-            : const Color(0xFFE2E8F0));
+              ? Colors.white.withValues(alpha: 0.08)
+              : const Color(0xFFE2E8F0));
     final textColor = dark ? Colors.white : AppColors.textPrimary;
-    final subColor =
-        dark ? Colors.white.withValues(alpha: 0.45) : AppColors.textSecondary;
+    final subColor = dark
+        ? Colors.white.withValues(alpha: 0.45)
+        : AppColors.textSecondary;
 
     return InkWell(
       onTap: () async {
@@ -908,14 +904,14 @@ class _PriceRow extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withValues(
-                              alpha: 0.15,
-                            ),
+                            color: const Color(
+                              0xFF10B981,
+                            ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(5),
                             border: Border.all(
-                              color: const Color(0xFF10B981).withValues(
-                                alpha: 0.35,
-                              ),
+                              color: const Color(
+                                0xFF10B981,
+                              ).withValues(alpha: 0.35),
                             ),
                           ),
                           child: Text(
@@ -969,8 +965,8 @@ class _PriceRow extends StatelessWidget {
                 color: isPopular
                     ? AppColors.primary
                     : (dark
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : AppColors.primary.withValues(alpha: 0.08)),
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : AppColors.primary.withValues(alpha: 0.08)),
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Text(
@@ -979,8 +975,8 @@ class _PriceRow extends StatelessWidget {
                   color: isPopular
                       ? Colors.white
                       : (dark
-                          ? Colors.white.withValues(alpha: 0.75)
-                          : AppColors.primary),
+                            ? Colors.white.withValues(alpha: 0.75)
+                            : AppColors.primary),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1024,10 +1020,8 @@ class _PlatformAvatarState extends State<_PlatformAvatar>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _float,
-      builder: (_, child) => Transform.translate(
-        offset: Offset(0, _float.value),
-        child: child,
-      ),
+      builder: (_, child) =>
+          Transform.translate(offset: Offset(0, _float.value), child: child),
       child: Container(
         width: 68,
         height: 68,
@@ -1056,10 +1050,7 @@ class _PlatformAvatarState extends State<_PlatformAvatar>
 // ─── Platform section ─────────────────────────────────────────────────────────
 
 class _PlatformSection extends StatelessWidget {
-  const _PlatformSection({
-    required this.plans,
-    required this.isSubscribed,
-  });
+  const _PlatformSection({required this.plans, required this.isSubscribed});
 
   final List<Plan> plans;
   final bool isSubscribed;
@@ -1242,11 +1233,13 @@ class _PlatformSection extends StatelessWidget {
                   child: Row(
                     children: [
                       for (final lvl in [
-                        'A1', 'A2', 'B1', 'B2', 'C1', 'C2',
-                      ]) ...[
-                        _LevelChip(level: lvl),
-                        const SizedBox(width: 8),
-                      ],
+                        'A1',
+                        'A2',
+                        'B1',
+                        'B2',
+                        'C1',
+                        'C2',
+                      ]) ...[_LevelChip(level: lvl), const SizedBox(width: 8)],
                     ],
                   ),
                 ),
@@ -1485,7 +1478,6 @@ class _EnrolledCourseCard extends StatelessWidget {
     );
   }
 }
-
 
 // ─── Course cover ─────────────────────────────────────────────────────────────
 

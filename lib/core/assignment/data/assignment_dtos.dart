@@ -82,3 +82,88 @@ class AssignmentParticipant {
     );
   }
 }
+
+/// The student's currently assigned mentor, as returned by
+/// `GET assignments/my-mentor`. `null` means no mentor is assigned yet.
+class MyMentor {
+  const MyMentor({
+    required this.assignmentId,
+    required this.chatRoomId,
+    required this.status,
+    required this.startDate,
+    required this.isOnline,
+    required this.mentor,
+    this.endDate,
+    this.progress,
+  });
+
+  final String assignmentId;
+  final String? chatRoomId;
+  final String status;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final double? progress;
+  final bool isOnline;
+  final MentorProfile mentor;
+
+  factory MyMentor.fromJson(Map<String, dynamic> json) {
+    return MyMentor(
+      assignmentId: json['assignmentId'] as String? ?? '',
+      chatRoomId: json['chatRoomId'] as String?,
+      status: json['status'] as String? ?? '',
+      startDate:
+          DateTime.tryParse(json['startDate'] as String? ?? '') ??
+          DateTime.fromMillisecondsSinceEpoch(0),
+      endDate: json['endDate'] is String
+          ? DateTime.tryParse(json['endDate'] as String)
+          : null,
+      progress: (json['progress'] as num?)?.toDouble(),
+      isOnline: json['isOnline'] as bool? ?? false,
+      mentor: MentorProfile.fromJson(
+        (json['mentor'] as Map?)?.cast<String, dynamic>() ?? const {},
+      ),
+    );
+  }
+}
+
+/// Flat mentor profile shape used by `GET assignments/my-mentor` — distinct
+/// from [AssignmentParticipant], which is nested under a `user` object in
+/// the general assignment-list endpoint.
+class MentorProfile {
+  const MentorProfile({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.fullName,
+    this.avatar,
+    this.phoneNumber,
+    this.email,
+  });
+
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String fullName;
+  final String? avatar;
+  final String? phoneNumber;
+  final String? email;
+
+  String get initials {
+    final f = firstName.isNotEmpty ? firstName[0] : '';
+    final l = lastName.isNotEmpty ? lastName[0] : '';
+    final combined = '$f$l'.toUpperCase();
+    return combined.isEmpty ? '?' : combined;
+  }
+
+  factory MentorProfile.fromJson(Map<String, dynamic> json) {
+    return MentorProfile(
+      id: json['id'] as String? ?? '',
+      firstName: json['firstName'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
+      fullName: json['fullName'] as String? ?? '',
+      avatar: json['avatar'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      email: json['email'] as String?,
+    );
+  }
+}

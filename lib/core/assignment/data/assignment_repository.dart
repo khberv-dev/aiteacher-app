@@ -20,4 +20,13 @@ class AssignmentRepository {
         .map((e) => Assignment.fromJson(e.cast<String, dynamic>()))
         .toList(growable: false);
   }
+
+  Future<MyMentor?> getMyMentor() async {
+    final response = await _dio.get<Map<String, dynamic>?>(
+      'assignments/my-mentor',
+    );
+    final data = response.data;
+    if (data == null || data.isEmpty) return null;
+    return MyMentor.fromJson(data);
+  }
 }
