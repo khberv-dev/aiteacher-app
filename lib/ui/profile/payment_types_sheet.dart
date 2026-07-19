@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:ai_teacher/app/data/network_config.dart';
-import 'package:dio/dio.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/cards/data/card_dtos.dart';
 import 'package:ai_teacher/core/cards/data/card_repository.dart';
@@ -11,6 +10,8 @@ import 'package:ai_teacher/core/payment/data/payment_repository.dart';
 import 'package:ai_teacher/core/payment/presentation/payment_types_controller.dart';
 import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
 import 'package:ai_teacher/core/speaking/presentation/pending_report_payment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -65,6 +66,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
 
   Future<void> _onSelectType(PaymentType type) async {
     if (_isBusy) return;
+    final l10n = AppLocalizations.of(context);
     setState(() => _creatingTypeId = type.id);
     try {
       final payment = await ref
@@ -99,7 +101,10 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
         ..showSnackBar(
           SnackBar(
             content: Text(
-              "${type.title} orqali to'lov yaratildi · ${_formatPrice(widget.amount)}",
+              l10n.profilePaymentCreatedViaType(
+                type.title,
+                _formatPrice(widget.amount),
+              ),
             ),
           ),
         );
@@ -115,9 +120,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
       setState(() => _creatingTypeId = null);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(content: Text("To'lovni yaratib bo'lmadi")),
-        );
+        ..showSnackBar(SnackBar(content: Text(l10n.profilePaymentCreateError)));
     }
   }
 
@@ -125,15 +128,15 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
 
   Future<void> _onPayWithCard(UserCard card) async {
     if (_isBusy) return;
+    final l10n = AppLocalizations.of(context);
     setState(() {
       _payingCardId = card.id;
       _cardError = null;
     });
     try {
-      await ref.read(cardRepositoryProvider).payWithCard(
-            cardId: card.id,
-            amount: widget.amount.toInt(),
-          );
+      await ref
+          .read(cardRepositoryProvider)
+          .payWithCard(cardId: card.id, amount: widget.amount.toInt());
       if (!mounted) return;
       Navigator.of(context).pop(card.id);
       ScaffoldMessenger.of(context)
@@ -141,7 +144,9 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
         ..showSnackBar(
           SnackBar(
             content: Text(
-              "Karta orqali to'lov amalga oshirildi · ${_formatPrice(widget.amount)}",
+              l10n.profileCardPaymentSuccessMessage(
+                _formatPrice(widget.amount),
+              ),
             ),
           ),
         );
@@ -163,12 +168,13 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
         if (msg is List && msg.isNotEmpty) return msg.first.toString();
       }
     }
-    return "Karta orqali to'lovda xatolik yuz berdi";
+    return AppLocalizations.of(context).profileCardPaymentError;
   }
 
   bool get _isBusy => _creatingTypeId != null || _payingCardId != null;
 
   Widget _buildList(ScrollController scrollController) {
+    final l10n = AppLocalizations.of(context);
     final types = ref.watch(paymentTypesProvider);
     final cardsAsync = ref.watch(cardsControllerProvider);
 
@@ -188,7 +194,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
     }
 
     if (types.hasError && cards.isEmpty && !cardsLoading) {
-      return const _EmptyText(text: "To'lov usullarini yuklab bo'lmadi");
+      return _EmptyText(text: l10n.profilePaymentMethodsLoadError);
     }
 
     return ListView(
@@ -199,7 +205,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
         if (cardsLoading) ...[
           _SectionLabel(
             icon: Icons.credit_card_rounded,
-            label: 'Saqlangan kartalar',
+            label: l10n.profileSavedCardsLabel,
           ),
           const SizedBox(height: 12),
           const Center(
@@ -216,7 +222,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
         ] else if (cards.isNotEmpty) ...[
           _SectionLabel(
             icon: Icons.credit_card_rounded,
-            label: 'Saqlangan kartalar',
+            label: l10n.profileSavedCardsLabel,
           ),
           const SizedBox(height: 8),
           if (_cardError != null) ...[
@@ -243,7 +249,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
             const SizedBox(height: 4),
             _SectionLabel(
               icon: Icons.account_balance_wallet_outlined,
-              label: "Boshqa to'lov usullari",
+              label: l10n.profileOtherPaymentMethodsLabel,
             ),
             const SizedBox(height: 8),
           ],
@@ -262,9 +268,9 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
           }),
         ] else if (types.isLoading) ...[
           if (cards.isNotEmpty || cardsLoading)
-            const _SectionLabel(
+            _SectionLabel(
               icon: Icons.account_balance_wallet_outlined,
-              label: "Boshqa to'lov usullari",
+              label: l10n.profileOtherPaymentMethodsLabel,
             ),
           const SizedBox(height: 12),
           const Center(
@@ -283,6 +289,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return DraggableScrollableSheet(
       initialChildSize: 0.65,
       minChildSize: 0.4,
@@ -305,9 +312,9 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                "To'lov usulini tanlang",
-                style: TextStyle(
+              Text(
+                l10n.profileSelectPaymentMethodTitle,
+                style: const TextStyle(
                   color: Color(0xFF111111),
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -325,9 +332,7 @@ class _PaymentTypesSheetState extends ConsumerState<PaymentTypesSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: _buildList(scrollController),
-              ),
+              Expanded(child: _buildList(scrollController)),
             ],
           ),
         );
@@ -346,20 +351,20 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        children: [
-          Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF94A3B8),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
-            ),
-          ),
-        ],
-      );
+    children: [
+      Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
+      const SizedBox(width: 6),
+      Text(
+        label,
+        style: const TextStyle(
+          color: Color(0xFF94A3B8),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.3,
+        ),
+      ),
+    ],
+  );
 }
 
 class _CardPayTile extends StatelessWidget {
@@ -375,15 +380,18 @@ class _CardPayTile extends StatelessWidget {
   final bool disabled;
   final VoidCallback onTap;
 
-  String get _bankLabel {
-    final prefix = card.cardNumber.isNotEmpty ? card.cardNumber.substring(0, 4) : '';
+  String _bankLabel(AppLocalizations l10n) {
+    final prefix = card.cardNumber.isNotEmpty
+        ? card.cardNumber.substring(0, 4)
+        : '';
     if (prefix == '8600') return 'UzCard';
     if (prefix == '9860') return 'Humo';
-    return 'Karta';
+    return l10n.profileGenericCardLabel;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(14),
@@ -431,7 +439,7 @@ class _CardPayTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${card.displayExpiry} · $_bankLabel',
+                      '${card.displayExpiry} · ${_bankLabel(l10n)}',
                       style: TextStyle(
                         color: disabled
                             ? const Color(0xFFCCCCCC)
@@ -500,7 +508,9 @@ class _PaymentTypeTile extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  type.title.isEmpty ? "To'lov" : type.title,
+                  type.title.isEmpty
+                      ? AppLocalizations.of(context).profilePaymentFallbackTitle
+                      : type.title,
                   style: TextStyle(
                     color: disabled
                         ? const Color(0xFFAAAAAA)
@@ -601,38 +611,38 @@ class _CardErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF1F2),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFFECACA)),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFF1F2),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: const Color(0xFFFECACA)),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 1),
+          child: Icon(
+            Icons.error_outline_rounded,
+            size: 16,
+            color: Color(0xFFEF4444),
+          ),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 1),
-              child: Icon(
-                Icons.error_outline_rounded,
-                size: 16,
-                color: Color(0xFFEF4444),
-              ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            message,
+            style: const TextStyle(
+              color: Color(0xFFDC2626),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Color(0xFFDC2626),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 String _formatPrice(num value) {

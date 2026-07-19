@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class DictionaryCard extends StatelessWidget {
@@ -7,6 +8,7 @@ class DictionaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
       child: Material(
@@ -41,9 +43,9 @@ class DictionaryCard extends StatelessWidget {
                     children: [
                       _Badge(),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Lug'at",
-                        style: TextStyle(
+                      Text(
+                        l10n.homeDictionaryCardTitle,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -51,7 +53,7 @@ class DictionaryCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        "Ingliz va o'zbek tilida so'zlarni qidiring,\nma'nosini bir zumda toping",
+                        l10n.homeDictionaryCardSubtitle,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.75),
                           fontSize: 12,
@@ -90,15 +92,16 @@ class DictionaryCard extends StatelessWidget {
 class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        "LUG'AT",
-        style: TextStyle(
+      child: Text(
+        l10n.homeDictionaryBadgeLabel,
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 10,
           fontWeight: FontWeight.w800,
@@ -116,6 +119,7 @@ class _OpenPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(10),
@@ -127,9 +131,9 @@ class _OpenPill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Ochish',
-                style: TextStyle(
+              Text(
+                l10n.homeDictionaryOpenAction,
+                style: const TextStyle(
                   color: Color(0xFF7C3AED),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,

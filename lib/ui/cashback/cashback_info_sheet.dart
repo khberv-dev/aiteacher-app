@@ -1,5 +1,6 @@
 import 'package:ai_teacher/core/cashback/data/cashback_dtos.dart';
 import 'package:ai_teacher/core/cashback/presentation/cashback_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,6 +25,7 @@ class CashbackInfoSheet extends ConsumerWidget {
     final summaryAsync = ref.watch(cashbackSummaryProvider);
     final historyAsync = ref.watch(cashbackHistoryProvider);
     final summary = summaryAsync.valueOrNull ?? CashbackSummary.zero;
+    final l10n = AppLocalizations.of(context);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.78,
@@ -41,11 +43,11 @@ class CashbackInfoSheet extends ConsumerWidget {
                 children: [
                   _BalanceHeader(summary: summary),
                   const SizedBox(height: 24),
-                  _SectionTitle(title: "Qanday cashback yig'iladi?"),
+                  _SectionTitle(title: l10n.cashbackHowItWorksTitle),
                   const SizedBox(height: 12),
                   const _CriteriaList(),
                   const SizedBox(height: 28),
-                  _SectionTitle(title: 'Tarix'),
+                  _SectionTitle(title: l10n.cashbackHistoryTitle),
                   const SizedBox(height: 12),
                   _HistoryList(async: historyAsync),
                 ],
@@ -86,6 +88,7 @@ class _BalanceHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -99,9 +102,9 @@ class _BalanceHeader extends StatelessWidget {
             children: [
               const Text('🪙', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
-              const Text(
-                'Cashback',
-                style: TextStyle(
+              Text(
+                l10n.cashbackSectionLabel,
+                style: const TextStyle(
                   color: Color(0xFFF5B700),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -112,7 +115,7 @@ class _BalanceHeader extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            _fmt(summary.total),
+            _fmt(summary.total, l10n),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
@@ -122,7 +125,7 @@ class _BalanceHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Jami cashback balansi',
+            l10n.cashbackTotalBalanceLabel,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.45),
               fontSize: 12,
@@ -150,7 +153,7 @@ class _BalanceHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Olishga tayyor: ${_fmt(summary.unclaimed)}',
+                    l10n.cashbackReadyToClaim(_fmt(summary.unclaimed, l10n)),
                     style: const TextStyle(
                       color: Color(0xFFF5B700),
                       fontSize: 12,
@@ -190,40 +193,41 @@ class _CriteriaList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const items = [
+    final l10n = AppLocalizations.of(context);
+    final items = [
       _CriterionData(
         emoji: '🎉',
-        title: "Ro'yxatdan o'tganingiz uchun",
-        subtitle: 'Bir martalik kirish bonusi',
-        reward: '25 000 so\'m',
+        title: l10n.cashbackCriterionRegisterTitle,
+        subtitle: l10n.cashbackCriterionRegisterSubtitle,
+        reward: '25 000 ${l10n.cashbackCurrencySuffix}',
         rewardIsPercent: false,
       ),
       _CriterionData(
         emoji: '👥',
-        title: "Har bir do'stingiz referal orqali ro'yxatdan o'tganda",
-        subtitle: 'Referal kodingizni ulashing',
-        reward: '1 000 so\'m',
+        title: l10n.cashbackCriterionReferralTitle,
+        subtitle: l10n.cashbackCriterionReferralSubtitle,
+        reward: '1 000 ${l10n.cashbackCurrencySuffix}',
         rewardIsPercent: false,
       ),
       _CriterionData(
         emoji: '💳',
-        title: "Sizning har bir to'lovingizdan",
-        subtitle: 'Obuna xarid qilganda avtomatik',
+        title: l10n.cashbackCriterionPaymentTitle,
+        subtitle: l10n.cashbackCriterionPaymentSubtitle,
         reward: '1.5%',
         rewardIsPercent: true,
       ),
       _CriterionData(
         emoji: '🤝',
-        title: "Do'stingiz har bir to'lov qilganda",
-        subtitle: "Referal qilgan do'stingiz to'laganda",
+        title: l10n.cashbackCriterionReferralPaymentTitle,
+        subtitle: l10n.cashbackCriterionReferralPaymentSubtitle,
         reward: '1%',
         rewardIsPercent: true,
       ),
       _CriterionData(
         emoji: '🔥',
-        title: "Haftalik streak seriyasini yakunlaganingiz uchun",
-        subtitle: "Har haftada maqsadni bajarsangiz",
-        reward: '3 000 so\'m',
+        title: l10n.cashbackCriterionStreakTitle,
+        subtitle: l10n.cashbackCriterionStreakSubtitle,
+        reward: '3 000 ${l10n.cashbackCurrencySuffix}',
         rewardIsPercent: false,
       ),
     ];
@@ -337,6 +341,7 @@ class _HistoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return async.when(
       loading: () => const Center(
         child: Padding(
@@ -344,21 +349,21 @@ class _HistoryList extends StatelessWidget {
           child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
-      error: (_, _) => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
+      error: (_, _) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Text(
-          'Tarixni yuklab bo\'lmadi',
-          style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+          l10n.cashbackHistoryLoadError,
+          style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
           textAlign: TextAlign.center,
         ),
       ),
       data: (items) {
         if (items.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
-              'Hali cashback operatsiyalari yo\'q',
-              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+              l10n.cashbackHistoryEmpty,
+              style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
               textAlign: TextAlign.center,
             ),
           );
@@ -384,6 +389,7 @@ class _HistoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -416,7 +422,7 @@ class _HistoryRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  _formatDate(item.createdAt),
+                  _formatDate(item.createdAt, l10n),
                   style: const TextStyle(
                     color: Color(0xFF9CA3AF),
                     fontSize: 11,
@@ -427,7 +433,7 @@ class _HistoryRow extends StatelessWidget {
             ),
           ),
           Text(
-            '+ ${_fmt(item.amount)}',
+            '+ ${_fmt(item.amount, l10n)}',
             style: const TextStyle(
               color: Color(0xFFB45309),
               fontSize: 14,
@@ -447,26 +453,26 @@ class _HistoryRow extends StatelessWidget {
     CashbackType.streak => '🔥',
   };
 
-  String _formatDate(DateTime dt) {
-    const months = [
-      'yan',
-      'fev',
-      'mar',
-      'apr',
-      'may',
-      'iyn',
-      'iyl',
-      'avg',
-      'sen',
-      'okt',
-      'noy',
-      'dek',
+  String _formatDate(DateTime dt, AppLocalizations l10n) {
+    final months = [
+      l10n.cashbackMonthJan,
+      l10n.cashbackMonthFeb,
+      l10n.cashbackMonthMar,
+      l10n.cashbackMonthApr,
+      l10n.cashbackMonthMay,
+      l10n.cashbackMonthJun,
+      l10n.cashbackMonthJul,
+      l10n.cashbackMonthAug,
+      l10n.cashbackMonthSep,
+      l10n.cashbackMonthOct,
+      l10n.cashbackMonthNov,
+      l10n.cashbackMonthDec,
     ];
     return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
   }
 }
 
-String _fmt(num value) {
+String _fmt(num value, AppLocalizations l10n) {
   final whole = value.toInt();
   final s = whole.toString();
   final buf = StringBuffer();
@@ -474,5 +480,5 @@ String _fmt(num value) {
     if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
     buf.write(s[i]);
   }
-  return "${buf.toString()} so'm";
+  return '${buf.toString()} ${l10n.cashbackCurrencySuffix}';
 }

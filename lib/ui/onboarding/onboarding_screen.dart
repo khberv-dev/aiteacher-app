@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/onboarding/widget/glow_avatar.dart';
 import 'package:ai_teacher/ui/onboarding/widget/lekin_divider.dart';
 import 'package:ai_teacher/ui/onboarding/widget/welcome_cta.dart';
@@ -13,6 +14,7 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
         statusBarColor: Colors.transparent,
@@ -35,8 +37,8 @@ class OnboardingScreen extends StatelessWidget {
                       const SizedBox(height: 32),
                       RichText(
                         textAlign: TextAlign.center,
-                        text: const TextSpan(
-                          style: TextStyle(
+                        text: TextSpan(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -44,10 +46,12 @@ class OnboardingScreen extends StatelessWidget {
                             height: 1.25,
                           ),
                           children: [
-                            TextSpan(text: "Ko'pchilik ingliz tilini\nyillar "),
+                            TextSpan(text: l10n.onboardingHeroLine1),
                             TextSpan(
-                              text: "o'rganadi.",
-                              style: TextStyle(color: AppColors.primaryLight),
+                              text: l10n.onboardingHeroHighlight1,
+                              style: const TextStyle(
+                                color: AppColors.primaryLight,
+                              ),
                             ),
                           ],
                         ),
@@ -57,8 +61,8 @@ class OnboardingScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       RichText(
                         textAlign: TextAlign.center,
-                        text: const TextSpan(
-                          style: TextStyle(
+                        text: TextSpan(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -66,19 +70,19 @@ class OnboardingScreen extends StatelessWidget {
                             height: 1.25,
                           ),
                           children: [
-                            TextSpan(text: 'Gaplasha '),
+                            TextSpan(text: l10n.onboardingHeroLine2),
                             TextSpan(
-                              text: 'olmaydi.',
-                              style: TextStyle(color: AppColors.accent),
+                              text: l10n.onboardingHeroHighlight2,
+                              style: const TextStyle(color: AppColors.accent),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'AI mentor siz bilan haqiqiy suhbat qurib,\nbu muammoni hal qiladi.',
+                      Text(
+                        l10n.onboardingHeroSubtitle,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF8FA3B5),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -89,16 +93,16 @@ class OnboardingScreen extends StatelessWidget {
                   ),
                 ),
                 WelcomeCta(
-                  label: 'Muammoni hal qilamiz  →',
+                  label: '${l10n.onboardingCtaLabel}  →',
                   onPressed: () => context.goNamed(AppRoute.survey.name),
                 ),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Hisobingiz bormi? ',
-                      style: TextStyle(
+                    Text(
+                      l10n.onboardingHaveAccount,
+                      style: const TextStyle(
                         color: Color(0xFF8FA3B5),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -107,9 +111,9 @@ class OnboardingScreen extends StatelessWidget {
                     GestureDetector(
                       onTap: () => context.pushNamed(AppRoute.login.name),
                       behavior: HitTestBehavior.opaque,
-                      child: const Text(
-                        'Kirish',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.onboardingLoginLink,
+                        style: const TextStyle(
                           color: AppColors.primaryLight,
                           fontSize: 13,
                           fontWeight: FontWeight.w800,

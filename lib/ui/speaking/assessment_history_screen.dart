@@ -3,6 +3,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/speaking/data/conversation_summary.dart';
 import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
 import 'package:ai_teacher/core/speaking/presentation/assessment_history_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,13 +22,12 @@ class _AssessmentHistoryScreenState
   String? _openingId;
 
   Future<void> _onOpen(ConversationSummary item) async {
+    final l10n = AppLocalizations.of(context);
     if (_openingId != null) return;
     if (!item.hasReport) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(content: Text("Bu suhbatda hali hisobot yo'q")),
-        );
+        ..showSnackBar(SnackBar(content: Text(l10n.speakingScreenNoReportYet)));
       return;
     }
     setState(() => _openingId = item.id);
@@ -39,7 +39,9 @@ class _AssessmentHistoryScreenState
       if (report == null) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(const SnackBar(content: Text("Hisobot topilmadi")));
+          ..showSnackBar(
+            SnackBar(content: Text(l10n.speakingScreenReportNotFound)),
+          );
         return;
       }
       context.pushNamed(AppRoute.speakingReport.name, extra: report);
@@ -48,7 +50,7 @@ class _AssessmentHistoryScreenState
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text("Hisobotni yuklab bo'lmadi")),
+          SnackBar(content: Text(l10n.speakingScreenReportLoadFailed)),
         );
     } finally {
       if (mounted) setState(() => _openingId = null);
@@ -57,6 +59,7 @@ class _AssessmentHistoryScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final historyAsync = ref.watch(assessmentHistoryProvider);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -84,14 +87,14 @@ class _AssessmentHistoryScreenState
                       ),
                     ),
                     error: (_, _) =>
-                        const _Empty(text: "Tarixni yuklab bo'lmadi"),
+                        _Empty(text: l10n.speakingScreenHistoryLoadFailed),
                     data: (items) {
                       if (items.isEmpty) {
                         return ListView(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          children: const [
-                            SizedBox(height: 80),
-                            _Empty(text: "Hozircha suhbat tarixi yo'q"),
+                          children: [
+                            const SizedBox(height: 80),
+                            _Empty(text: l10n.speakingScreenHistoryEmpty),
                           ],
                         );
                       }
@@ -136,6 +139,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
       child: Row(
@@ -159,9 +163,9 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          const Text(
-            "Suhbatlar tarixi",
-            style: TextStyle(
+          Text(
+            l10n.speakingScreenHistoryTitle,
+            style: const TextStyle(
               color: Color(0xFF0D1B4B),
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -188,6 +192,7 @@ class _HistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tappable = item.hasReport;
     return Material(
       color: Colors.white,
@@ -244,7 +249,7 @@ class _HistoryItem extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      _formatDate(item.updatedAt.toLocal()),
+                      _formatDate(item.updatedAt.toLocal(), l10n),
                       style: const TextStyle(
                         color: Color(0xFF0F172A),
                         fontSize: 14,
@@ -257,11 +262,11 @@ class _HistoryItem extends StatelessWidget {
                         _StatusChip(
                           label: !item.hasReport
                               ? (item.readyForAnalyze
-                                    ? 'Tayyor'
-                                    : "Yetarli emas")
+                                    ? l10n.speakingScreenStatusReady
+                                    : l10n.speakingScreenStatusNotEnough)
                               : item.isFullReportAvailable
-                              ? "To'liq hisobot"
-                              : 'Qisman ko\'rinadi',
+                              ? l10n.speakingScreenStatusFullReport
+                              : l10n.speakingScreenStatusPartialReport,
                           background: !item.hasReport
                               ? (item.readyForAnalyze
                                     ? const Color(0xFFFEF3C7)
@@ -363,23 +368,24 @@ class _Empty extends StatelessWidget {
   }
 }
 
-const _uzMonths = [
-  'yanvar',
-  'fevral',
-  'mart',
-  'aprel',
-  'may',
-  'iyun',
-  'iyul',
-  'avgust',
-  'sentabr',
-  'oktabr',
-  'noyabr',
-  'dekabr',
+List<String> _monthNames(AppLocalizations l10n) => [
+  l10n.speakingScreenMonthJanuary,
+  l10n.speakingScreenMonthFebruary,
+  l10n.speakingScreenMonthMarch,
+  l10n.speakingScreenMonthApril,
+  l10n.speakingScreenMonthMay,
+  l10n.speakingScreenMonthJune,
+  l10n.speakingScreenMonthJuly,
+  l10n.speakingScreenMonthAugust,
+  l10n.speakingScreenMonthSeptember,
+  l10n.speakingScreenMonthOctober,
+  l10n.speakingScreenMonthNovember,
+  l10n.speakingScreenMonthDecember,
 ];
 
-String _formatDate(DateTime d) {
-  final month = (d.month >= 1 && d.month <= 12) ? _uzMonths[d.month - 1] : '';
+String _formatDate(DateTime d, AppLocalizations l10n) {
+  final months = _monthNames(l10n);
+  final month = (d.month >= 1 && d.month <= 12) ? months[d.month - 1] : '';
   final h = d.hour.toString().padLeft(2, '0');
   final m = d.minute.toString().padLeft(2, '0');
   return '${d.day}-$month ${d.year} · $h:$m';

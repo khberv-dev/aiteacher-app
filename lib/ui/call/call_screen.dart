@@ -4,6 +4,7 @@ import 'package:ai_teacher/core/assignment/data/assignment_dtos.dart';
 import 'package:ai_teacher/core/assignment/presentation/my_assignments_controller.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/call/call_rating_sheet.dart';
 import 'package:ai_teacher/ui/call/widget/call_avatar_rings.dart';
 import 'package:ai_teacher/ui/call/widget/call_round_button.dart';
@@ -19,10 +20,11 @@ class CallScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(callControllerProvider);
     final controller = ref.read(callControllerProvider.notifier);
     final peerName = _resolvePeerName(ref, state.assignmentId);
-    final peerSubtitle = _resolvePeerSubtitle(ref, state.assignmentId);
+    final peerSubtitle = _resolvePeerSubtitle(ref, state.assignmentId, l10n);
     final initials = _initialsFrom(peerName);
 
     ref.listen(callControllerProvider, (prev, next) {
@@ -114,13 +116,17 @@ String _resolvePeerName(WidgetRef ref, String? assignmentId) {
       : a.mentor.fullName;
 }
 
-String _resolvePeerSubtitle(WidgetRef ref, String? assignmentId) {
+String _resolvePeerSubtitle(
+  WidgetRef ref,
+  String? assignmentId,
+  AppLocalizations l10n,
+) {
   if (assignmentId == null) return '';
   final assignments = ref.watch(myAssignmentsProvider).valueOrNull;
   if (assignments == null) return '';
   final a = _findAssignment(assignments, assignmentId);
   if (a == null) return '';
-  return 'Ingliz tili amaliyoti';
+  return l10n.callEnglishPracticeSubtitle;
 }
 
 Assignment? _findAssignment(List<Assignment> list, String id) {
@@ -163,22 +169,23 @@ class _TopBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final (icon, label, fg, bg) = switch (phase) {
       CallPhase.incoming => (
         Icons.call_received_rounded,
-        'Kiruvchi qo\'ng\'iroq',
+        l10n.callIncoming,
         Colors.white70,
         const Color(0x1FFFFFFF),
       ),
       CallPhase.active => (
         null,
-        'Ulandi · ${_format(elapsed)}',
+        l10n.callConnectedDuration(_format(elapsed)),
         const Color(0xFFBBF7D0),
         const Color(0xFF064E3B),
       ),
       CallPhase.ended => (
         null,
-        "Qo'ng'iroq tugadi",
+        l10n.callEnded,
         Colors.white70,
         const Color(0x1FFFFFFF),
       ),
@@ -245,10 +252,11 @@ class _Subtitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     switch (phase) {
       case CallPhase.incoming:
         return Text(
-          peerSubtitle.isEmpty ? 'Suhbat kutilmoqda' : peerSubtitle,
+          peerSubtitle.isEmpty ? l10n.callWaitingForConversation : peerSubtitle,
           style: const TextStyle(
             color: Color(0xFFB7BCC8),
             fontSize: 13,
@@ -257,18 +265,18 @@ class _Subtitle extends StatelessWidget {
         );
       case CallPhase.outgoing:
       case CallPhase.connecting:
-        return const Text(
-          'Ulanmoqda...',
-          style: TextStyle(
+        return Text(
+          l10n.callConnecting,
+          style: const TextStyle(
             color: AppColors.primaryLight,
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
         );
       case CallPhase.reconnecting:
-        return const Text(
-          'Qayta ulanmoqda...',
-          style: TextStyle(
+        return Text(
+          l10n.callReconnecting,
+          style: const TextStyle(
             color: AppColors.accent,
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -298,6 +306,7 @@ class _EndedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.only(top: 18),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -314,9 +323,9 @@ class _EndedCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Davomiyligi',
-                style: TextStyle(
+              Text(
+                l10n.callDurationLabel,
+                style: const TextStyle(
                   color: Color(0xFFB7BCC8),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -346,6 +355,7 @@ class _Actions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     switch (state.phase) {
       case CallPhase.incoming:
         return Row(
@@ -353,14 +363,14 @@ class _Actions extends StatelessWidget {
           children: [
             CallRoundButton(
               icon: Icons.call_end_rounded,
-              label: 'Rad etish',
+              label: l10n.callDecline,
               background: const Color(0xFFEF4444),
               large: true,
               onTap: controller.decline,
             ),
             CallRoundButton(
               icon: Icons.call_rounded,
-              label: 'Qabul qilish',
+              label: l10n.callAccept,
               background: const Color(0xFF22C55E),
               large: true,
               onTap: controller.accept,
@@ -374,8 +384,8 @@ class _Actions extends StatelessWidget {
           child: CallRoundButton(
             icon: Icons.call_end_rounded,
             label: state.phase == CallPhase.reconnecting
-                ? 'Tugatish'
-                : 'Bekor qilish',
+                ? l10n.callHangup
+                : l10n.commonCancel,
             background: const Color(0xFFEF4444),
             large: true,
             onTap: () => controller.hangup(),
@@ -387,7 +397,7 @@ class _Actions extends StatelessWidget {
           children: [
             CallRoundButton(
               icon: state.muted ? Icons.mic_off_rounded : Icons.mic_rounded,
-              label: 'Mikrofon',
+              label: l10n.callMicrophone,
               background: state.muted
                   ? const Color(0x4DFFFFFF)
                   : const Color(0x33FFFFFF),
@@ -397,7 +407,7 @@ class _Actions extends StatelessWidget {
               icon: state.speakerphone
                   ? Icons.volume_up_rounded
                   : Icons.volume_down_rounded,
-              label: 'Karnay',
+              label: l10n.callSpeaker,
               background: state.speakerphone
                   ? const Color(0x4DFFFFFF)
                   : const Color(0x33FFFFFF),
@@ -405,7 +415,7 @@ class _Actions extends StatelessWidget {
             ),
             CallRoundButton(
               icon: Icons.call_end_rounded,
-              label: 'Tugatish',
+              label: l10n.callHangup,
               background: const Color(0xFFEF4444),
               large: true,
               onTap: () => controller.hangup(),
@@ -416,7 +426,7 @@ class _Actions extends StatelessWidget {
         return Center(
           child: CallRoundButton(
             icon: Icons.close_rounded,
-            label: 'Yopish',
+            label: l10n.commonClose,
             background: const Color(0x33FFFFFF),
             onTap: controller.reset,
           ),

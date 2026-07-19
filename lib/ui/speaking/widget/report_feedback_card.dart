@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
@@ -9,6 +10,7 @@ class ReportFeedbackCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (feedback.trim().isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -50,19 +52,19 @@ class ReportFeedbackCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Text(
-                        'AI Mentor sharhi',
-                        style: TextStyle(
+                        l10n.speakingReportFeedbackCardTitle,
+                        style: const TextStyle(
                           color: Color(0xFF1A1A1A),
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      SizedBox(height: 1),
+                      const SizedBox(height: 1),
                       Text(
-                        "Suhbatga umumiy baho",
-                        style: TextStyle(
+                        l10n.speakingReportFeedbackCardSubtitle,
+                        style: const TextStyle(
                           color: Color(0xFF6B6860),
                           fontSize: 10,
                           fontWeight: FontWeight.w600,

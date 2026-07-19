@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -9,46 +10,47 @@ class ReportScoreGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final scores = <_ScoreData>[
       _ScoreData(
         'Speaking',
         skills.speaking,
-        _labelFor(skills.speaking),
+        _labelFor(l10n, skills.speaking),
         const Color(0xFF92400E),
         const Color(0xFFB45309),
       ),
       _ScoreData(
         'Vocabulary',
         skills.vocabulary,
-        _labelFor(skills.vocabulary),
+        _labelFor(l10n, skills.vocabulary),
         const Color(0xFF1E40AF),
         const Color(0xFF1D4ED8),
       ),
       _ScoreData(
         'Grammar',
         skills.grammar,
-        _labelFor(skills.grammar),
+        _labelFor(l10n, skills.grammar),
         const Color(0xFF065F46),
         const Color(0xFF0F766E),
       ),
       _ScoreData(
         'Listening',
         skills.listening,
-        _labelFor(skills.listening),
+        _labelFor(l10n, skills.listening),
         const Color(0xFF831843),
         const Color(0xFFBE185D),
       ),
       _ScoreData(
         'Reading',
         skills.reading,
-        _labelFor(skills.reading),
+        _labelFor(l10n, skills.reading),
         const Color(0xFF4C1D95),
         const Color(0xFF6D28D9),
       ),
       _ScoreData(
         'Writing',
         skills.writing,
-        _labelFor(skills.writing),
+        _labelFor(l10n, skills.writing),
         const Color(0xFF9A3412),
         const Color(0xFFC2410C),
       ),
@@ -73,7 +75,7 @@ class ReportScoreGrid extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ReportSectionLabel(text: 'BALL KARTOCHKALARI'),
+            ReportSectionLabel(text: l10n.speakingReportScoreGridSectionLabel),
             const SizedBox(height: 12),
             for (var row = 0; row < scores.length; row += 2) ...[
               if (row > 0) const SizedBox(height: 8),
@@ -91,12 +93,12 @@ class ReportScoreGrid extends StatelessWidget {
     );
   }
 
-  String _labelFor(int score) {
-    if (score >= 75) return 'Kuchli';
-    if (score >= 65) return 'Yaxshi';
-    if (score >= 55) return "O'rta";
-    if (score >= 45) return 'Kuchayish kerak';
-    return 'Zaif tomon';
+  String _labelFor(AppLocalizations l10n, int score) {
+    if (score >= 75) return l10n.speakingReportScoreLabelStrong;
+    if (score >= 65) return l10n.speakingReportScoreLabelGood;
+    if (score >= 55) return l10n.speakingReportScoreLabelAverage;
+    if (score >= 45) return l10n.speakingReportScoreLabelNeedsWork;
+    return l10n.speakingReportScoreLabelWeak;
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/app/theme/app_radius.dart';
 import 'package:ai_teacher/core/update/update_checker.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/shared/widget/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,6 +30,7 @@ class UpdateDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final forced = info.type == UpdateType.forced;
     return PopScope(
       canPop: !forced,
@@ -58,8 +60,8 @@ class UpdateDialog extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 forced
-                    ? 'Ilovadan foydalanish uchun yangilang'
-                    : 'Yangi imkoniyatlardan foydalanish uchun yangilang',
+                    ? l10n.sharedUpdateDialogForcedTitle
+                    : l10n.sharedUpdateDialogOptionalTitle,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -68,17 +70,20 @@ class UpdateDialog extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              PrimaryButton(label: 'Yangilash', onPressed: _openStore),
+              PrimaryButton(
+                label: l10n.sharedUpdateDialogUpdateButton,
+                onPressed: _openStore,
+              ),
               if (!forced) ...[
                 const SizedBox(height: 14),
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   behavior: HitTestBehavior.opaque,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      'Keyinroq',
-                      style: TextStyle(
+                      l10n.sharedUpdateDialogLater,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,

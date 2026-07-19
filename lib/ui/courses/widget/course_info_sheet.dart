@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/data/network_config.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/course/data/course_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class CourseInfoSheet extends StatelessWidget {
@@ -20,10 +21,11 @@ class CourseInfoSheet extends StatelessWidget {
     required Course course,
     required VoidCallback onNavigate,
   }) {
+    final l10n = AppLocalizations.of(context);
     return _show(
       context,
       course: course,
-      actionLabel: 'Kursga kirish →',
+      actionLabel: l10n.coursesEnterCourseLabel,
       onAction: onNavigate,
     );
   }
@@ -33,10 +35,11 @@ class CourseInfoSheet extends StatelessWidget {
     required Course course,
     required VoidCallback onDemo,
   }) {
+    final l10n = AppLocalizations.of(context);
     final demoPrice = course.demoPrice;
     final label = demoPrice != null
-        ? "Demo olish · ${_formatPrice(demoPrice)}"
-        : "Batafsil ma'lumot";
+        ? l10n.coursesDemoPriceLabel(_formatPrice(demoPrice))
+        : l10n.coursesMoreInfoLabel;
     return _show(context, course: course, actionLabel: label, onAction: onDemo);
   }
 

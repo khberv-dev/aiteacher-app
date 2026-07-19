@@ -135,6 +135,14 @@ class CacheService {
 
   Future<void> setIntroCompleted() => _prefs.setBool(_introCompletedKey, true);
 
+  static const String _languageCodeKey = 'language_code';
+
+  /// `null` means the user hasn't picked a language yet.
+  String? get languageCode => _prefs.getString(_languageCodeKey);
+
+  Future<bool> setLanguageCode(String code) =>
+      _prefs.setString(_languageCodeKey, code);
+
   Future<bool> remove(String key) => _prefs.remove(key);
 
   Future<bool> clear() => _prefs.clear();

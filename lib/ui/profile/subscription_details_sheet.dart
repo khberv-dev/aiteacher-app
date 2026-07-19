@@ -4,6 +4,7 @@ import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
 import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class _SubscriptionDetailsSheetState
     extends ConsumerState<SubscriptionDetailsSheet> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final user = ref.watch(currentUserProvider).valueOrNull;
     final plansAsync = ref.watch(availablePlansProvider);
 
@@ -50,9 +52,9 @@ class _SubscriptionDetailsSheetState
             children: [
               const _Grabber(),
               const SizedBox(height: 12),
-              const Text(
-                'Obuna',
-                style: TextStyle(
+              Text(
+                l10n.profileSubscriptionTitle,
+                style: const TextStyle(
                   color: Color(0xFF111111),
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -68,9 +70,9 @@ class _SubscriptionDetailsSheetState
                       subscription: user?.activeSubscription,
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Mavjud tariflar',
-                      style: TextStyle(
+                    Text(
+                      l10n.profileAvailablePlansLabel,
+                      style: const TextStyle(
                         color: Color(0xFF111111),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -90,10 +92,10 @@ class _SubscriptionDetailsSheetState
                         ),
                       ),
                       error: (_, _) =>
-                          const _ErrorRow(text: "Tariflarni yuklab bo'lmadi"),
+                          _ErrorRow(text: l10n.profilePlansLoadError),
                       data: (items) {
                         if (items.isEmpty) {
-                          return const _ErrorRow(text: 'Tariflar topilmadi');
+                          return _ErrorRow(text: l10n.profileNoPlansFound);
                         }
                         return Column(
                           children: [
@@ -248,6 +250,7 @@ class _CurrentSubscriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final hasSub = subscription != null;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -279,10 +282,10 @@ class _CurrentSubscriptionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Pro paket',
-                  style: TextStyle(
+                  l10n.profileProPackage,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -295,23 +298,23 @@ class _CurrentSubscriptionCard extends StatelessWidget {
           const SizedBox(height: 14),
           if (hasSub) ...[
             _Detail(
-              label: 'Boshlangan',
+              label: l10n.profileSubscriptionStartedLabel,
               value: _formatDate(subscription!.startDate),
             ),
             const SizedBox(height: 8),
             _Detail(
-              label: 'Tugaydi',
+              label: l10n.profileSubscriptionEndsLabel,
               value: _formatDate(subscription!.endDate),
             ),
             const SizedBox(height: 8),
             _Detail(
-              label: 'Qolgan',
-              value: '${_daysLeft(subscription!.endDate)} kun',
+              label: l10n.profileSubscriptionRemainingLabel,
+              value: l10n.profileDaysCount(_daysLeft(subscription!.endDate)),
             ),
           ] else
-            const Text(
-              "Hozircha faol obunangiz yo'q. Quyidagi tariflardan birini tanlang.",
-              style: TextStyle(
+            Text(
+              l10n.profileNoSubscriptionMessage,
+              style: const TextStyle(
                 color: Color(0xFFB7BCC8),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -331,6 +334,7 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -338,7 +342,7 @@ class _StatusPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        active ? 'Faol' : "Yo'q",
+        active ? l10n.profileActiveBadge : l10n.profileInactiveBadge,
         style: TextStyle(
           color: active ? const Color(0xFF15803D) : Colors.white70,
           fontSize: 11,
@@ -406,11 +410,13 @@ class _PlanCardState extends State<_PlanCard> {
   Future<void> _onSubscribe() async {
     final price = _selectedPrice;
     if (price == null) return;
+    final l10n = AppLocalizations.of(context);
     final plan = widget.plan;
     final created = await PaymentTypesSheet.show(
       context,
       amount: price.price,
-      title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
+      title:
+          '${plan.name.isEmpty ? l10n.profilePlanFallbackName : plan.name} · ${l10n.profileMonthsCount(price.month)}',
     );
     if (created != null && mounted) {
       Navigator.of(context).pop();
@@ -420,6 +426,7 @@ class _PlanCardState extends State<_PlanCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final plan = widget.plan;
     final color = _planColor(plan.color);
     final selectedPrice = _selectedPrice;
@@ -446,7 +453,7 @@ class _PlanCardState extends State<_PlanCard> {
             children: [
               Expanded(
                 child: Text(
-                  plan.name.isEmpty ? 'Tarif' : plan.name,
+                  plan.name.isEmpty ? l10n.profilePlanFallbackName : plan.name,
                   style: const TextStyle(
                     color: Color(0xFF111111),
                     fontSize: 16,
@@ -464,9 +471,9 @@ class _PlanCardState extends State<_PlanCard> {
                     color: const Color(0x330D9488),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'Mentor',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.profileMentorBadge,
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
@@ -501,7 +508,9 @@ class _PlanCardState extends State<_PlanCard> {
             Divider(height: 1, color: const Color(0xFFEDEAE4)),
             const SizedBox(height: 14),
             _AnimatedBuyButton(
-              label: "Obuna bo'lish · ${_formatPrice(selectedPrice.price)}",
+              label: l10n.profileSubscribeButtonLabel(
+                _formatPrice(selectedPrice.price),
+              ),
               color: color,
               onPressed: _onSubscribe,
             ),
@@ -525,6 +534,7 @@ class _PriceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Material(
@@ -553,7 +563,7 @@ class _PriceRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  '${price.month} oy',
+                  l10n.profileMonthsCount(price.month),
                   style: TextStyle(
                     color: selected
                         ? AppColors.primary

@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/vocabulary/data/speaking_evaluation.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Result of the speaking check — overlays the flashcard while shown.
@@ -18,6 +19,7 @@ class TrainingEvaluationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final correct = evaluation.correct;
     final headerColor = correct
         ? const Color(0xFF16A34A)
@@ -67,7 +69,9 @@ class TrainingEvaluationCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        correct ? "Ajoyib! To'g'ri" : "Yana urinib ko'ring",
+                        correct
+                            ? l10n.vocabularyEvalCorrectTitle
+                            : l10n.vocabularyEvalIncorrectTitle,
                         style: TextStyle(
                           color: headerColor,
                           fontSize: 15,
@@ -99,7 +103,7 @@ class TrainingEvaluationCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (evaluation.transcription.isNotEmpty) ...[
-                    const _SectionLabel("Siz aytdingiz"),
+                    _SectionLabel(l10n.vocabularyYouSaidLabel),
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -125,7 +129,7 @@ class TrainingEvaluationCard extends StatelessWidget {
                     const SizedBox(height: 14),
                   ],
                   if (evaluation.pronunciationFeedback.isNotEmpty) ...[
-                    const _SectionLabel("Talaffuz"),
+                    _SectionLabel(l10n.vocabularyPronunciationLabel),
                     const SizedBox(height: 4),
                     Text(
                       evaluation.pronunciationFeedback,
@@ -139,7 +143,7 @@ class TrainingEvaluationCard extends StatelessWidget {
                     const SizedBox(height: 12),
                   ],
                   if (evaluation.usageFeedback.isNotEmpty) ...[
-                    const _SectionLabel("Gap tuzilishi"),
+                    _SectionLabel(l10n.vocabularyUsageLabel),
                     const SizedBox(height: 4),
                     Text(
                       evaluation.usageFeedback,
@@ -198,8 +202,8 @@ class TrainingEvaluationCard extends StatelessWidget {
                       ),
                       child: Text(
                         correct
-                            ? "So'z lug'atdan olib tashlandi · Davom etish"
-                            : "Davom etish",
+                            ? l10n.vocabularyWordRemovedContinue
+                            : l10n.commonContinue,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 13.5,

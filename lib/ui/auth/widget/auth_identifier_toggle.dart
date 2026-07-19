@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 enum AuthIdentifierKind { phone, email }
@@ -15,6 +16,7 @@ class AuthIdentifierToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -24,12 +26,12 @@ class AuthIdentifierToggle extends StatelessWidget {
       child: Row(
         children: [
           _Segment(
-            label: 'Telefon',
+            label: l10n.authPhoneTabLabel,
             selected: value == AuthIdentifierKind.phone,
             onTap: () => onChanged(AuthIdentifierKind.phone),
           ),
           _Segment(
-            label: 'Email',
+            label: l10n.authEmailTabLabel,
             selected: value == AuthIdentifierKind.email,
             onTap: () => onChanged(AuthIdentifierKind.email),
           ),

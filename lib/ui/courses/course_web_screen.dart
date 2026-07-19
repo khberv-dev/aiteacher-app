@@ -7,6 +7,7 @@ import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/chatbot/presentation/chatbot_controller.dart';
 import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/courses/course_video_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -432,6 +433,7 @@ class _DailyLimitOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       color: Colors.black.withValues(alpha: 0.7),
       alignment: Alignment.center,
@@ -461,20 +463,19 @@ class _DailyLimitOverlay extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Kunlik limit tugadi',
-                style: TextStyle(
+              Text(
+                l10n.coursesDailyLimitTitle,
+                style: const TextStyle(
                   color: Color(0xFF0F172A),
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Demo kurs uchun kunlik 10 daqiqalik vaqtingiz tugadi. '
-                'Ertaga qaytib keling yoki to\'liq obuna oling.',
+              Text(
+                l10n.coursesDailyLimitMessage,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Color(0xFF64748B),
                   fontSize: 14,
                   height: 1.5,
@@ -492,9 +493,12 @@ class _DailyLimitOverlay extends StatelessWidget {
                     ),
                     minimumSize: const Size.fromHeight(48),
                   ),
-                  child: const Text(
-                    'Yopish',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  child: Text(
+                    l10n.commonClose,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),

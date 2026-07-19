@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/battle/data/battle_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class BattleGameOverView extends StatelessWidget {
@@ -16,6 +17,7 @@ class BattleGameOverView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final scoreboard = state.scoreboard;
     final myEntry =
         scoreboard.where((e) => e.userId == state.myUserId).firstOrNull ??
@@ -24,7 +26,7 @@ class BattleGameOverView extends StatelessWidget {
     final isWin = myRank == 1;
 
     final emoji = isWin ? '🏆' : '💔';
-    final headline = isWin ? "G'alaba!" : "Mag'lubiyat";
+    final headline = isWin ? l10n.battleVictory : l10n.battleDefeat;
     final headlineColor = isWin
         ? const Color(0xFF16A34A)
         : const Color(0xFFDC2626);
@@ -50,7 +52,7 @@ class BattleGameOverView extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$myRank-o\'rin • ${myEntry?.score ?? 0} to\'g\'ri',
+                  l10n.battleRankScore(myRank, myEntry?.score ?? 0),
                   style: const TextStyle(
                     color: Color(0xFF64748B),
                     fontSize: 14,
@@ -61,11 +63,11 @@ class BattleGameOverView extends StatelessWidget {
                 _Scoreboard(entries: scoreboard, myUserId: state.myUserId),
                 if (myEntry != null && myEntry.answers.isNotEmpty) ...[
                   const SizedBox(height: 20),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'JAVOBLARIM',
-                      style: TextStyle(
+                      l10n.battleMyAnswersLabel,
+                      style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -97,9 +99,9 @@ class BattleGameOverView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      'Chiqish',
-                      style: TextStyle(fontWeight: FontWeight.w800),
+                    child: Text(
+                      l10n.battleExit,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
                 ),
@@ -118,9 +120,9 @@ class BattleGameOverView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      "Qayta o'ynash",
-                      style: TextStyle(fontWeight: FontWeight.w900),
+                    child: Text(
+                      l10n.battlePlayAgain,
+                      style: const TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                 ),
@@ -141,6 +143,7 @@ class _Scoreboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -209,7 +212,7 @@ class _Scoreboard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          isMe ? 'Siz' : e.firstName,
+                          isMe ? l10n.battleYou : e.firstName,
                           style: TextStyle(
                             color: isMe
                                 ? AppColors.primary

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ReportHeroCard extends StatelessWidget {
@@ -16,24 +17,28 @@ class ReportHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final today = DateTime.now();
-    const months = [
-      'Yanvar',
-      'Fevral',
-      'Mart',
-      'Aprel',
-      'May',
-      'Iyun',
-      'Iyul',
-      'Avgust',
-      'Sentabr',
-      'Oktabr',
-      'Noyabr',
-      'Dekabr',
+    final months = [
+      l10n.speakingReportHeroCardMonthJanuary,
+      l10n.speakingReportHeroCardMonthFebruary,
+      l10n.speakingReportHeroCardMonthMarch,
+      l10n.speakingReportHeroCardMonthApril,
+      l10n.speakingReportHeroCardMonthMay,
+      l10n.speakingReportHeroCardMonthJune,
+      l10n.speakingReportHeroCardMonthJuly,
+      l10n.speakingReportHeroCardMonthAugust,
+      l10n.speakingReportHeroCardMonthSeptember,
+      l10n.speakingReportHeroCardMonthOctober,
+      l10n.speakingReportHeroCardMonthNovember,
+      l10n.speakingReportHeroCardMonthDecember,
     ];
-    final dateLabel =
-        '${today.day} ${months[today.month - 1]} ${today.year} '
-        '• ${_formatDuration(assessment.durationSeconds)} daqiqa';
+    final dateLabel = l10n.speakingReportHeroCardDateLabel(
+      today.day,
+      months[today.month - 1],
+      today.year,
+      _formatDuration(assessment.durationSeconds),
+    );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -78,6 +83,7 @@ class _HeroTopRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -91,9 +97,9 @@ class _HeroTopRow extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: const Text(
-            '✦ TAHLIL TUGADI',
-            style: TextStyle(
+          child: Text(
+            l10n.speakingReportHeroCardAnalysisCompleteLabel,
+            style: const TextStyle(
               color: Color(0xFFF5B700),
               fontSize: 10,
               fontWeight: FontWeight.w800,
@@ -124,9 +130,10 @@ class _HeroMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final progress = (assessment.overallScore / 100).clamp(0.0, 1.0);
     final levelLabel =
-        '${assessment.cefrLevel} — ${_levelTitle(assessment.cefrLevel)}';
+        '${assessment.cefrLevel} — ${_levelTitle(l10n, assessment.cefrLevel)}';
     final remaining = (100 - assessment.overallScore).clamp(0, 100);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -150,7 +157,7 @@ class _HeroMain extends StatelessWidget {
               ),
               const SizedBox(height: 3),
               Text(
-                _levelSubtitle(assessment.cefrLevel),
+                _levelSubtitle(l10n, assessment.cefrLevel),
                 style: const TextStyle(
                   color: Color(0x66FFFFFF),
                   fontSize: 11,
@@ -159,7 +166,10 @@ class _HeroMain extends StatelessWidget {
               ),
               const SizedBox(height: 3),
               Text(
-                '▲ ${assessment.roadmap.targetLevel} ga $remaining% qoldi',
+                l10n.speakingReportHeroCardTargetRemainingLabel(
+                  assessment.roadmap.targetLevel,
+                  remaining,
+                ),
                 style: const TextStyle(
                   color: Color(0xFF2DD4BF),
                   fontSize: 11,
@@ -173,27 +183,27 @@ class _HeroMain extends StatelessWidget {
     );
   }
 
-  String _levelTitle(String level) {
+  String _levelTitle(AppLocalizations l10n, String level) {
     return switch (level.toUpperCase()) {
-      'A1' => 'Beginner',
-      'A2' => 'Elementary',
-      'B1' => 'Intermediate',
-      'B2' => 'Upper Intermediate',
-      'C1' => 'Advanced',
-      'C2' => 'Proficient',
-      _ => 'Level',
+      'A1' => l10n.speakingReportHeroCardLevelTitleBeginner,
+      'A2' => l10n.speakingReportHeroCardLevelTitleElementary,
+      'B1' => l10n.speakingReportHeroCardLevelTitleIntermediate,
+      'B2' => l10n.speakingReportHeroCardLevelTitleUpperIntermediate,
+      'C1' => l10n.speakingReportHeroCardLevelTitleAdvanced,
+      'C2' => l10n.speakingReportHeroCardLevelTitleProficient,
+      _ => l10n.speakingReportHeroCardLevelTitleDefault,
     };
   }
 
-  String _levelSubtitle(String level) {
+  String _levelSubtitle(AppLocalizations l10n, String level) {
     return switch (level.toUpperCase()) {
-      'B1' => 'CEFR Threshold Level',
-      'B2' => 'CEFR Vantage Level',
-      'A2' => 'CEFR Waystage Level',
-      'A1' => 'CEFR Breakthrough Level',
-      'C1' => 'CEFR Effective Operational',
-      'C2' => 'CEFR Mastery Level',
-      _ => 'CEFR Level',
+      'B1' => l10n.speakingReportHeroCardLevelSubtitleThreshold,
+      'B2' => l10n.speakingReportHeroCardLevelSubtitleVantage,
+      'A2' => l10n.speakingReportHeroCardLevelSubtitleWaystage,
+      'A1' => l10n.speakingReportHeroCardLevelSubtitleBreakthrough,
+      'C1' => l10n.speakingReportHeroCardLevelSubtitleEffectiveOperational,
+      'C2' => l10n.speakingReportHeroCardLevelSubtitleMastery,
+      _ => l10n.speakingReportHeroCardLevelSubtitleDefault,
     };
   }
 }
@@ -287,19 +297,23 @@ class _HeroStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final items = [
       _StatItem(
         value: _formatDuration(assessment.durationSeconds),
-        label: 'SUHBAT',
+        label: l10n.speakingReportHeroCardStatConversationLabel,
       ),
-      _StatItem(value: '${assessment.skills.fluency}', label: 'RAVONLIK'),
+      _StatItem(
+        value: '${assessment.skills.fluency}',
+        label: l10n.speakingReportHeroCardStatFluencyLabel,
+      ),
       _StatItem(
         value: '${assessment.fluencyDetail.speechRateWpm}',
-        label: 'TEZLIK',
+        label: l10n.speakingReportHeroCardStatSpeedLabel,
       ),
       _StatItem(
         value: '${assessment.skills.pronunciation}%',
-        label: 'TALAFFUZ',
+        label: l10n.speakingReportHeroCardStatPronunciationLabel,
       ),
     ];
     return Row(
@@ -368,6 +382,7 @@ class _HeroProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final fraction = (score / 100).clamp(0.0, 1.0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -376,7 +391,7 @@ class _HeroProgressBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '$cefrLevel → $targetLevel PROGRESS',
+              l10n.speakingReportHeroCardProgressLabel(cefrLevel, targetLevel),
               style: const TextStyle(
                 color: Color(0x4DFFFFFF),
                 fontSize: 10,
@@ -384,7 +399,7 @@ class _HeroProgressBar extends StatelessWidget {
               ),
             ),
             Text(
-              '$score / 100 BALL',
+              l10n.speakingReportHeroCardScoreOutOfLabel(score),
               style: const TextStyle(
                 color: Color(0xFFF5B700),
                 fontSize: 10,

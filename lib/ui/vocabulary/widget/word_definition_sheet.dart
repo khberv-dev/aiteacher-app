@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/vocabulary/data/vocabulary_word.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class WordDefinitionSheet extends StatelessWidget {
@@ -18,6 +19,7 @@ class WordDefinitionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final hasDefinition =
         word.definition != null && word.definition!.isNotEmpty;
     final hasExample =
@@ -83,7 +85,7 @@ class WordDefinitionSheet extends StatelessWidget {
           ),
           if (hasDefinition) ...[
             const SizedBox(height: 18),
-            const _Label("TA'RIF"),
+            _Label(l10n.vocabularyDefinitionLabel),
             const SizedBox(height: 6),
             Text(
               word.definition!,
@@ -104,18 +106,18 @@ class WordDefinitionSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.hourglass_top_rounded,
                     size: 18,
                     color: Color(0xFF94A3B8),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Ta'rif tayyorlanmoqda…",
-                      style: TextStyle(
+                      l10n.vocabularyDefinitionPreparing,
+                      style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -128,7 +130,7 @@ class WordDefinitionSheet extends StatelessWidget {
           ],
           if (hasExample) ...[
             const SizedBox(height: 18),
-            const _Label('MISOL GAP'),
+            _Label(l10n.vocabularyExampleLabel),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
@@ -162,9 +164,12 @@ class WordDefinitionSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: const Text(
-                'Yopish',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              child: Text(
+                l10n.commonClose,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

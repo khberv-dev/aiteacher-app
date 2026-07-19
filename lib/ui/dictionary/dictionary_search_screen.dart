@@ -5,6 +5,7 @@ import 'package:ai_teacher/core/dictionary/data/dictionary_search.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_mark.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_ref.dart';
 import 'package:ai_teacher/core/dictionary/presentation/dictionary_providers.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,6 +41,7 @@ class _DictionarySearchScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final direction = ref.watch(dictionaryDirectionProvider);
     final entriesAsync = ref.watch(dictionaryEntriesProvider(direction));
     final query = _controller.text;
@@ -60,7 +62,8 @@ class _DictionarySearchScreenState
                 child: entriesAsync.when(
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (_, _) => const Center(child: Text('Yuklanmadi')),
+                  error: (_, _) =>
+                      Center(child: Text(l10n.dictionaryLoadError)),
                   data: (entries) {
                     if (query.trim().isEmpty) {
                       return const _PromptState();
@@ -112,6 +115,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 20, 4),
       child: Row(
@@ -122,9 +126,9 @@ class _Header extends StatelessWidget {
             color: const Color(0xFF64748B),
           ),
           const SizedBox(width: 4),
-          const Text(
-            'Qidiruv',
-            style: TextStyle(
+          Text(
+            l10n.dictionarySearchTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 22,
               fontWeight: FontWeight.w900,
@@ -141,10 +145,11 @@ class _PromptState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context);
+    return Center(
       child: Text(
-        "So'zni pastdagi maydonga kiriting",
-        style: TextStyle(
+        l10n.dictionaryEnterWordPrompt,
+        style: const TextStyle(
           color: Color(0xFF94A3B8),
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -159,10 +164,11 @@ class _NotFoundState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context);
+    return Center(
       child: Text(
-        'Hech narsa topilmadi',
-        style: TextStyle(
+        l10n.dictionaryNotFound,
+        style: const TextStyle(
           color: Color(0xFF94A3B8),
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -180,6 +186,7 @@ class _WordDetailCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final parsed = parseDefinition(entry.definition, entry.word);
     final key = markKeyFor(direction, entry.word, entry.definition);
     final savedMarks =
@@ -264,9 +271,7 @@ class _WordDetailCard extends ConsumerWidget {
               ),
               GestureDetector(
                 onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Audio talaffuz tez kunda qo'shiladi"),
-                  ),
+                  SnackBar(content: Text(l10n.dictionaryAudioComingSoon)),
                 ),
                 child: Container(
                   width: 44,
@@ -295,7 +300,7 @@ class _WordDetailCard extends ConsumerWidget {
           ),
           if (extraSenses.isNotEmpty) ...[
             const Divider(height: 28, color: Color(0xFFE2E8F0)),
-            const _Label('IZOH'),
+            _Label(l10n.dictionaryNoteLabel),
             const SizedBox(height: 6),
             for (final sense in extraSenses)
               Padding(
@@ -318,7 +323,7 @@ class _WordDetailCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: _ActionButton(
-                  label: isSaved ? 'Saqlangan' : 'Saqlash',
+                  label: isSaved ? l10n.dictionarySavedButton : l10n.commonSave,
                   icon: isSaved
                       ? Icons.bookmark_rounded
                       : Icons.bookmark_border_rounded,
@@ -335,7 +340,7 @@ class _WordDetailCard extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _ActionButton(
-                  label: "O'rgandim",
+                  label: l10n.dictionaryLearnedButton,
                   icon: Icons.check_rounded,
                   filled: false,
                   active: isLearned,
@@ -445,6 +450,7 @@ class _SimilarResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final parsed = parseDefinition(entry.definition, entry.word);
     final hasPhrases = parsed.relatedPhrases.isNotEmpty;
     final hasOthers = others.isNotEmpty;
@@ -453,11 +459,11 @@ class _SimilarResults extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4, bottom: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            "O'xshash natijalar",
-            style: TextStyle(
+            l10n.dictionarySimilarResultsLabel,
+            style: const TextStyle(
               color: Color(0xFF64748B),
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -561,6 +567,7 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -573,7 +580,7 @@ class _SearchField extends StatelessWidget {
         autofocus: true,
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
-          hintText: "So'z qidiring",
+          hintText: l10n.dictionarySearchWordHint,
           hintStyle: const TextStyle(
             color: Color(0xFF94A3B8),
             fontWeight: FontWeight.w500,

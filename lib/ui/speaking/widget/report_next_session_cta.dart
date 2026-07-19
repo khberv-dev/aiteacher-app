@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ReportNextSessionCta extends StatelessWidget {
@@ -8,6 +9,7 @@ class ReportNextSessionCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Container(
@@ -30,9 +32,9 @@ class ReportNextSessionCta extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Keyingi sessiya tayyor 🚀',
-              style: TextStyle(
+            Text(
+              l10n.speakingReportNextSessionTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -40,7 +42,7 @@ class ReportNextSessionCta extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Writing va Vocabulary ustida ishlash rejalashtirilgan',
+              l10n.speakingReportNextSessionSubtitle,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.55),
                 fontSize: 11,
@@ -55,12 +57,15 @@ class ReportNextSessionCta extends StatelessWidget {
               child: InkWell(
                 onTap: onStart,
                 borderRadius: BorderRadius.circular(12),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 13,
+                  ),
                   child: Center(
                     child: Text(
-                      '✦ Yangi suhbat boshlash',
-                      style: TextStyle(
+                      l10n.speakingReportNextSessionButton,
+                      style: const TextStyle(
                         color: AppColors.primary,
                         fontSize: 13,
                         fontWeight: FontWeight.w800,

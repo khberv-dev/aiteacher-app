@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/writing_task/data/writing_task_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class WritingTaskListItem extends StatelessWidget {
@@ -13,6 +14,7 @@ class WritingTaskListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -42,7 +44,9 @@ class WritingTaskListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        task.theme.isEmpty ? 'Yozish vazifasi' : task.theme,
+                        task.theme.isEmpty
+                            ? l10n.writingTaskDefaultThemeName
+                            : task.theme,
                         style: const TextStyle(
                           color: Color(0xFF0F172A),
                           fontSize: 14,
@@ -71,7 +75,7 @@ class WritingTaskListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      _formatDate(task.createdAt),
+                      _formatDate(task.createdAt, l10n),
                       style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 11,
@@ -93,25 +97,25 @@ class WritingTaskListItem extends StatelessWidget {
     );
   }
 
-  static String _formatDate(DateTime date) {
+  static String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final diff = now.difference(date);
-    if (diff.inDays == 0) return 'Bugun';
-    if (diff.inDays == 1) return 'Kecha';
-    if (diff.inDays < 7) return '${diff.inDays} kun oldin';
-    const months = [
-      'Yan',
-      'Fev',
-      'Mar',
-      'Apr',
-      'May',
-      'Iyn',
-      'Iyl',
-      'Avg',
-      'Sen',
-      'Okt',
-      'Noy',
-      'Dek',
+    if (diff.inDays == 0) return l10n.writingTaskDateToday;
+    if (diff.inDays == 1) return l10n.writingTaskDateYesterday;
+    if (diff.inDays < 7) return l10n.writingTaskDateDaysAgo(diff.inDays);
+    final months = [
+      l10n.writingTaskMonthJan,
+      l10n.writingTaskMonthFeb,
+      l10n.writingTaskMonthMar,
+      l10n.writingTaskMonthApr,
+      l10n.writingTaskMonthMay,
+      l10n.writingTaskMonthJun,
+      l10n.writingTaskMonthJul,
+      l10n.writingTaskMonthAug,
+      l10n.writingTaskMonthSep,
+      l10n.writingTaskMonthOct,
+      l10n.writingTaskMonthNov,
+      l10n.writingTaskMonthDec,
     ];
     return '${date.day} ${months[date.month - 1]}';
   }
@@ -156,14 +160,18 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final (label, color) = switch (status) {
-      WritingTaskStatus.completed => ('Bajarildi', const Color(0xFF059669)),
+      WritingTaskStatus.completed => (
+        l10n.writingTaskStatusCompleted,
+        const Color(0xFF059669),
+      ),
       WritingTaskStatus.pendingBackTranslation => (
-        '2-bosqich',
+        l10n.writingTaskStep2Short,
         const Color(0xFFD97706),
       ),
       WritingTaskStatus.pendingTranslation => (
-        '1-bosqich',
+        l10n.writingTaskStep1Short,
         const Color(0xFF3B82F6),
       ),
     };
@@ -199,11 +207,12 @@ class _ScoreRow extends StatelessWidget {
     if (translationScore == null && backTranslationScore == null) {
       return const SizedBox.shrink();
     }
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         if (translationScore != null)
           Text(
-            'T: $translationScore',
+            l10n.writingTaskScoreT(translationScore!),
             style: const TextStyle(
               color: Color(0xFF64748B),
               fontSize: 11,
@@ -217,7 +226,7 @@ class _ScoreRow extends StatelessWidget {
           ),
         if (backTranslationScore != null)
           Text(
-            'Q: $backTranslationScore',
+            l10n.writingTaskScoreQ(backTranslationScore!),
             style: const TextStyle(
               color: Color(0xFF64748B),
               fontSize: 11,

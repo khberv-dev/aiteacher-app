@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,7 @@ class ReportVocabChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final activeSize = detail.activeSizeEstimate.toDouble();
     final target = detail.nextLevel.targetSize.toDouble();
     final c1 = target * 1.6;
@@ -18,9 +20,13 @@ class ReportVocabChart extends StatelessWidget {
     final bars = <_VocabBar>[
       _VocabBar('A1', 500, const Color(0xFF22C55E)),
       _VocabBar('A2', 1500, const Color(0xFF22C55E)),
-      _VocabBar('B1 (Siz)', activeSize, const Color(0xFFF5B700)),
       _VocabBar(
-        '${detail.nextLevel.level} (Maqsad)',
+        l10n.speakingReportVocabChartYouLabel('B1'),
+        activeSize,
+        const Color(0xFFF5B700),
+      ),
+      _VocabBar(
+        l10n.speakingReportVocabChartTargetLabel(detail.nextLevel.level),
         target,
         const Color(0x4D3B82F6),
       ),
@@ -47,9 +53,7 @@ class ReportVocabChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ReportSectionLabel(
-              text: "DARAJA BO'YICHA LUG'AT TAQQOSLAMASI",
-            ),
+            ReportSectionLabel(text: l10n.speakingReportVocabChartSectionLabel),
             const SizedBox(height: 12),
             SizedBox(
               height: 130,

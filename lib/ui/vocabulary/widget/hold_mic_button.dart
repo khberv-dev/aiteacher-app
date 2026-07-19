@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/vocabulary/presentation/vocabulary_training_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Big circular mic button — press and hold to record, release to send.
@@ -37,6 +38,7 @@ class HoldMicButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isRecording = phase == SpeakingCheckPhase.recording;
     final isChecking = phase == SpeakingCheckPhase.checking;
     final enabled = phase == SpeakingCheckPhase.idle || isRecording;
@@ -71,9 +73,9 @@ class HoldMicButton extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           switch (phase) {
-            SpeakingCheckPhase.idle => "Tugmani bosib ushlab gapiring",
-            SpeakingCheckPhase.recording => "Qo'yib yuboring — yuboriladi",
-            SpeakingCheckPhase.checking => "Baholanmoqda…",
+            SpeakingCheckPhase.idle => l10n.vocabularyHoldToSpeak,
+            SpeakingCheckPhase.recording => l10n.vocabularyReleaseToSend,
+            SpeakingCheckPhase.checking => l10n.vocabularyEvaluating,
             SpeakingCheckPhase.showingResult => '',
           },
           textAlign: TextAlign.center,

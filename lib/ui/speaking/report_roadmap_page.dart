@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_coach_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_locked_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_monthly_plan_card.dart';
@@ -15,6 +16,7 @@ class ReportRoadmapPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tips = assessment.coachTips;
     final locked = !assessment.isFullReportAvailable;
     Widget gate(Widget child) => locked
@@ -42,7 +44,7 @@ class ReportRoadmapPage extends StatelessWidget {
         gate(
           ReportCoachCard(
             tips: tips,
-            subtitle: '${tips.length} ta ustuvor tavsiya',
+            subtitle: l10n.speakingScreenRoadmapCoachSubtitle(tips.length),
           ),
         ),
         gate(

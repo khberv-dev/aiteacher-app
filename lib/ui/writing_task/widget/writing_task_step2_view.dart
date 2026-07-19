@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class WritingTaskStep2View extends StatefulWidget {
@@ -38,6 +39,7 @@ class _WritingTaskStep2ViewState extends State<WritingTaskStep2View> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Expanded(
@@ -48,18 +50,18 @@ class _WritingTaskStep2ViewState extends State<WritingTaskStep2View> {
               children: [
                 _UzbekCard(text: widget.uzbekTranslation),
                 const SizedBox(height: 16),
-                const Text(
-                  "Endi ingliz tiliga tarjima qiling",
-                  style: TextStyle(
+                Text(
+                  l10n.writingTaskStep2Instructions,
+                  style: const TextStyle(
                     color: Color(0xFF0F172A),
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  "O'zbekcha tarjimangizni ingliz tiliga qayta tarjima qiling",
-                  style: TextStyle(
+                Text(
+                  l10n.writingTaskStep2Subtitle,
+                  style: const TextStyle(
                     color: Color(0xFF64748B),
                     fontSize: 13,
                     height: 1.4,
@@ -79,7 +81,7 @@ class _WritingTaskStep2ViewState extends State<WritingTaskStep2View> {
                     height: 1.5,
                   ),
                   decoration: InputDecoration(
-                    hintText: "English back-translation…",
+                    hintText: l10n.writingTaskStep2Hint,
                     hintStyle: const TextStyle(
                       color: Color(0xFFCBD5E1),
                       fontSize: 14,
@@ -126,6 +128,7 @@ class _UzbekCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -137,9 +140,9 @@ class _UzbekCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Sizning o'zbekcha tarjimangiz",
-            style: TextStyle(
+          Text(
+            l10n.writingTaskStep2YourTranslationLabel,
+            style: const TextStyle(
               color: Color(0xFF64748B),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -174,6 +177,7 @@ class _SubmitBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       color: Colors.white,
       padding: EdgeInsets.fromLTRB(
@@ -199,9 +203,12 @@ class _SubmitBar extends StatelessWidget {
                   color: Colors.white,
                 ),
               )
-            : const Text(
-                'Qayta tarjimani yuborish',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            : Text(
+                l10n.writingTaskStep2SubmitButton,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
       ),
     );

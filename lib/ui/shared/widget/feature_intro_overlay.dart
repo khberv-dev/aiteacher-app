@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -139,6 +140,7 @@ class _FeatureIntroOverlayState extends State<FeatureIntroOverlay>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final screenSize = MediaQuery.sizeOf(context);
     final padding = MediaQuery.paddingOf(context);
     final rect = _targetRect;
@@ -202,9 +204,9 @@ class _FeatureIntroOverlayState extends State<FeatureIntroOverlay>
                       color: Colors.white.withValues(alpha: 0.3),
                     ),
                   ),
-                  child: const Text(
-                    "O'tkazib yuborish",
-                    style: TextStyle(
+                  child: Text(
+                    l10n.sharedIntroSkip,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -248,6 +250,7 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final spaceBelow =
         screenSize.height - targetRect.bottom - screenPadding.bottom;
     final showBelow = spaceBelow >= _estimatedCardHeight + _gap;
@@ -360,7 +363,7 @@ class _InfoCard extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  isLast ? 'Boshlash! 🚀' : 'Keyingisi →',
+                  isLast ? l10n.sharedIntroStart : l10n.sharedIntroNext,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,

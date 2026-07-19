@@ -15,6 +15,7 @@ import 'package:ai_teacher/ui/dictionary/dictionary_home_screen.dart';
 import 'package:ai_teacher/ui/dictionary/dictionary_saved_words_screen.dart';
 import 'package:ai_teacher/ui/dictionary/dictionary_search_screen.dart';
 import 'package:ai_teacher/ui/dictionary/dictionary_stats_screen.dart';
+import 'package:ai_teacher/ui/language/language_select_screen.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/notifications/notifications_screen.dart';
 import 'package:ai_teacher/ui/onboarding/onboarding_screen.dart';
@@ -32,13 +33,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final hasAccessToken =
-      (ref.read(cacheServiceProvider).accessToken ?? '').isNotEmpty;
+  final cache = ref.read(cacheServiceProvider);
+  final hasAccessToken = (cache.accessToken ?? '').isNotEmpty;
+  final hasLanguage = (cache.languageCode ?? '').isNotEmpty;
   return GoRouter(
-    initialLocation: hasAccessToken
+    initialLocation: !hasLanguage
+        ? AppRoute.languageSelect.path
+        : hasAccessToken
         ? AppRoute.main.path
         : AppRoute.onboarding.path,
     routes: [
+      GoRoute(
+        path: AppRoute.languageSelect.path,
+        name: AppRoute.languageSelect.name,
+        builder: (context, state) => const LanguageSelectScreen(),
+      ),
       GoRoute(
         path: AppRoute.onboarding.path,
         name: AppRoute.onboarding.name,
@@ -196,6 +205,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 enum AppRoute {
+  languageSelect('/language-select'),
   onboarding('/'),
   survey('/survey'),
   register('/register'),

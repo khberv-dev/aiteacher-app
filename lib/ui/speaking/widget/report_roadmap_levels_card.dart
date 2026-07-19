@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 enum _StepState { done, current, next, future }
@@ -43,13 +44,14 @@ class ReportRoadmapLevelsCard extends StatelessWidget {
     'C1': 'C1 — Advanced',
     'C2': 'C2 — Proficient',
   };
-  static const _descriptions = {
-    'A1': "Asosiy so'zlar, 500 lug'at",
-    'A2': "Oddiy suhbat, 1,500 so'z",
-    'B1': "Kundalik mavzular",
-    'B2': "Murakkab mavzular, ish va ta'limda",
-    'C1': 'Akademik, professional daraja',
-    'C2': 'Native-level mahorat',
+
+  Map<String, String> _descriptions(AppLocalizations l10n) => {
+    'A1': l10n.speakingReportRoadmapDescA1,
+    'A2': l10n.speakingReportRoadmapDescA2,
+    'B1': l10n.speakingReportRoadmapDescB1,
+    'B2': l10n.speakingReportRoadmapDescB2,
+    'C1': l10n.speakingReportRoadmapDescC1,
+    'C2': l10n.speakingReportRoadmapDescC2,
   };
 
   String _formatThousands(int n) {
@@ -63,7 +65,8 @@ class ReportRoadmapLevelsCard extends StatelessWidget {
     return buffer.toString();
   }
 
-  List<_RoadmapStep> _buildSteps() {
+  List<_RoadmapStep> _buildSteps(AppLocalizations l10n) {
+    final descriptions = _descriptions(l10n);
     final currentIndex = _allLevels.indexOf(currentLevel.toUpperCase());
     final targetIndex = _allLevels.indexOf(targetLevel.toUpperCase());
     final steps = <_RoadmapStep>[];
@@ -82,24 +85,26 @@ class ReportRoadmapLevelsCard extends StatelessWidget {
       } else {
         state = _StepState.future;
       }
-      var description = _descriptions[level] ?? '';
+      var description = descriptions[level] ?? '';
       if (state == _StepState.current && level == currentLevel) {
-        description =
-            "$description, ${_formatThousands(activeVocabSize)} so'z — siz hozir shu yerdasiz";
+        description = l10n.speakingReportRoadmapCurrentSuffix(
+          description,
+          _formatThousands(activeVocabSize),
+        );
       }
       final (tagText, tagBg, tagColor) = switch (state) {
         _StepState.done => (
-          'Tugallangan',
+          l10n.speakingReportRoadmapTagDone,
           const Color(0x1A0D9488),
           const Color(0xFF065F46),
         ),
         _StepState.current => (
-          'Hozirgi daraja',
+          l10n.speakingReportRoadmapTagCurrent,
           const Color(0x1AF5B700),
           const Color(0xFF92400E),
         ),
         _StepState.next => (
-          'Keyingi maqsad',
+          l10n.speakingReportRoadmapTagNext,
           const Color(0x143B82F6),
           const Color(0xFF1E40AF),
         ),
@@ -121,7 +126,8 @@ class ReportRoadmapLevelsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final steps = _buildSteps();
+    final l10n = AppLocalizations.of(context);
+    final steps = _buildSteps(l10n);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Container(
@@ -142,7 +148,7 @@ class ReportRoadmapLevelsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "$targetLevel ga chiqish yo'l xaritasi",
+              l10n.speakingReportRoadmapTitle(targetLevel),
               style: const TextStyle(
                 color: Color(0xFF1A1A1A),
                 fontSize: 14,
@@ -152,7 +158,7 @@ class ReportRoadmapLevelsCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               estimatedDuration.isEmpty
-                  ? 'Taxminan 4-6 oy (kuniga 30 daqiqa)'
+                  ? l10n.speakingReportRoadmapDefaultDuration
                   : estimatedDuration,
               style: const TextStyle(
                 color: Color(0xFF6B6860),

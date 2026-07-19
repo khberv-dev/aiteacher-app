@@ -29,10 +29,7 @@ class AuthRepository {
     try {
       final response = await dio.post<Map<String, dynamic>>(
         'auth/otp/request',
-        data: {
-          'phoneNumber': ?phoneNumber,
-          'email': ?email,
-        },
+        data: {'phoneNumber': ?phoneNumber, 'email': ?email},
       );
       return OtpRequestResult.fromJson(response.data ?? const {});
     } on DioException catch (e) {
@@ -52,11 +49,7 @@ class AuthRepository {
     try {
       final response = await dio.post<Map<String, dynamic>>(
         'auth/otp/verify',
-        data: {
-          'phoneNumber': ?phoneNumber,
-          'email': ?email,
-          'code': code,
-        },
+        data: {'phoneNumber': ?phoneNumber, 'email': ?email, 'code': code},
       );
       return OtpVerifyResult.fromJson(response.data ?? const {});
     } on DioException catch (e) {

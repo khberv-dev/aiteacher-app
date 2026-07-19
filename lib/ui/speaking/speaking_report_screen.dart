@@ -6,6 +6,7 @@ import 'package:ai_teacher/core/speaking/data/assessment.dart';
 import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
 import 'package:ai_teacher/core/speaking/presentation/pending_report_payment.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:ai_teacher/ui/speaking/report_grammar_page.dart';
 import 'package:ai_teacher/ui/speaking/report_overview_page.dart';
@@ -22,8 +23,6 @@ class SpeakingReportScreen extends ConsumerStatefulWidget {
   const SpeakingReportScreen({super.key, required this.assessment});
 
   final Assessment assessment;
-
-  static const _tabLabels = ["Ko'rish", "Lug'at", 'Grammatika', "Yo'l xarita"];
 
   @override
   ConsumerState<SpeakingReportScreen> createState() =>
@@ -105,12 +104,11 @@ class _SpeakingReportScreenState extends ConsumerState<SpeakingReportScreen> {
           refreshed ?? _assessment.copyWith(isFullReportAvailable: true);
     });
     ref.read(pendingReportPaymentProvider.notifier).clear();
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text("To'lov muvaffaqiyatli — hisobot ochildi"),
-        ),
+        SnackBar(content: Text(l10n.speakingScreenPaymentSuccess)),
       );
   }
 
@@ -124,6 +122,13 @@ class _SpeakingReportScreenState extends ConsumerState<SpeakingReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final tabLabels = [
+      l10n.speakingScreenTabOverview,
+      l10n.speakingScreenTabVocabulary,
+      l10n.speakingScreenTabGrammar,
+      l10n.speakingScreenTabRoadmap,
+    ];
     final user = ref.watch(currentUserProvider).valueOrNull;
     final showUpsell = user?.activeSubscription == null;
     final pending = ref.watch(pendingReportPaymentProvider);
@@ -159,13 +164,13 @@ class _SpeakingReportScreenState extends ConsumerState<SpeakingReportScreen> {
         body: SafeArea(
           bottom: false,
           child: DefaultTabController(
-            length: SpeakingReportScreen._tabLabels.length,
+            length: tabLabels.length,
             child: Column(
               children: [
                 ReportTopNav(onBack: () => _onBack(context), onShare: () {}),
                 ReportHeroCard(assessment: _assessment),
                 if (isWaiting) const _PaymentWaitBanner(),
-                _SegmentedTabBar(labels: SpeakingReportScreen._tabLabels),
+                _SegmentedTabBar(labels: tabLabels),
                 Expanded(
                   child: TabBarView(
                     children: [
@@ -192,6 +197,7 @@ class _PaymentWaitBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Container(
@@ -212,23 +218,23 @@ class _PaymentWaitBanner extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "To'lov tekshirilmoqda…",
-                    style: TextStyle(
+                    l10n.speakingScreenPaymentChecking,
+                    style: const TextStyle(
                       color: Color(0xFF7C2D12),
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    "Tasdiqlangach hisobot avtomatik ochiladi",
-                    style: TextStyle(
+                    l10n.speakingScreenPaymentAutoUnlock,
+                    style: const TextStyle(
                       color: Color(0xFF92400E),
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
@@ -249,6 +255,7 @@ class _UnlimitedReportsCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SafeArea(
       top: false,
       minimum: const EdgeInsets.fromLTRB(16, 8, 16, 14),
@@ -293,25 +300,24 @@ class _UnlimitedReportsCta extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "Cheksiz to'liq hisobotlar",
-                        style: TextStyle(
+                        l10n.speakingScreenUnlimitedReportsTitle,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w900,
                           height: 1.2,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
-                        "Pro paketga obuna bo'ling — barcha "
-                        "hisobotlarni cheksiz oling",
-                        style: TextStyle(
+                        l10n.speakingScreenUnlimitedReportsSubtitle,
+                        style: const TextStyle(
                           color: Color(0xCCFFFFFF),
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,

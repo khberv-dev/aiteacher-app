@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/battle/data/battle_dtos.dart';
 import 'package:ai_teacher/core/battle/presentation/battle_controller.dart';
 import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/battle/widget/battle_game_over_view.dart';
 import 'package:ai_teacher/ui/battle/widget/battle_idle_view.dart';
 import 'package:ai_teacher/ui/battle/widget/battle_playing_view.dart';
@@ -135,18 +136,19 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
     BuildContext context,
     BattlePhase phase,
   ) async {
+    final l10n = AppLocalizations.of(context);
     final body = phase == BattlePhase.playing
-        ? "O'yinni tark etsangiz, siz yutqazgan hisoblanasiz."
-        : "Navbatdan chiqasizmi?";
+        ? l10n.battleLeaveDuringGameMessage
+        : l10n.battleLeaveQueueMessage;
 
     final result = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: Colors.white,
-        title: const Text(
-          'Chiqasizmi?',
-          style: TextStyle(
+        title: Text(
+          l10n.battleLeaveDialogTitle,
+          style: const TextStyle(
             color: Color(0xFF0F172A),
             fontSize: 17,
             fontWeight: FontWeight.w900,
@@ -163,16 +165,16 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(
-              'Qolish',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            child: Text(
+              l10n.battleStay,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              'Chiqish',
-              style: TextStyle(
+            child: Text(
+              l10n.battleExit,
+              style: const TextStyle(
                 color: Color(0xFFDC2626),
                 fontWeight: FontWeight.w800,
               ),
@@ -193,6 +195,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 6, 16, 4),
       child: Row(
@@ -203,9 +206,9 @@ class _TopBar extends StatelessWidget {
             color: const Color(0xFF0F172A),
           ),
           const SizedBox(width: 4),
-          const Text(
-            "So'z Jangi",
-            style: TextStyle(
+          Text(
+            l10n.battleTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 18,
               fontWeight: FontWeight.w900,

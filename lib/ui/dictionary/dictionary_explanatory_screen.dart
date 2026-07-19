@@ -5,6 +5,7 @@ import 'package:ai_teacher/core/dictionary/data/dictionary_search.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_mark.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_ref.dart';
 import 'package:ai_teacher/core/dictionary/presentation/dictionary_providers.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +36,7 @@ class _DictionaryExplanatoryScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final direction = ref.watch(dictionaryDirectionProvider);
     final entriesAsync = ref.watch(dictionaryEntriesProvider(direction));
     final query = _controller.text;
@@ -55,13 +57,14 @@ class _DictionaryExplanatoryScreenState
                 child: entriesAsync.when(
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (_, _) => const Center(child: Text('Yuklanmadi')),
+                  error: (_, _) =>
+                      Center(child: Text(l10n.dictionaryLoadError)),
                   data: (entries) {
                     if (query.trim().isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
-                          "So'zni pastdagi maydonga kiriting",
-                          style: TextStyle(
+                          l10n.dictionaryEnterWordPrompt,
+                          style: const TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -71,10 +74,10 @@ class _DictionaryExplanatoryScreenState
                     }
                     final matches = searchDictionaryEntries(entries, query);
                     if (matches.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
-                          'Hech narsa topilmadi',
-                          style: TextStyle(
+                          l10n.dictionaryNotFound,
+                          style: const TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -110,6 +113,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 20, 4),
       child: Row(
@@ -120,9 +124,9 @@ class _Header extends StatelessWidget {
             color: const Color(0xFF64748B),
           ),
           const SizedBox(width: 4),
-          const Text(
-            "Izohli lug'at",
-            style: TextStyle(
+          Text(
+            l10n.dictionaryExplanatoryTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -142,6 +146,7 @@ class _ExplanatoryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final parsed = parseDefinition(entry.definition, entry.word);
     final key = markKeyFor(direction, entry.word, entry.definition);
     final savedMarks =
@@ -189,10 +194,8 @@ class _ExplanatoryCard extends ConsumerWidget {
                     child: IconButton(
                       onPressed: () =>
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Audio talaffuz tez kunda qo'shiladi",
-                              ),
+                            SnackBar(
+                              content: Text(l10n.dictionaryAudioComingSoon),
                             ),
                           ),
                       icon: const Icon(
@@ -222,7 +225,9 @@ class _ExplanatoryCard extends ConsumerWidget {
                   if (parsed.partOfSpeech != null)
                     _Pill(text: parsed.partOfSpeech!),
                   if (parsed.hasMultipleSenses)
-                    _Pill(text: '${parsed.senses.length} ma\'no'),
+                    _Pill(
+                      text: l10n.dictionarySensesCount(parsed.senses.length),
+                    ),
                 ],
               ),
               const Divider(height: 28, color: Color(0xFFE2E8F0)),
@@ -280,9 +285,9 @@ class _ExplanatoryCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'SINONIMLAR',
-                style: TextStyle(
+              Text(
+                l10n.dictionarySynonymsLabel,
+                style: const TextStyle(
                   color: Color(0xFF94A3B8),
                   fontSize: 10.5,
                   fontWeight: FontWeight.w800,
@@ -301,17 +306,17 @@ class _ExplanatoryCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.hourglass_top_rounded,
                       size: 16,
                       color: Color(0xFF94A3B8),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
-                      "Tez kunda qo'shiladi",
-                      style: TextStyle(
+                      l10n.dictionaryComingSoonLabel,
+                      style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -345,7 +350,9 @@ class _ExplanatoryCard extends ConsumerWidget {
               size: 18,
             ),
             label: Text(
-              isSaved ? "Lug'atimda" : "Lug'atimga qo'shish",
+              isSaved
+                  ? l10n.dictionaryInMyDictionary
+                  : l10n.dictionaryAddToMyDictionary,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
             ),
           ),
@@ -387,6 +394,7 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -399,7 +407,7 @@ class _SearchField extends StatelessWidget {
         autofocus: true,
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
-          hintText: "So'z qidiring",
+          hintText: l10n.dictionarySearchWordHint,
           hintStyle: const TextStyle(
             color: Color(0xFF94A3B8),
             fontWeight: FontWeight.w500,

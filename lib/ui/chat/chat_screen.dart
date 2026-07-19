@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/chat/data/chat_dtos.dart' show ChatMessage;
 import 'package:ai_teacher/core/chat/presentation/chat_room_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/chat/chat_data.dart' as ui;
 import 'package:ai_teacher/ui/chat/widget/activity_date_separator.dart';
 import 'package:ai_teacher/ui/chat/widget/activity_item_view.dart';
@@ -25,19 +26,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   String? _lastErrorShown;
 
   static const _meColors = [Color(0xFF0D9488), Color(0xFF0F766E)];
-  static const _months = [
-    'yanvar',
-    'fevral',
-    'mart',
-    'aprel',
-    'may',
-    'iyun',
-    'iyul',
-    'avgust',
-    'sentabr',
-    'oktabr',
-    'noyabr',
-    'dekabr',
+
+  List<String> _months(AppLocalizations l10n) => [
+    l10n.chatMonthJanuary,
+    l10n.chatMonthFebruary,
+    l10n.chatMonthMarch,
+    l10n.chatMonthApril,
+    l10n.chatMonthMay,
+    l10n.chatMonthJune,
+    l10n.chatMonthJuly,
+    l10n.chatMonthAugust,
+    l10n.chatMonthSeptember,
+    l10n.chatMonthOctober,
+    l10n.chatMonthNovember,
+    l10n.chatMonthDecember,
   ];
 
   @override
@@ -80,6 +82,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(chatRoomControllerProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
 
@@ -93,7 +96,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       });
     }
 
-    final groups = _buildGroups(state.messages, currentUserId);
+    final groups = _buildGroups(state.messages, currentUserId, l10n);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -107,11 +110,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           child: Column(
             children: [
               ChatHeader(
-                title: 'Chat',
-                subtitle: 'Muloqot maydoni',
+                title: l10n.chatTitle,
+                subtitle: l10n.chatSubtitle,
                 onClose: _onBack,
               ),
-              Expanded(child: _buildBody(state, groups)),
+              Expanded(child: _buildBody(state, groups, l10n)),
               ChatComposeArea(controller: _composeController, onSend: _onSend),
             ],
           ),
@@ -120,7 +123,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Widget _buildBody(ChatRoomState state, List<ui.ActivityGroup> groups) {
+  Widget _buildBody(
+    ChatRoomState state,
+    List<ui.ActivityGroup> groups,
+    AppLocalizations l10n,
+  ) {
     if (state.loading) {
       return const Center(
         child: SizedBox(
@@ -135,7 +142,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Text(
-            state.error ?? "Hozircha xabarlar yo'q.\nIlk xabaringizni yozing.",
+            state.error ?? l10n.chatEmptyState,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF8A8580),
@@ -175,6 +182,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   List<ui.ActivityGroup> _buildGroups(
     List<ChatMessage> messages,
     String? currentUserId,
+    AppLocalizations l10n,
   ) {
     final filtered = messages;
     if (filtered.isEmpty) return const [];
@@ -195,29 +203,35 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return order.reversed.map((key) {
       final dayMessages = byKey[key]!;
       return ui.ActivityGroup(
-        dateLabel: _dateLabel(dayMessages.first.sentAt),
-        items: [for (final m in dayMessages) _toActivityItem(m, currentUserId)],
+        dateLabel: _dateLabel(dayMessages.first.sentAt, l10n),
+        items: [
+          for (final m in dayMessages) _toActivityItem(m, currentUserId, l10n),
+        ],
       );
     }).toList();
   }
 
-  ui.ActivityItem _toActivityItem(ChatMessage msg, String? currentUserId) {
+  ui.ActivityItem _toActivityItem(
+    ChatMessage msg,
+    String? currentUserId,
+    AppLocalizations l10n,
+  ) {
     final mine = currentUserId != null && msg.authorUserId == currentUserId;
     return ui.ActivityItem(
-      authorName: mine ? 'Siz' : msg.authorFullName,
+      authorName: mine ? l10n.chatYou : msg.authorFullName,
       initials: mine ? 'S' : _initials(msg.authorFullName),
       avatarColors: mine ? _meColors : _colorsFor(msg.authorUserId),
-      role: _roleLabel(msg.authorRole),
+      role: _roleLabel(msg.authorRole, l10n),
       time: _formatTime(msg.sentAt),
       body: msg.text,
       mine: mine,
     );
   }
 
-  String _roleLabel(String role) => switch (role) {
-    'mentor' => 'Mentor',
-    'admin' => 'Admin',
-    _ => "O'quvchi",
+  String _roleLabel(String role, AppLocalizations l10n) => switch (role) {
+    'mentor' => l10n.chatRoleMentor,
+    'admin' => l10n.chatRoleAdmin,
+    _ => l10n.chatRoleStudent,
   };
 
   String _initials(String name) {
@@ -257,17 +271,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return '${l.year}-${l.month}-${l.day}';
   }
 
-  String _dateLabel(DateTime d) {
+  String _dateLabel(DateTime d, AppLocalizations l10n) {
     final local = d.toLocal();
     final today = DateTime.now();
+    final months = _months(l10n);
+    final dayMonth = '${local.day}-${months[local.month - 1]}';
     if (_sameDay(local, today)) {
-      return 'Bugun, ${local.day}-${_months[local.month - 1]}';
+      return l10n.chatDateToday(dayMonth);
     }
     final yest = today.subtract(const Duration(days: 1));
     if (_sameDay(local, yest)) {
-      return 'Kecha, ${local.day}-${_months[local.month - 1]}';
+      return l10n.chatDateYesterday(dayMonth);
     }
-    return '${local.day}-${_months[local.month - 1]}';
+    return dayMonth;
   }
 
   bool _sameDay(DateTime a, DateTime b) =>

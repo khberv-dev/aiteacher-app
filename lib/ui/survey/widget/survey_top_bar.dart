@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/app/theme/app_radius.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class SurveyTopBar extends StatelessWidget {
@@ -16,6 +17,7 @@ class SurveyTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -52,7 +54,7 @@ class SurveyTopBar extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          '${stepIndex + 1} / $totalSteps SAVOL',
+          l10n.surveyStepCounter(stepIndex + 1, totalSteps),
           style: const TextStyle(
             color: AppColors.primary,
             fontSize: 11,

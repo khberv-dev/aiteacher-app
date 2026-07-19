@@ -4,6 +4,7 @@ import 'package:ai_teacher/core/dictionary/data/dictionary_entry.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_mark.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_ref.dart';
 import 'package:ai_teacher/core/dictionary/presentation/dictionary_providers.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/dictionary/widget/dictionary_definition_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ class _DictionarySavedWordsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final marksAsync = ref.watch(
       dictionaryMarksControllerProvider(DictionaryMarkKind.saved),
     );
@@ -43,7 +45,7 @@ class _DictionarySavedWordsScreenState
           bottom: false,
           child: marksAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, _) => const Center(child: Text('Yuklanmadi')),
+            error: (_, _) => Center(child: Text(l10n.dictionaryLoadError)),
             data: (marks) {
               final now = DateTime.now();
               final todayCount = marks
@@ -114,6 +116,7 @@ class _DictionarySavedWordsScreenState
   }
 
   void _showSortSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -127,11 +130,11 @@ class _DictionarySavedWordsScreenState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 12),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
               child: Text(
-                "Saralash",
-                style: TextStyle(
+                l10n.dictionarySortTitle,
+                style: const TextStyle(
                   color: Color(0xFF0F172A),
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -139,7 +142,7 @@ class _DictionarySavedWordsScreenState
               ),
             ),
             _SortOption(
-              label: 'Yangi qo\'shilganlar',
+              label: l10n.dictionarySortNewest,
               selected: _sort == _SortMode.newest,
               onTap: () {
                 setState(() => _sort = _SortMode.newest);
@@ -147,7 +150,7 @@ class _DictionarySavedWordsScreenState
               },
             ),
             _SortOption(
-              label: 'Alifbo bo\'yicha (A-Z)',
+              label: l10n.dictionarySortAlphabetical,
               selected: _sort == _SortMode.alphabetical,
               onTap: () {
                 setState(() => _sort = _SortMode.alphabetical);
@@ -177,6 +180,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -201,16 +205,16 @@ class _Header extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Kunlik lug'atim",
-                style: TextStyle(
+              Text(
+                l10n.dictionaryDailyWordsTitle,
+                style: const TextStyle(
                   color: Color(0xFF0F172A),
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
                 ),
               ),
               Text(
-                '$count ta saqlangan so\'z',
+                l10n.dictionarySavedWordsCount(count),
                 style: const TextStyle(
                   color: Color(0xFF64748B),
                   fontSize: 13,
@@ -258,22 +262,23 @@ class _FilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         _FilterChip(
-          label: 'Barchasi $allCount',
+          label: l10n.dictionaryFilterAll(allCount),
           selected: filter == _SavedFilter.all,
           onTap: () => onChanged(_SavedFilter.all),
         ),
         const SizedBox(width: 8),
         _FilterChip(
-          label: 'Bugun $todayCount',
+          label: l10n.dictionaryFilterToday(todayCount),
           selected: filter == _SavedFilter.today,
           onTap: () => onChanged(_SavedFilter.today),
         ),
         const SizedBox(width: 8),
         _FilterChip(
-          label: 'Hafta $weekCount',
+          label: l10n.dictionaryFilterWeek(weekCount),
           selected: filter == _SavedFilter.week,
           onTap: () => onChanged(_SavedFilter.week),
         ),
@@ -366,6 +371,7 @@ class _SavedWordRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final entry = DictionaryEntry(word: mark.word, definition: mark.definition);
     final parsed = parseDefinition(entry.definition, entry.word);
     final translation = parsed.senses.isNotEmpty
@@ -424,9 +430,7 @@ class _SavedWordRow extends ConsumerWidget {
               ),
               GestureDetector(
                 onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Audio talaffuz tez kunda qo'shiladi"),
-                  ),
+                  SnackBar(content: Text(l10n.dictionaryAudioComingSoon)),
                 ),
                 child: Container(
                   width: 36,
@@ -456,10 +460,11 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context);
+    return Center(
       child: Text(
-        "Hali saqlangan so'z yo'q",
-        style: TextStyle(
+        l10n.dictionaryNoSavedWordsYet,
+        style: const TextStyle(
           color: Color(0xFF94A3B8),
           fontSize: 14,
           fontWeight: FontWeight.w600,

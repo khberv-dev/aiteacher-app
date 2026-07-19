@@ -5,6 +5,7 @@ import 'package:ai_teacher/core/dictionary/data/dictionary_entry.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_mark.dart';
 import 'package:ai_teacher/core/dictionary/presentation/dictionary_providers.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,7 @@ class DictionaryHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final streak = ref.watch(weeklyStreakProvider).valueOrNull?.currentStreak;
     final saved =
         ref
@@ -61,13 +63,15 @@ class DictionaryHomeScreen extends ConsumerWidget {
                         onExplanatory: () => context.pushNamed(
                           AppRoute.dictionaryExplanatory.name,
                         ),
-                        onAudio: () =>
-                            _showComingSoon(context, 'Audio lug\'at'),
+                        onAudio: () => _showComingSoon(
+                          context,
+                          l10n.dictionaryAudioDictionaryComingSoon,
+                        ),
                       ),
                       const SizedBox(height: 26),
                       _SectionHeader(
-                        title: "Mening so'zlarim",
-                        actionLabel: 'Barchasi',
+                        title: l10n.dictionaryMyWordsSectionTitle,
+                        actionLabel: l10n.dictionaryAllActionLabel,
                         onAction: () =>
                             context.pushNamed(AppRoute.dictionaryStats.name),
                       ),
@@ -77,7 +81,9 @@ class DictionaryHomeScreen extends ConsumerWidget {
                         needCount: needCount < 0 ? 0 : needCount,
                       ),
                       const SizedBox(height: 26),
-                      const _SectionHeader(title: "Bugungi so'zlar"),
+                      _SectionHeader(
+                        title: l10n.dictionaryTodayWordsSectionTitle,
+                      ),
                       const SizedBox(height: 10),
                       dailyWords.when(
                         data: (words) => words.isEmpty
@@ -112,10 +118,8 @@ class DictionaryHomeScreen extends ConsumerWidget {
   }
 }
 
-void _showComingSoon(BuildContext context, String feature) {
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text("$feature tez kunda qo'shiladi")));
+void _showComingSoon(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 class _BackButton extends StatelessWidget {
@@ -154,13 +158,14 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Expanded(
+        Expanded(
           child: Text(
-            "Lug'at",
-            style: TextStyle(
+            l10n.dictionaryHomeTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 34,
               fontWeight: FontWeight.w900,
@@ -209,12 +214,13 @@ class _FeatureTilesRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
           child: _FeatureTile(
             icon: Icons.bookmark_outline_rounded,
-            label: "Kunlik\nlug'atim",
+            label: l10n.dictionaryDailyWordsTileLabel,
             onTap: onSaved,
           ),
         ),
@@ -222,7 +228,7 @@ class _FeatureTilesRow extends StatelessWidget {
         Expanded(
           child: _FeatureTile(
             icon: Icons.menu_book_outlined,
-            label: "Izohli\nlug'at",
+            label: l10n.dictionaryExplanatoryTileLabel,
             onTap: onExplanatory,
           ),
         ),
@@ -230,9 +236,9 @@ class _FeatureTilesRow extends StatelessWidget {
         Expanded(
           child: _FeatureTile(
             icon: Icons.headphones_rounded,
-            label: 'Audio\nlug\'at',
+            label: l10n.dictionaryAudioTileLabel,
             onTap: onAudio,
-            badge: 'Tez kunda',
+            badge: l10n.dictionaryComingSoonBadge,
           ),
         ),
       ],
@@ -351,6 +357,7 @@ class _MyWordsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -359,7 +366,7 @@ class _MyWordsRow extends StatelessWidget {
             iconColor: AppColors.primary,
             iconBackground: AppColors.primarySubtle,
             value: '$learnedCount',
-            label: "O'rganilgan",
+            label: l10n.dictionaryLearnedLabel,
           ),
         ),
         const SizedBox(width: 10),
@@ -369,7 +376,7 @@ class _MyWordsRow extends StatelessWidget {
             iconColor: const Color(0xFFD97706),
             iconBackground: const Color(0xFFFEF3C7),
             value: '$needCount',
-            label: "O'rganishim kerak",
+            label: l10n.dictionaryNeedToLearnLabel,
           ),
         ),
       ],
@@ -443,6 +450,7 @@ class _TodayWordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final parsed = parseDefinition(entry.definition, entry.word);
     final translation = parsed.senses.isNotEmpty
         ? parsed.senses.first.text
@@ -482,7 +490,8 @@ class _TodayWordCard extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => _showComingSoon(context, 'Audio talaffuz'),
+            onTap: () =>
+                _showComingSoon(context, l10n.dictionaryAudioComingSoon),
             child: Container(
               width: 38,
               height: 38,
@@ -512,6 +521,7 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -531,10 +541,10 @@ class _SearchBar extends StatelessWidget {
               children: [
                 const Icon(Icons.search_rounded, color: Color(0xFF94A3B8)),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    "So'z qidiring...",
-                    style: TextStyle(
+                    l10n.dictionarySearchWordPlaceholder,
+                    style: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

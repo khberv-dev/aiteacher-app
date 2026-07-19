@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_coach_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_grammar_errors_card.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_locked_card.dart';
@@ -12,6 +13,7 @@ class ReportGrammarPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tips = assessment.coachTips.length > 2
         ? assessment.coachTips.skip(2).take(2).toList(growable: false)
         : assessment.coachTips.take(2).toList(growable: false);
@@ -32,7 +34,12 @@ class ReportGrammarPage extends StatelessWidget {
             score: assessment.skills.pronunciation,
           ),
         ),
-        gate(ReportCoachCard(tips: tips, subtitle: "Grammar bo'yicha")),
+        gate(
+          ReportCoachCard(
+            tips: tips,
+            subtitle: l10n.speakingScreenGrammarCoachSubtitle,
+          ),
+        ),
       ],
     );
   }

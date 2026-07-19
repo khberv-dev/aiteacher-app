@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,7 @@ class ReportPronunciationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final strong = detail.strongAreas.map((s) => s.toLowerCase()).toSet();
     _PronunStatus status(String key) {
       if (strong.contains(key)) return _PronunStatus.good;
@@ -33,10 +35,22 @@ class ReportPronunciationCard extends StatelessWidget {
     }
 
     final details = <_DetailRow>[
-      _DetailRow(label: 'Unli tovushlar', status: status('vowels')),
-      _DetailRow(label: 'Undosh tovushlar', status: status('consonants')),
-      _DetailRow(label: "Urg'u (stress)", status: status('stress placement')),
-      _DetailRow(label: 'Intonatsiya', status: status('intonation')),
+      _DetailRow(
+        label: l10n.speakingReportPronunciationVowels,
+        status: status('vowels'),
+      ),
+      _DetailRow(
+        label: l10n.speakingReportPronunciationConsonants,
+        status: status('consonants'),
+      ),
+      _DetailRow(
+        label: l10n.speakingReportPronunciationStress,
+        status: status('stress placement'),
+      ),
+      _DetailRow(
+        label: l10n.speakingReportPronunciationIntonation,
+        status: status('intonation'),
+      ),
     ];
 
     return Padding(
@@ -58,7 +72,9 @@ class ReportPronunciationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ReportSectionLabel(text: 'TALAFFUZ TAHLILI'),
+            ReportSectionLabel(
+              text: l10n.speakingReportPronunciationSectionLabel,
+            ),
             const SizedBox(height: 14),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,9 +97,9 @@ class ReportPronunciationCard extends StatelessWidget {
                               height: 1,
                             ),
                           ),
-                          const Text(
-                            'BALL',
-                            style: TextStyle(
+                          Text(
+                            l10n.speakingReportPronunciationScoreLabel,
+                            style: const TextStyle(
                               color: Color(0xFF6B6860),
                               fontSize: 8,
                               fontWeight: FontWeight.w700,
@@ -110,9 +126,9 @@ class ReportPronunciationCard extends StatelessWidget {
             ),
             if (detail.soundsToPractice.isNotEmpty) ...[
               const SizedBox(height: 14),
-              const Text(
-                "Mashq qilish kerak bo'lgan tovushlar",
-                style: TextStyle(
+              Text(
+                l10n.speakingReportPronunciationSoundsToPractice,
+                style: const TextStyle(
                   color: Color(0xFF1A1A1A),
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
@@ -141,21 +157,22 @@ class _Detail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final (chipBg, chipFg, chipText) = switch (detail.status) {
       _PronunStatus.good => (
         const Color(0x1A0D9488),
         const Color(0xFF065F46),
-        '✓ Yaxshi',
+        l10n.speakingReportGrammarErrorsCardSeverityGoodLabel,
       ),
       _PronunStatus.medium => (
         const Color(0x1FF5B700),
         const Color(0xFF92400E),
-        "~ O'rta",
+        l10n.speakingReportGrammarErrorsCardSeverityMediumLabel,
       ),
       _PronunStatus.weak => (
         const Color(0x14EF4444),
         const Color(0xFF991B1B),
-        '✗ Zaif',
+        l10n.speakingReportGrammarErrorsCardSeverityWeakLabel,
       ),
     };
     return Row(

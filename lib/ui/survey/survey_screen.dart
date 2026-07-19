@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/shared/widget/primary_button.dart';
 import 'package:ai_teacher/ui/survey/survey_data.dart';
 import 'package:ai_teacher/ui/survey/widget/survey_step_view.dart';
@@ -16,13 +17,20 @@ class SurveyScreen extends StatefulWidget {
 
 class _SurveyScreenState extends State<SurveyScreen> {
   final PageController _pageController = PageController();
-  late final List<String?> _answers;
+  List<SurveyStep> _steps = const [];
+  List<String?> _answers = const [];
   int _currentStep = 0;
+  bool _stepsInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _answers = [for (final step in kSurveySteps) step.defaultOptionId];
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_stepsInitialized) {
+      final l10n = AppLocalizations.of(context);
+      _steps = surveySteps(l10n);
+      _answers = [for (final step in _steps) step.defaultOptionId];
+      _stepsInitialized = true;
+    }
   }
 
   @override
@@ -44,7 +52,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
   }
 
   void _onContinue() {
-    if (_currentStep < kSurveySteps.length - 1) {
+    if (_currentStep < _steps.length - 1) {
       _goToStep(_currentStep + 1);
       return;
     }
@@ -68,6 +76,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final canContinue = _answers[_currentStep] != null;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -84,12 +93,12 @@ class _SurveyScreenState extends State<SurveyScreen> {
                   controller: _pageController,
                   onPageChanged: (index) =>
                       setState(() => _currentStep = index),
-                  itemCount: kSurveySteps.length,
+                  itemCount: _steps.length,
                   itemBuilder: (context, index) {
                     return SurveyStepView(
-                      step: kSurveySteps[index],
+                      step: _steps[index],
                       stepIndex: index,
-                      totalSteps: kSurveySteps.length,
+                      totalSteps: _steps.length,
                       selectedOptionId: _answers[index],
                       onSelect: _selectOption,
                       onBack: _onBack,
@@ -100,7 +109,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
                 child: PrimaryButton(
-                  label: 'Davom etish  →',
+                  label: '${l10n.commonContinue}  →',
                   enabled: canContinue,
                   onPressed: _onContinue,
                 ),

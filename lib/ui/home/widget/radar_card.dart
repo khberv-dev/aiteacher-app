@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +11,7 @@ class RadarCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final student = ref.watch(currentUserProvider).valueOrNull?.student;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
@@ -35,24 +37,24 @@ class RadarCard extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'BILIM XARITAM',
-                    style: TextStyle(
+                    l10n.homeRadarSectionLabel,
+                    style: const TextStyle(
                       color: Color(0xB3FFFFFF),
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1,
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(
-                    "Zo'r ketayapsiz!",
-                    style: TextStyle(
+                    l10n.homeRadarLine1,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -61,8 +63,8 @@ class RadarCard extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    "Har kun o'sib",
-                    style: TextStyle(
+                    l10n.homeRadarLine2,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -71,8 +73,8 @@ class RadarCard extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    'bormoqdasiz 🚀',
-                    style: TextStyle(
+                    l10n.homeRadarLine3,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,

@@ -3,6 +3,7 @@ import 'package:ai_teacher/core/dictionary/data/definition_parser.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_entry.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_mark.dart';
 import 'package:ai_teacher/core/dictionary/presentation/dictionary_providers.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ class DictionaryStatsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final savedAsync = ref.watch(
       dictionaryMarksControllerProvider(DictionaryMarkKind.saved),
     );
@@ -38,7 +40,8 @@ class DictionaryStatsScreen extends ConsumerWidget {
                 child: savedAsync.when(
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (_, _) => const Center(child: Text('Yuklanmadi')),
+                  error: (_, _) =>
+                      Center(child: Text(l10n.dictionaryLoadError)),
                   data: (saved) {
                     final learned = learnedAsync.valueOrNull ?? const [];
                     final learnedCount = learned.length;
@@ -65,7 +68,9 @@ class DictionaryStatsScreen extends ConsumerWidget {
                               child: _PillStat(
                                 icon: Icons.check_circle_rounded,
                                 iconColor: AppColors.primary,
-                                label: "O'rganilgan $learnedCount",
+                                label: l10n.dictionaryLearnedCountPill(
+                                  learnedCount,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -73,7 +78,9 @@ class DictionaryStatsScreen extends ConsumerWidget {
                               child: _PillStat(
                                 icon: Icons.access_time_rounded,
                                 iconColor: const Color(0xFFD97706),
-                                label: 'Kerak ${needCount < 0 ? 0 : needCount}',
+                                label: l10n.dictionaryNeedCountPill(
+                                  needCount < 0 ? 0 : needCount,
+                                ),
                               ),
                             ),
                           ],
@@ -107,6 +114,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Material(
@@ -126,9 +134,9 @@ class _Header extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Text(
-          "Mening so'zlarim",
-          style: TextStyle(
+        Text(
+          l10n.dictionaryMyWordsSectionTitle,
+          style: const TextStyle(
             color: Color(0xFF0F172A),
             fontSize: 22,
             fontWeight: FontWeight.w900,
@@ -152,6 +160,7 @@ class _ProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final percent = (ratio * 100).round();
     return Container(
       padding: const EdgeInsets.all(20),
@@ -165,10 +174,10 @@ class _ProgressCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "Saqlangan so'zlardan o'rganildi",
-                  style: TextStyle(
+                  l10n.dictionaryProgressCardLabel,
+                  style: const TextStyle(
                     color: Color(0x99FFFFFF),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -210,7 +219,7 @@ class _ProgressCard extends StatelessWidget {
                 ),
               ),
               Text(
-                " / $savedCount so'z",
+                l10n.dictionarySavedCountSuffix(savedCount),
                 style: const TextStyle(
                   color: Color(0x99FFFFFF),
                   fontSize: 16,
@@ -283,6 +292,7 @@ class _LearnedWordRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final entry = DictionaryEntry(word: mark.word, definition: mark.definition);
     final parsed = parseDefinition(entry.definition, entry.word);
     final translation = parsed.senses.isNotEmpty
@@ -338,7 +348,7 @@ class _LearnedWordRow extends StatelessWidget {
             ),
           ),
           Text(
-            _relativeTime(mark.markedAt),
+            _relativeTime(l10n, mark.markedAt),
             style: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 12,
@@ -351,11 +361,11 @@ class _LearnedWordRow extends StatelessWidget {
   }
 }
 
-String _relativeTime(DateTime date) {
+String _relativeTime(AppLocalizations l10n, DateTime date) {
   final days = DateTime.now().difference(date).inDays;
-  if (days <= 0) return 'Bugun';
-  if (days == 1) return 'Kecha';
-  return '$days kun oldin';
+  if (days <= 0) return l10n.dictionaryToday;
+  if (days == 1) return l10n.dictionaryYesterday;
+  return l10n.dictionaryDaysAgo(days);
 }
 
 class _EmptyState extends StatelessWidget {
@@ -363,12 +373,13 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 40),
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
       child: Center(
         child: Text(
-          "Hali o'rganilgan so'z yo'q",
-          style: TextStyle(
+          l10n.dictionaryNoLearnedWordsYet,
+          style: const TextStyle(
             color: Color(0xFF94A3B8),
             fontSize: 14,
             fontWeight: FontWeight.w600,

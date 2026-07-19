@@ -1,20 +1,23 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class StatsCard extends StatelessWidget {
   const StatsCard({super.key});
 
-  static const _bars = <_BarData>[
-    _BarData('Du', 0.45, false),
-    _BarData('Se', 0.35, false),
-    _BarData('Ch', 0.55, false),
-    _BarData('Pa', 1.0, true),
-    _BarData('Ju', 0.5, false),
-    _BarData('Sh', 0.4, false),
-    _BarData('Ya', 0.6, false),
+  List<_BarData> _bars(AppLocalizations l10n) => [
+    _BarData(l10n.homeStatsDayMon, 0.45, false),
+    _BarData(l10n.homeStatsDayTue, 0.35, false),
+    _BarData(l10n.homeStatsDayWed, 0.55, false),
+    _BarData(l10n.homeStatsDayThu, 1.0, true),
+    _BarData(l10n.homeStatsDayFri, 0.5, false),
+    _BarData(l10n.homeStatsDaySat, 0.4, false),
+    _BarData(l10n.homeStatsDaySun, 0.6, false),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final bars = _bars(l10n);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
       child: Container(
@@ -54,9 +57,9 @@ class StatsCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
-                      "Yangi so'zlar",
-                      style: TextStyle(
+                    Text(
+                      l10n.homeStatsNewWordsLabel,
+                      style: const TextStyle(
                         color: Color(0xFF1A1A1A),
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -64,9 +67,9 @@ class StatsCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Text(
-                  'Jami: 312',
-                  style: TextStyle(
+                Text(
+                  l10n.homeStatsTotalLabel(312),
+                  style: const TextStyle(
                     color: Color(0xFF3B82F6),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -75,9 +78,9 @@ class StatsCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Ajoyib hafta!',
-              style: TextStyle(
+            Text(
+              l10n.homeStatsWeekPraise,
+              style: const TextStyle(
                 color: Color(0xFF1A1A1A),
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -89,9 +92,9 @@ class StatsCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  for (var i = 0; i < _bars.length; i++) ...[
-                    Expanded(child: _Bar(data: _bars[i])),
-                    if (i < _bars.length - 1) const SizedBox(width: 5),
+                  for (var i = 0; i < bars.length; i++) ...[
+                    Expanded(child: _Bar(data: bars[i])),
+                    if (i < bars.length - 1) const SizedBox(width: 5),
                   ],
                 ],
               ),

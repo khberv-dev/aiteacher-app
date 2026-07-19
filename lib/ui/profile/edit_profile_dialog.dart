@@ -1,5 +1,6 @@
 import 'package:ai_teacher/core/user/data/user_repository.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,9 +27,10 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
     final value = _controller.text.trim();
     if (value.isEmpty) {
-      setState(() => _error = 'Ismni kiriting');
+      setState(() => _error = l10n.profileNameRequired);
       return;
     }
     setState(() {
@@ -44,15 +46,16 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = 'Saqlashda xatolik';
+        _error = l10n.profileSaveError;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text("Ma'lumotlarni tahrirlash"),
+      title: Text(l10n.profileEditInfoTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,7 +65,7 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
             autofocus: true,
             textCapitalization: TextCapitalization.words,
             enabled: !_saving,
-            decoration: const InputDecoration(labelText: 'Ism'),
+            decoration: InputDecoration(labelText: l10n.profileNameLabel),
           ),
           if (_error != null)
             Padding(
@@ -77,11 +80,11 @@ class _EditProfileDialogState extends ConsumerState<EditProfileDialog> {
       actions: [
         TextButton(
           onPressed: _saving ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Bekor qilish'),
+          child: Text(l10n.commonCancel),
         ),
         TextButton(
           onPressed: _saving ? null : _save,
-          child: Text(_saving ? 'Saqlanmoqda...' : 'Saqlash'),
+          child: Text(_saving ? l10n.profileSavingInProgress : l10n.commonSave),
         ),
       ],
     );

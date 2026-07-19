@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/data/network_config.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/assignment/presentation/my_assignments_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,7 @@ class MyMentorCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final myMentor = ref.watch(myMentorProvider).valueOrNull;
     if (myMentor == null) return const SizedBox.shrink();
 
@@ -44,20 +46,16 @@ class MyMentorCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              _MentorAvatar(
-                imageUrl: imageUrl,
-                initials: mentor.initials,
-                isOnline: myMentor.isOnline,
-              ),
+              _MentorAvatar(imageUrl: imageUrl, initials: mentor.initials),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Mening ustozim',
-                      style: TextStyle(
+                    Text(
+                      l10n.myMentorTitle,
+                      style: const TextStyle(
                         color: Color(0xFF64748B),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -74,39 +72,15 @@ class MyMentorCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 7,
-                          height: 7,
-                          decoration: BoxDecoration(
-                            color: myMentor.isOnline
-                                ? const Color(0xFF22C55E)
-                                : const Color(0xFFCBD5E1),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          myMentor.isOnline ? 'Onlayn' : 'Oflayn',
-                          style: TextStyle(
-                            color: myMentor.isOnline
-                                ? const Color(0xFF16A34A)
-                                : const Color(0xFF94A3B8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '  ·  ${_formatDate(myMentor.startDate)} dan beri',
-                          style: const TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      l10n.myMentorSince(
+                        _formatDate(myMentor.startDate, context),
+                      ),
+                      style: const TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -127,9 +101,12 @@ class MyMentorCard extends ConsumerWidget {
                 ),
               ),
               icon: const Icon(Icons.chat_bubble_outline_rounded, size: 16),
-              label: const Text(
-                'Suhbat',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              label: Text(
+                l10n.myMentorChatButton,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -140,59 +117,32 @@ class MyMentorCard extends ConsumerWidget {
 }
 
 class _MentorAvatar extends StatelessWidget {
-  const _MentorAvatar({
-    required this.imageUrl,
-    required this.initials,
-    required this.isOnline,
-  });
+  const _MentorAvatar({required this.imageUrl, required this.initials});
 
   final String? imageUrl;
   final String initials;
-  final bool isOnline;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: 52,
       height: 52,
-      child: Stack(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF0D9488), Color(0xFF2DD4BF)],
-              ),
-            ),
-            child: ClipOval(
-              child: imageUrl != null
-                  ? Image.network(
-                      imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => _Initials(initials),
-                    )
-                  : _Initials(initials),
-            ),
-          ),
-          if (isOnline)
-            Positioned(
-              right: 1,
-              bottom: 1,
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF22C55E),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-              ),
-            ),
-        ],
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0D9488), Color(0xFF2DD4BF)],
+        ),
+      ),
+      child: ClipOval(
+        child: imageUrl != null
+            ? Image.network(
+                imageUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => _Initials(initials),
+              )
+            : _Initials(initials),
       ),
     );
   }
@@ -233,10 +183,29 @@ const _uzMonths = [
   'dekabr',
 ];
 
-String _formatDate(DateTime d) {
+const _enMonths = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+String _formatDate(DateTime d, BuildContext context) {
   final local = d.toLocal();
+  final isEn = Localizations.localeOf(context).languageCode == 'en';
+  final months = isEn ? _enMonths : _uzMonths;
   final month = (local.month >= 1 && local.month <= 12)
-      ? _uzMonths[local.month - 1]
+      ? months[local.month - 1]
       : '';
-  return '${local.day}-$month ${local.year}';
+  return isEn
+      ? '$month ${local.day}, ${local.year}'
+      : '${local.day}-$month ${local.year}';
 }

@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/app/theme/app_theme.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/utils/uz_phone_formatter.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +40,7 @@ class PhoneField extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _PrefixChip(),
+            _PrefixChip(),
             const SizedBox(width: 8),
             Expanded(
               child: _Shadow(
@@ -71,6 +72,7 @@ class _PrefixChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -86,9 +88,9 @@ class _PrefixChip extends StatelessWidget {
         ],
       ),
       alignment: Alignment.center,
-      child: const Text(
-        '+998',
-        style: TextStyle(
+      child: Text(
+        l10n.authPhoneCountryPrefix,
+        style: const TextStyle(
           color: AppColors.textPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w700,

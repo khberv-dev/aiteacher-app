@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/writing_task/widget/writing_feedback_html_text.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,7 @@ class WritingTaskCompletedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Expanded(
@@ -48,9 +50,9 @@ class WritingTaskCompletedView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '2-bosqich: Qayta tarjima tahlili',
-                        style: TextStyle(
+                      Text(
+                        l10n.writingTaskStep2AnalysisTitle,
+                        style: const TextStyle(
                           color: Color(0xFF0F172A),
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -87,6 +89,7 @@ class _TrophyBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -126,9 +129,9 @@ class _TrophyBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Vazifa yakunlandi!',
-                  style: TextStyle(
+                Text(
+                  l10n.writingTaskCompletedTitle,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -137,14 +140,20 @@ class _TrophyBanner extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    _ScorePill(label: '1-bosqich', score: translationScore),
+                    _ScorePill(
+                      label: l10n.writingTaskStep1Short,
+                      score: translationScore,
+                    ),
                     const SizedBox(width: 8),
-                    _ScorePill(label: '2-bosqich', score: backTranslationScore),
+                    _ScorePill(
+                      label: l10n.writingTaskStep2Short,
+                      score: backTranslationScore,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "O'rtacha ball: $_average / 100",
+                  l10n.writingTaskAverageScore(_average),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 12,
@@ -192,6 +201,7 @@ class _DoneBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       color: Colors.white,
       padding: EdgeInsets.fromLTRB(
@@ -209,9 +219,9 @@ class _DoneBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
         ),
-        child: const Text(
-          'Tugallash',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        child: Text(
+          l10n.writingTaskDoneButton,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
     );

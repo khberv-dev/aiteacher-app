@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -32,17 +33,42 @@ class ReportGrammarErrorsCard extends StatelessWidget {
 
   final GrammarDetail detail;
 
-  static const _categoryDisplay = <String, ({String emoji, String label})>{
-    'tenses': (emoji: '⏰', label: 'Tenses'),
-    'conditionals': (emoji: '📌', label: 'Conditionals'),
-    'prepositions': (emoji: '🔗', label: 'Prepositions'),
-    'articles': (emoji: '📄', label: 'Articles'),
-    'conjunctions': (emoji: '🔀', label: 'Conjunctions'),
-    'wordOrder': (emoji: '🔤', label: 'Word Order'),
-  };
+  static ({String emoji, String label}) _categoryDisplayFor(
+    AppLocalizations l10n,
+    String key,
+  ) {
+    return switch (key) {
+      'tenses' => (
+        emoji: '⏰',
+        label: l10n.speakingReportGrammarErrorsCardTensesLabel,
+      ),
+      'conditionals' => (
+        emoji: '📌',
+        label: l10n.speakingReportGrammarErrorsCardConditionalsLabel,
+      ),
+      'prepositions' => (
+        emoji: '🔗',
+        label: l10n.speakingReportGrammarErrorsCardPrepositionsLabel,
+      ),
+      'articles' => (
+        emoji: '📄',
+        label: l10n.speakingReportGrammarErrorsCardArticlesLabel,
+      ),
+      'conjunctions' => (
+        emoji: '🔀',
+        label: l10n.speakingReportGrammarErrorsCardConjunctionsLabel,
+      ),
+      'wordOrder' => (
+        emoji: '🔤',
+        label: l10n.speakingReportGrammarErrorsCardWordOrderLabel,
+      ),
+      _ => (emoji: '•', label: key),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final entries = detail.errorsByCategory.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final maxCount = entries.isEmpty
@@ -50,8 +76,7 @@ class ReportGrammarErrorsCard extends StatelessWidget {
         : entries.map((e) => e.value).reduce((a, b) => a > b ? a : b);
 
     final rows = entries.map((entry) {
-      final display =
-          _categoryDisplay[entry.key] ?? (emoji: '•', label: entry.key);
+      final display = _categoryDisplayFor(l10n, entry.key);
       return _ErrorRow(
         emoji: display.emoji,
         name: display.label,
@@ -79,8 +104,8 @@ class ReportGrammarErrorsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ReportSectionLabel(
-              text: "GRAMMATIKA XATOLARI KATEGORIYA BO'YICHA",
+            ReportSectionLabel(
+              text: l10n.speakingReportGrammarErrorsCardSectionLabel,
             ),
             const SizedBox(height: 12),
             for (var i = 0; i < rows.length; i++) ...[
@@ -101,6 +126,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final color = switch (row.severity) {
       _ErrorSeverity.weak => const Color(0xFFEF4444),
       _ErrorSeverity.medium => const Color(0xFFF59E0B),
@@ -110,17 +136,17 @@ class _Row extends StatelessWidget {
       _ErrorSeverity.weak => (
         const Color(0x14EF4444),
         const Color(0xFF991B1B),
-        '✗ Zaif',
+        l10n.speakingReportGrammarErrorsCardSeverityWeakLabel,
       ),
       _ErrorSeverity.medium => (
         const Color(0x1FF5B700),
         const Color(0xFF92400E),
-        "~ O'rta",
+        l10n.speakingReportGrammarErrorsCardSeverityMediumLabel,
       ),
       _ErrorSeverity.good => (
         const Color(0x1A0D9488),
         const Color(0xFF065F46),
-        '✓ Yaxshi',
+        l10n.speakingReportGrammarErrorsCardSeverityGoodLabel,
       ),
     };
 
@@ -164,7 +190,7 @@ class _Row extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            '${row.count} ta',
+            l10n.speakingReportGrammarErrorsCardCountLabel(row.count),
             style: TextStyle(
               color: color,
               fontSize: 11,

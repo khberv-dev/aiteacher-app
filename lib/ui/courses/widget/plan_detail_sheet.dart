@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
@@ -46,10 +47,13 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
   Future<void> _onSubscribe() async {
     final price = _selectedPrice;
     if (price == null) return;
+    final l10n = AppLocalizations.of(context);
     final created = await PaymentTypesSheet.show(
       context,
       amount: price.price,
-      title: '${plan.name.isEmpty ? "Tarif" : plan.name} · ${price.month} oy',
+      title:
+          '${plan.name.isEmpty ? l10n.coursesDefaultPlanName : plan.name}'
+          ' · ${l10n.coursesMonthsShort(price.month)}',
     );
     if (created != null && mounted) {
       Navigator.of(context).pop();
@@ -59,6 +63,7 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final bottom = MediaQuery.of(context).padding.bottom;
 
     return DraggableScrollableSheet(
@@ -79,7 +84,9 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
                     children: [
                       Expanded(
                         child: Text(
-                          plan.name.isEmpty ? 'Tarif' : plan.name,
+                          plan.name.isEmpty
+                              ? l10n.coursesDefaultPlanName
+                              : plan.name,
                           style: const TextStyle(
                             color: Color(0xFF0F172A),
                             fontSize: 22,
@@ -98,7 +105,7 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'Mentor bilan',
+                            l10n.coursesMentorBadge,
                             style: TextStyle(
                               color: AppColors.primary,
                               fontSize: 11,
@@ -110,9 +117,9 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
                   ),
                   const SizedBox(height: 20),
                   if (plan.prices.isNotEmpty) ...[
-                    const Text(
-                      'Muddat tanlang',
-                      style: TextStyle(
+                    Text(
+                      l10n.coursesSelectDurationLabel,
+                      style: const TextStyle(
                         color: Color(0xFF64748B),
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -130,9 +137,9 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
                     const SizedBox(height: 20),
                   ],
                   if (plan.availableFeatures.isNotEmpty) ...[
-                    const Text(
-                      "Nima kiradi",
-                      style: TextStyle(
+                    Text(
+                      l10n.coursesWhatsIncludedLabel,
+                      style: const TextStyle(
                         color: Color(0xFF64748B),
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -166,8 +173,10 @@ class _PlanDetailSheetState extends ConsumerState<PlanDetailSheet> {
                 ),
                 child: Text(
                   _selectedPrice != null
-                      ? "Obuna bo'lish · ${_formatPrice(_selectedPrice!.price)}"
-                      : "Muddat tanlang",
+                      ? l10n.coursesSubscribeButtonLabel(
+                          _formatPrice(_selectedPrice!.price),
+                        )
+                      : l10n.coursesSelectDurationLabel,
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -212,6 +221,7 @@ class _PriceOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
@@ -241,7 +251,7 @@ class _PriceOption extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                '${price.month} oy',
+                l10n.coursesMonthsShort(price.month),
                 style: TextStyle(
                   color: selected ? AppColors.primary : const Color(0xFF0F172A),
                   fontSize: 14,

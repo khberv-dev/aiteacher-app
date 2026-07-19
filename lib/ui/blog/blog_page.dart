@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/comments/data/comment.dart';
 import 'package:ai_teacher/core/comments/data/comments_repository.dart';
 import 'package:ai_teacher/core/comments/presentation/comments_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,21 +45,20 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
   }
 
   void _showCannotPostDialog(CanPostResult result) {
+    final l10n = AppLocalizations.of(context);
     final String title;
     final String body;
 
     if (!result.hasPayment) {
-      title = "To'lov tarixingiz yo'q";
-      body =
-          "Izoh qoldirish uchun kamida bitta muvaffaqiyatli to'lov amalga oshirilgan bo'lishi kerak.";
+      title = l10n.blogNoPaymentHistoryTitle;
+      body = l10n.blogNoPaymentHistoryBody;
     } else {
       final next = result.nextAllowedAt;
       final dateStr = next != null
           ? '${next.day.toString().padLeft(2, '0')}.${next.month.toString().padLeft(2, '0')}.${next.year}'
           : '';
-      title = 'Izoh qoldirib bo\'ldingiz';
-      body =
-          'Har 7 kunda bir marta izoh qoldirishingiz mumkin.\nKeyingi izoh: $dateStr';
+      title = l10n.blogCommentLimitTitle;
+      body = l10n.blogCommentLimitBody(dateStr);
     }
 
     showDialog<void>(
@@ -87,7 +87,7 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Tushundim',
+              l10n.blogGotItButton,
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w800,
@@ -102,6 +102,7 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
   @override
   Widget build(BuildContext context) {
     final asyncComments = ref.watch(commentsControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,9 +111,9 @@ class _CommentsPageState extends ConsumerState<CommentsPage> {
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
           child: Row(
             children: [
-              const Text(
-                'Izohlar',
-                style: TextStyle(
+              Text(
+                l10n.blogPageTitle,
+                style: const TextStyle(
                   color: Color(0xFF0F172A),
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
@@ -228,18 +229,21 @@ class _CommentCard extends StatelessWidget {
         : '?';
   }
 
-  static String _relativeTime(DateTime dt) {
+  static String _relativeTime(DateTime dt, AppLocalizations l10n) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inSeconds < 60) return 'Hozirgina';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} daqiqa oldin';
-    if (diff.inHours < 24) return '${diff.inHours} soat oldin';
-    if (diff.inDays < 30) return '${diff.inDays} kun oldin';
-    if (diff.inDays < 365) return '${(diff.inDays / 30).floor()} oy oldin';
-    return '${(diff.inDays / 365).floor()} yil oldin';
+    if (diff.inSeconds < 60) return l10n.blogTimeJustNow;
+    if (diff.inMinutes < 60) return l10n.blogTimeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.blogTimeHoursAgo(diff.inHours);
+    if (diff.inDays < 30) return l10n.blogTimeDaysAgo(diff.inDays);
+    if (diff.inDays < 365) {
+      return l10n.blogTimeMonthsAgo((diff.inDays / 30).floor());
+    }
+    return l10n.blogTimeYearsAgo((diff.inDays / 365).floor());
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final color = _avatarColor(comment.author);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +277,7 @@ class _CommentCard extends StatelessWidget {
               ),
               const SizedBox(height: 1),
               Text(
-                _relativeTime(comment.createdAt),
+                _relativeTime(comment.createdAt, l10n),
                 style: const TextStyle(
                   color: Color(0xFF94A3B8),
                   fontSize: 11,
@@ -380,24 +384,25 @@ class _EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context);
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('💬', style: TextStyle(fontSize: 40)),
-          SizedBox(height: 12),
+          const Text('💬', style: TextStyle(fontSize: 40)),
+          const SizedBox(height: 12),
           Text(
-            'Hali izohlar yo\'q',
-            style: TextStyle(
+            l10n.blogEmptyTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 15,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            'Birinchi bo\'lib fikr bildiring!',
-            style: TextStyle(
+            l10n.blogEmptySubtitle,
+            style: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -417,6 +422,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -429,9 +435,9 @@ class _ErrorView extends StatelessWidget {
               size: 36,
             ),
             const SizedBox(height: 10),
-            const Text(
-              'Izohlarni yuklab bo\'lmadi',
-              style: TextStyle(
+            Text(
+              l10n.blogLoadErrorTitle,
+              style: const TextStyle(
                 color: Color(0xFF0F172A),
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -456,7 +462,7 @@ class _ErrorView extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Qayta urinish'),
+              child: Text(l10n.commonRetry),
             ),
           ],
         ),
@@ -499,6 +505,7 @@ class _WriteCommentDialogState extends State<_WriteCommentDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       backgroundColor: Colors.white,
@@ -511,10 +518,10 @@ class _WriteCommentDialogState extends State<_WriteCommentDialog> {
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Izoh yozish',
-                    style: TextStyle(
+                    l10n.blogWriteCommentTitle,
+                    style: const TextStyle(
                       color: Color(0xFF0F172A),
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
@@ -549,13 +556,13 @@ class _WriteCommentDialogState extends State<_WriteCommentDialog> {
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
-                decoration: const InputDecoration(
-                  hintText: 'Fikringizni yozing…',
-                  hintStyle: TextStyle(
+                decoration: InputDecoration(
+                  hintText: l10n.blogWriteCommentHint,
+                  hintStyle: const TextStyle(
                     color: Color(0xFFCBD5E1),
                     fontWeight: FontWeight.w500,
                   ),
-                  contentPadding: EdgeInsets.all(14),
+                  contentPadding: const EdgeInsets.all(14),
                   border: InputBorder.none,
                 ),
               ),
@@ -575,9 +582,12 @@ class _WriteCommentDialogState extends State<_WriteCommentDialog> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
-                  'Yuborish',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                child: Text(
+                  l10n.blogSubmitButton,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ),

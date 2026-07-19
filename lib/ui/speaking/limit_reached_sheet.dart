@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,10 +42,11 @@ class _LimitReachedSheetState extends ConsumerState<LimitReachedSheet> {
 
   Future<void> _onAddonTap() async {
     if (_purchasing) return;
+    final l10n = AppLocalizations.of(context);
     final paymentId = await PaymentTypesSheet.show(
       context,
       amount: widget.addonPrice,
-      title: '+${widget.addonGrant} ta qo\'shimcha suhbat',
+      title: l10n.speakingScreenAddonPurchaseTitle(widget.addonGrant),
     );
     if (!mounted || paymentId == null) return;
     setState(() => _purchasing = true);
@@ -60,13 +62,14 @@ class _LimitReachedSheetState extends ConsumerState<LimitReachedSheet> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text("To'lovni amalga oshirib bo'lmadi")),
+          SnackBar(content: Text(l10n.speakingScreenPaymentFailed)),
         );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SizedBox.expand(
       child: DecoratedBox(
         decoration: const BoxDecoration(
@@ -97,10 +100,10 @@ class _LimitReachedSheetState extends ConsumerState<LimitReachedSheet> {
                     children: [
                       const _Hero(),
                       const SizedBox(height: 24),
-                      const Text(
-                        "Suhbat limitingiz tugadi ✨",
+                      Text(
+                        l10n.speakingScreenLimitTitle,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF0F172A),
                           fontSize: 26,
                           fontWeight: FontWeight.w900,
@@ -109,12 +112,10 @@ class _LimitReachedSheetState extends ConsumerState<LimitReachedSheet> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const Text(
-                        "Bepul suhbatlar sarflandi. "
-                        "Davom etish uchun qo'shimcha paket oling "
-                        "yoki Pro paketga o'ting.",
+                      Text(
+                        l10n.speakingScreenLimitSubtitle,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFF6B7280),
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -122,40 +123,37 @@ class _LimitReachedSheetState extends ConsumerState<LimitReachedSheet> {
                         ),
                       ),
                       const SizedBox(height: 26),
-                      const Text(
-                        'Planlarga kiritilgan imkoniyatlar:',
-                        style: TextStyle(
+                      Text(
+                        l10n.speakingScreenPlanFeaturesLabel,
+                        style: const TextStyle(
                           color: Color(0xFF0F172A),
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const _BenefitTile(
+                      _BenefitTile(
                         emoji: '♾️',
-                        title: 'Cheksiz AI suhbat',
-                        subtitle: 'Bir kun, bir hafta — mashqlar to\'xtamasin.',
+                        title: l10n.speakingScreenBenefitUnlimitedTitle,
+                        subtitle: l10n.speakingScreenBenefitUnlimitedSubtitle,
                       ),
                       const SizedBox(height: 10),
-                      const _BenefitTile(
+                      _BenefitTile(
                         emoji: '📊',
-                        title: 'Batafsil hisobotlar',
-                        subtitle:
-                            "Talaffuz, grammatika, lug'at — sizning kuchli va zaif tomonlaringiz.",
+                        title: l10n.speakingScreenBenefitReportsTitle,
+                        subtitle: l10n.speakingScreenBenefitReportsSubtitle,
                       ),
                       const SizedBox(height: 10),
-                      const _BenefitTile(
+                      _BenefitTile(
                         emoji: '👨‍🏫',
-                        title: 'Tirik mentor bilan',
-                        subtitle:
-                            "Chatda savol bering, qo'ng'iroq qiling — real ustoz yonida.",
+                        title: l10n.speakingScreenBenefitMentorTitle,
+                        subtitle: l10n.speakingScreenBenefitMentorSubtitle,
                       ),
                       const SizedBox(height: 10),
-                      const _BenefitTile(
+                      _BenefitTile(
                         emoji: '🚀',
-                        title: 'Tezroq natija',
-                        subtitle:
-                            "Bir oyda — yangi daraja. O'rganganlaringizni gapirib his qiling.",
+                        title: l10n.speakingScreenBenefitResultTitle,
+                        subtitle: l10n.speakingScreenBenefitResultSubtitle,
                       ),
                       const SizedBox(height: 22),
                       _SocialProof(),
@@ -295,6 +293,7 @@ class _BenefitTile extends StatelessWidget {
 class _SocialProof extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -302,14 +301,14 @@ class _SocialProof extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFFEF3C7), width: 1),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Text('⭐', style: TextStyle(fontSize: 20)),
-          SizedBox(width: 10),
+          const Text('⭐', style: TextStyle(fontSize: 20)),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "Minglab o'quvchilar Pro orqali ingliz tilini sevib o'rganmoqda.",
-              style: TextStyle(
+              l10n.speakingScreenSocialProof,
+              style: const TextStyle(
                 color: Color(0xFF8A6D3B),
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
@@ -338,6 +337,7 @@ class _AddonButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -366,7 +366,10 @@ class _AddonButton extends StatelessWidget {
                   const Icon(Icons.add_circle_outline_rounded, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    "${_formatPrice(addonPrice)} so'm → +$addonGrant ta suhbat",
+                    l10n.speakingScreenAddonButtonLabel(
+                      _formatPrice(addonPrice),
+                      addonGrant,
+                    ),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -396,6 +399,7 @@ class _SubscribeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: double.infinity,
       height: 56,
@@ -422,20 +426,20 @@ class _SubscribeButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Center(
+            child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Pro paketga obuna bo'lish",
-                    style: TextStyle(
+                    l10n.speakingScreenSubscribeButton,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(
+                  const SizedBox(width: 8),
+                  const Icon(
                     Icons.arrow_forward_rounded,
                     color: Colors.white,
                     size: 20,
@@ -457,15 +461,16 @@ class _DismissAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
         foregroundColor: const Color(0xFF6B7280),
         padding: const EdgeInsets.symmetric(vertical: 10),
       ),
-      child: const Text(
-        'Keyinroq qaytaman',
-        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+      child: Text(
+        l10n.speakingScreenDismissLater,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
       ),
     );
   }

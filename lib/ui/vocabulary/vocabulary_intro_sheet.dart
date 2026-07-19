@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,6 +24,7 @@ class VocabularyIntroSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SizedBox.expand(
       child: DecoratedBox(
         decoration: const BoxDecoration(
@@ -71,22 +73,22 @@ class VocabularyIntroSheet extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Lug'at mashqi",
-                                style: TextStyle(
+                                l10n.vocabularyTitle,
+                                style: const TextStyle(
                                   color: Color(0xFF0F172A),
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
-                                "So'zlarni ovoz bilan o'rganing",
-                                style: TextStyle(
+                                l10n.vocabularyIntroSubtitle,
+                                style: const TextStyle(
                                   color: Color(0xFF64748B),
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -98,56 +100,50 @@ class VocabularyIntroSheet extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 28),
-                    const _SectionTitle("Qanday ishlaydi?"),
+                    _SectionTitle(l10n.vocabularyHowItWorksTitle),
                     const SizedBox(height: 14),
-                    const _StepCard(
+                    _StepCard(
                       icon: '📖',
-                      title: "So'z ko'rsatiladi",
-                      body:
-                          "Ekranda inglizcha so'z va uning CEFR darajasi ko'rsatiladi.",
+                      title: l10n.vocabularyStep1Title,
+                      body: l10n.vocabularyStep1Body,
                     ),
                     const SizedBox(height: 10),
-                    const _StepCard(
+                    _StepCard(
                       icon: '🎙️',
-                      title: "Tugmani ushlab gapiring",
-                      body:
-                          "Yumaloq mikrofon tugmasini bosib ushlab turing va so'zni gapirib yuboring. Qo'yib yuborganingizda audio serverga yuboriladi.",
+                      title: l10n.vocabularyStep2Title,
+                      body: l10n.vocabularyStep2Body,
                     ),
                     const SizedBox(height: 10),
-                    const _StepCard(
+                    _StepCard(
                       icon: '🤖',
-                      title: "AI baholaydi",
-                      body:
-                          "Talaffuzingiz, mazmuniy to'g'riligi va gapda ishlatilishini sun'iy intellekt tekshiradi va fikr bildiradi.",
+                      title: l10n.vocabularyStep3Title,
+                      body: l10n.vocabularyStep3Body,
                     ),
                     const SizedBox(height: 10),
-                    const _StepCard(
+                    _StepCard(
                       icon: '✅',
-                      title: "To'g'ri bo'lsa o'chadi",
-                      body:
-                          "Agar to'g'ri talaffuz qilsangiz, so'z lug'atdan olib tashlanadi — uni o'zlashtirdingiz!",
+                      title: l10n.vocabularyStep4Title,
+                      body: l10n.vocabularyStep4Body,
                     ),
                     const SizedBox(height: 24),
-                    const _SectionTitle("Qo'shimcha tugmalar"),
+                    _SectionTitle(l10n.vocabularyExtraButtonsTitle),
                     const SizedBox(height: 14),
-                    const _ButtonInfoCard(
+                    _ButtonInfoCard(
                       emoji: '👍',
-                      color: Color(0xFF16A34A),
-                      bg: Color(0xFFF0FDF4),
-                      borderColor: Color(0xFFBBF7D0),
-                      title: "Yashil tugma — o'tkazib yuborish",
-                      body:
-                          "So'zni allaqachon bilsangiz yoki keyingisiga o'tmoqchi bo'lsangiz bosing.",
+                      color: const Color(0xFF16A34A),
+                      bg: const Color(0xFFF0FDF4),
+                      borderColor: const Color(0xFFBBF7D0),
+                      title: l10n.vocabularySkipButtonTitle,
+                      body: l10n.vocabularySkipButtonBody,
                     ),
                     const SizedBox(height: 10),
-                    const _ButtonInfoCard(
+                    _ButtonInfoCard(
                       emoji: '🤷',
-                      color: Color(0xFFB91C1C),
-                      bg: Color(0xFFFEF2F2),
-                      borderColor: Color(0xFFFECACA),
-                      title: "Qizil tugma — ta'rif ko'rish",
-                      body:
-                          "So'z ma'nosini bilmoqchi bo'lsangiz bosing — ta'rif va misol gapni ko'rasiz.",
+                      color: const Color(0xFFB91C1C),
+                      bg: const Color(0xFFFEF2F2),
+                      borderColor: const Color(0xFFFECACA),
+                      title: l10n.vocabularyDefinitionButtonTitle,
+                      body: l10n.vocabularyDefinitionButtonBody,
                     ),
                     const SizedBox(height: 8),
                   ],
@@ -171,9 +167,12 @@ class VocabularyIntroSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
-                    "Boshlash",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                  child: Text(
+                    l10n.vocabularyStart,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),

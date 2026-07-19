@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/chatbot/data/chatbot_dtos.dart';
 import 'package:ai_teacher/core/chatbot/presentation/chatbot_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,6 +76,7 @@ class _ChatbotViewState extends ConsumerState<ChatbotView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final async = ref.watch(chatbotControllerProvider);
 
     ref.listen(chatbotControllerProvider, (prev, next) {
@@ -113,10 +115,10 @@ class _ChatbotViewState extends ConsumerState<ChatbotView> {
         Expanded(
           child: async.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => const Center(
+            error: (e, _) => Center(
               child: Text(
-                'Chatbot yuklanmadi',
-                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                l10n.coursesChatbotLoadError,
+                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
               ),
             ),
             data: (state) => _MessageList(
@@ -196,6 +198,7 @@ class _EmptyHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 32),
       child: Column(
@@ -207,7 +210,7 @@ class _EmptyHint extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            text ?? 'Ingliz tili bo\'yicha\nbiror savol bering!',
+            text ?? l10n.coursesChatbotEmptyHint,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF94A3B8),
@@ -491,6 +494,7 @@ class _InputBarState extends State<_InputBar> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final canSend = widget.enabled && _hasText;
     return Container(
       color: Colors.white,
@@ -512,7 +516,7 @@ class _InputBarState extends State<_InputBar> {
               textInputAction: TextInputAction.send,
               onSubmitted: canSend ? (_) => widget.onSend() : null,
               decoration: InputDecoration(
-                hintText: 'Savolingizni yozing…',
+                hintText: l10n.coursesChatbotInputHint,
                 hintStyle: const TextStyle(
                   color: Color(0xFFCBD5E1),
                   fontSize: 14,

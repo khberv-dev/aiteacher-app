@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/call/data/call_repository.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,6 +42,7 @@ class _CallRatingSheetState extends ConsumerState<CallRatingSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         24,
@@ -74,19 +76,19 @@ class _CallRatingSheetState extends ConsumerState<CallRatingSheet> {
             child: Icon(Icons.star_rounded, size: 28, color: AppColors.primary),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Qo\'ng\'iroqni baholang',
-            style: TextStyle(
+          Text(
+            l10n.callRatingTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Mentor bilan bo\'lgan suhbatingiz\nqanday o\'tdi?',
+          Text(
+            l10n.callRatingSubtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -142,9 +144,9 @@ class _CallRatingSheetState extends ConsumerState<CallRatingSheet> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text(
-                      'Yuborish',
-                      style: TextStyle(
+                  : Text(
+                      l10n.callSubmit,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -155,9 +157,9 @@ class _CallRatingSheetState extends ConsumerState<CallRatingSheet> {
           const SizedBox(height: 10),
           TextButton(
             onPressed: _submitting ? null : () => Navigator.of(context).pop(),
-            child: const Text(
-              'O\'tkazib yuborish',
-              style: TextStyle(
+            child: Text(
+              l10n.callSkipRating,
+              style: const TextStyle(
                 color: Color(0xFF94A3B8),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

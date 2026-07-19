@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ReportVocabHero extends StatelessWidget {
@@ -19,6 +20,7 @@ class ReportVocabHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final progress = detail.nextLevel.targetSize == 0
         ? 0.0
         : (detail.activeSizeEstimate / detail.nextLevel.targetSize).clamp(
@@ -45,9 +47,9 @@ class ReportVocabHero extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "LUG'AT HAJMI",
-              style: TextStyle(
+            Text(
+              l10n.speakingReportVocabHeroTitle,
+              style: const TextStyle(
                 color: Color(0x4DFFFFFF),
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
@@ -69,11 +71,11 @@ class ReportVocabHero extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 6),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
-                    "so'z",
-                    style: TextStyle(
+                    l10n.speakingReportVocabHeroWordUnit,
+                    style: const TextStyle(
                       color: Color(0x4DFFFFFF),
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -83,38 +85,38 @@ class ReportVocabHero extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
-              "Faol lug'at hajmingiz (taxminiy)",
-              style: TextStyle(
+            Text(
+              l10n.speakingReportVocabHeroSubtitle,
+              style: const TextStyle(
                 color: Color(0x59FFFFFF),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 12),
-            const Row(
+            Row(
               children: [
                 Expanded(
                   child: _CompareTile(
-                    label: 'A2 DARAJA',
+                    label: l10n.speakingReportVocabHeroLevelA2,
                     value: '1,500 ✓',
-                    valueColor: Color(0xFF4ADE80),
+                    valueColor: const Color(0xFF4ADE80),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _CompareTile(
-                    label: 'B1 DARAJA',
+                    label: l10n.speakingReportVocabHeroLevelB1,
                     value: '3,000 ✓',
-                    valueColor: Color(0xFFF5B700),
+                    valueColor: const Color(0xFFF5B700),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: _CompareTile(
-                    label: 'B2 MAQSAD',
+                    label: l10n.speakingReportVocabHeroLevelB2Target,
                     value: '6,000 ↑',
-                    valueColor: Color(0xFF93C5FD),
+                    valueColor: const Color(0xFF93C5FD),
                   ),
                 ),
               ],
@@ -124,9 +126,11 @@ class ReportVocabHero extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${detail.nextLevel.level} GA: '
-                  '${_formatThousands(detail.activeSizeEstimate)} / '
-                  "${_formatThousands(detail.nextLevel.targetSize)} SO'Z",
+                  l10n.speakingReportVocabHeroProgressLabel(
+                    detail.nextLevel.level,
+                    _formatThousands(detail.activeSizeEstimate),
+                    _formatThousands(detail.nextLevel.targetSize),
+                  ),
                   style: const TextStyle(
                     color: Color(0x4DFFFFFF),
                     fontSize: 10,

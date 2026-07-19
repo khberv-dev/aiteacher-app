@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/writing_task/presentation/writing_task_list_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/writing_task/widget/writing_task_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +32,7 @@ class _WritingTaskListScreenState extends ConsumerState<WritingTaskListScreen> {
     });
 
     final async = ref.watch(writingTaskListControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -53,9 +55,9 @@ class _WritingTaskListScreenState extends ConsumerState<WritingTaskListScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'Yuklanmadi',
-                          style: TextStyle(
+                        Text(
+                          l10n.writingTaskListLoadError,
+                          style: const TextStyle(
                             color: Color(0xFF64748B),
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -66,7 +68,7 @@ class _WritingTaskListScreenState extends ConsumerState<WritingTaskListScreen> {
                           onPressed: () => ref
                               .read(writingTaskListControllerProvider.notifier)
                               .refresh(),
-                          child: const Text('Qayta urinish'),
+                          child: Text(l10n.commonRetry),
                         ),
                       ],
                     ),
@@ -118,6 +120,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
@@ -127,11 +130,11 @@ class _Header extends StatelessWidget {
             icon: const Icon(Icons.arrow_back_rounded),
             color: const Color(0xFF64748B),
           ),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
-                'Yozish vazifalari',
-                style: TextStyle(
+                l10n.writingTaskListTitle,
+                style: const TextStyle(
                   color: Color(0xFF0F172A),
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -153,6 +156,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -174,19 +178,19 @@ class _EmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              "Hali vazifalar yo'q",
-              style: TextStyle(
+            Text(
+              l10n.writingTaskListEmptyTitle,
+              style: const TextStyle(
                 color: Color(0xFF0F172A),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              "Birinchi yozish vazifangizni boshlang",
+            Text(
+              l10n.writingTaskListEmptySubtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontSize: 13,
                 height: 1.45,
@@ -206,9 +210,12 @@ class _EmptyState extends StatelessWidget {
                 ),
               ),
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text(
-                'Vazifa boshlash',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              label: Text(
+                l10n.writingTaskListStartButton,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -225,6 +232,7 @@ class _NewTaskFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -244,9 +252,9 @@ class _NewTaskFab extends StatelessWidget {
             ),
           ),
           icon: const Icon(Icons.add_rounded, size: 18),
-          label: const Text(
-            'Yangi vazifa',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          label: Text(
+            l10n.writingTaskListNewButton,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
           ),
         ),
       ),

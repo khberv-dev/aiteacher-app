@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/notification/data/notification_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +28,7 @@ class NotificationDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).padding.bottom;
+    final l10n = AppLocalizations.of(context);
 
     return DraggableScrollableSheet(
       expand: false,
@@ -75,7 +77,7 @@ class NotificationDetailSheet extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          _formatFullDate(notification.createdAt),
+                          _formatFullDate(notification.createdAt, l10n),
                           style: const TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 12,
@@ -155,24 +157,24 @@ class NotificationDetailSheet extends StatelessWidget {
   }
 }
 
-const _uzMonths = [
-  'yanvar',
-  'fevral',
-  'mart',
-  'aprel',
-  'may',
-  'iyun',
-  'iyul',
-  'avgust',
-  'sentabr',
-  'oktabr',
-  'noyabr',
-  'dekabr',
+List<String> _months(AppLocalizations l10n) => [
+  l10n.notificationsMonthJanuary,
+  l10n.notificationsMonthFebruary,
+  l10n.notificationsMonthMarch,
+  l10n.notificationsMonthApril,
+  l10n.notificationsMonthMay,
+  l10n.notificationsMonthJune,
+  l10n.notificationsMonthJuly,
+  l10n.notificationsMonthAugust,
+  l10n.notificationsMonthSeptember,
+  l10n.notificationsMonthOctober,
+  l10n.notificationsMonthNovember,
+  l10n.notificationsMonthDecember,
 ];
 
-String _formatFullDate(DateTime d) {
+String _formatFullDate(DateTime d, AppLocalizations l10n) {
   final local = d.toLocal();
-  final month = _uzMonths[local.month - 1];
+  final month = _months(l10n)[local.month - 1];
   final hour = local.hour.toString().padLeft(2, '0');
   final min = local.minute.toString().padLeft(2, '0');
   return '${local.day} $month ${local.year}, $hour:$min';

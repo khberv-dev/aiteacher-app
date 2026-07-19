@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class BattleIdleView extends StatelessWidget {
@@ -8,6 +9,7 @@ class BattleIdleView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
       child: Column(
@@ -35,9 +37,9 @@ class BattleIdleView extends StatelessWidget {
             child: const Text('⚔️', style: TextStyle(fontSize: 46)),
           ),
           const SizedBox(height: 28),
-          const Text(
-            "So'z Jangi",
-            style: TextStyle(
+          Text(
+            l10n.battleTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 28,
               fontWeight: FontWeight.w900,
@@ -45,10 +47,10 @@ class BattleIdleView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            "10 ta savol — kim ko'proq to'g'ri javob beradi?\nHaqiqiy vaqtda raqibingizni yenging!",
+          Text(
+            l10n.battleIdleDescription,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF64748B),
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -56,11 +58,11 @@ class BattleIdleView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
-          _RuleRow(icon: '📖', text: "So'zni inglizchadan tarjima qiling"),
+          _RuleRow(icon: '📖', text: l10n.battleRuleTranslate),
           const SizedBox(height: 12),
-          _RuleRow(icon: '4️⃣', text: '4 ta variant — faqat bittasi to\'g\'ri'),
+          _RuleRow(icon: '4️⃣', text: l10n.battleRuleOptions),
           const SizedBox(height: 12),
-          _RuleRow(icon: '🏆', text: "Ko'proq to'g'ri javob = g'alaba"),
+          _RuleRow(icon: '🏆', text: l10n.battleRuleWin),
           const Spacer(),
           SizedBox(
             width: double.infinity,
@@ -74,9 +76,12 @@ class BattleIdleView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                 ),
               ),
-              child: const Text(
-                'Raqib topish',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              child: Text(
+                l10n.battleFindOpponent,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ),

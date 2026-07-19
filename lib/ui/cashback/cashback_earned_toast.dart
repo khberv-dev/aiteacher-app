@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/cashback/data/cashback_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Top-of-screen toast card listing unclaimed cashbacks. Barrier is
@@ -25,6 +26,7 @@ class CashbackEarnedToast extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
+    final l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(16, 16 + media.padding.top, 16, 0),
@@ -56,23 +58,23 @@ class CashbackEarnedToast extends StatelessWidget {
                       children: [
                         const _CoinBadge(),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                "Yangi cashback",
-                                style: TextStyle(
+                                l10n.cashbackNewTitle,
+                                style: const TextStyle(
                                   color: Color(0xFF111111),
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
-                                "Sizga to'lov kelib tushdi",
-                                style: TextStyle(
+                                l10n.cashbackNewSubtitle,
+                                style: const TextStyle(
                                   color: Color(0xFF6B6860),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -122,9 +124,9 @@ class CashbackEarnedToast extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          "Yopish",
-                          style: TextStyle(
+                        child: Text(
+                          l10n.commonClose,
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                           ),
@@ -178,6 +180,7 @@ class _CashbackRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -200,7 +203,7 @@ class _CashbackRow extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Text(
-          '+ ${_formatPrice(item.amount)}',
+          '+ ${_formatPrice(item.amount, l10n)}',
           style: const TextStyle(
             color: Color(0xFFB45309),
             fontSize: 14,
@@ -212,7 +215,7 @@ class _CashbackRow extends StatelessWidget {
   }
 }
 
-String _formatPrice(num value) {
+String _formatPrice(num value, AppLocalizations l10n) {
   final whole = value.toInt();
   final s = whole.toString();
   final buf = StringBuffer();
@@ -220,5 +223,5 @@ String _formatPrice(num value) {
     if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
     buf.write(s[i]);
   }
-  return "${buf.toString()} so'm";
+  return '${buf.toString()} ${l10n.cashbackCurrencySuffix}';
 }

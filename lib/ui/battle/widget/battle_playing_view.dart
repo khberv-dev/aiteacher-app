@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/battle/data/battle_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class BattlePlayingView extends StatelessWidget {
@@ -16,6 +17,7 @@ class BattlePlayingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final word = state.word ?? '';
     final options = state.options;
     final answered = state.selectedOptionIndex != null;
@@ -50,9 +52,9 @@ class BattlePlayingView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Tarjima qiling:',
-                    style: TextStyle(
+                  Text(
+                    l10n.battlePlayingTranslatePrompt,
+                    style: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -111,6 +113,7 @@ class _ScoreBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (players.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -134,7 +137,7 @@ class _ScoreBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isMe ? 'Siz' : p.firstName,
+                  isMe ? l10n.battleYou : p.firstName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -174,6 +177,7 @@ class _ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tick = remainingSeconds;
 
     return Row(
@@ -183,7 +187,7 @@ class _ProgressBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Savol $current/$total',
+                l10n.battleQuestionProgress(current, total),
                 style: const TextStyle(
                   color: Color(0xFF64748B),
                   fontSize: 12,

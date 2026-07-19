@@ -9,6 +9,7 @@ import 'package:ai_teacher/core/plan/data/plan_dtos.dart';
 import 'package:ai_teacher/core/plan/presentation/available_plans_controller.dart';
 import 'package:ai_teacher/core/user/data/user_dtos.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/courses/widget/course_info_sheet.dart';
 import 'package:ai_teacher/ui/courses/widget/my_mentor_card.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
@@ -38,63 +39,57 @@ class _TData {
   final Color color;
 }
 
-const _kTestimonials = [
+List<_TData> _kTestimonials(AppLocalizations l10n) => [
   _TData(
     name: 'Aziz T.',
-    result: 'IELTS 6.5',
-    duration: '3 oyda',
-    text:
-        "O'qituvchi bo'lmaganida bu natijaga yeta olmas edim. Har haftadagi sessiya — bu shunchaki dars emas, bu javobgarlik.",
+    result: l10n.coursesTestimonial1Result,
+    duration: l10n.coursesTestimonial1Duration,
+    text: l10n.coursesTestimonial1Text,
     initial: 'A',
-    color: Color(0xFF818CF8),
+    color: const Color(0xFF818CF8),
   ),
   _TData(
     name: 'Malika R.',
-    result: 'IELTS 7.0',
-    duration: '5 oyda',
-    text:
-        "Aniq zaif tomonlarimni topdi va ular ustida ishlash rejasini tuzdi. Shaxsiy yondashuv — boshqa kurslardan farqi shu.",
+    result: l10n.coursesTestimonial2Result,
+    duration: l10n.coursesTestimonial2Duration,
+    text: l10n.coursesTestimonial2Text,
     initial: 'M',
-    color: Color(0xFFF472B6),
+    color: const Color(0xFFF472B6),
   ),
   _TData(
     name: 'Jasur K.',
-    result: 'B2 daraja',
-    duration: '4 oyda',
-    text:
-        "Oldin yolg'iz o'qidim, progress sezilmasdi. O'qituvchi bilan — har hafta o'sish ko'rdim. Endi ishonch bilan gaplashaman.",
+    result: l10n.coursesTestimonial3Result,
+    duration: l10n.coursesTestimonial3Duration,
+    text: l10n.coursesTestimonial3Text,
     initial: 'J',
-    color: Color(0xFFFBBF24),
+    color: const Color(0xFFFBBF24),
   ),
 ];
 
-const _kPlatformTestimonials = [
+List<_TData> _kPlatformTestimonials(AppLocalizations l10n) => [
   _TData(
     name: 'Dilnoza S.',
-    result: 'B1 daraja',
-    duration: '3 oyda',
-    text:
-        "Uydan chiqmasdan o'rgandim. AI Speaking bilan har kuni mashq qilgach, speaking kuchli tomonimga aylandi.",
+    result: l10n.coursesPlatformTestimonial1Result,
+    duration: l10n.coursesPlatformTestimonial1Duration,
+    text: l10n.coursesPlatformTestimonial1Text,
     initial: 'D',
-    color: Color(0xFF8B5CF6),
+    color: const Color(0xFF8B5CF6),
   ),
   _TData(
     name: 'Sardor M.',
-    result: 'IELTS 6.0',
-    duration: '4 oyda',
-    text:
-        "Ish bilan birga o'rganish uchun platforma juda qulay. Har kuni 30 daqiqa — natija o'zidan keldi.",
+    result: l10n.coursesPlatformTestimonial2Result,
+    duration: l10n.coursesPlatformTestimonial2Duration,
+    text: l10n.coursesPlatformTestimonial2Text,
     initial: 'S',
-    color: Color(0xFF6366F1),
+    color: const Color(0xFF6366F1),
   ),
   _TData(
     name: 'Feruza A.',
-    result: 'C1 daraja',
-    duration: '6 oyda',
-    text:
-        "Mock testlar va AI yordamchi bilan mustaqil tayyorlandim. O'qituvchisiz bu darajaga yetaman deb o'ylamagandim.",
+    result: l10n.coursesPlatformTestimonial3Result,
+    duration: l10n.coursesPlatformTestimonial3Duration,
+    text: l10n.coursesPlatformTestimonial3Text,
     initial: 'F',
-    color: Color(0xFFA78BFA),
+    color: const Color(0xFFA78BFA),
   ),
 ];
 
@@ -105,6 +100,7 @@ class CoursesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final async = ref.watch(coursesControllerProvider);
     final user = ref.watch(currentUserProvider).valueOrNull;
     final plans =
@@ -121,9 +117,9 @@ class CoursesPage extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Kurslarni yuklashda xatolik',
-                style: TextStyle(
+              Text(
+                l10n.coursesLoadError,
+                style: const TextStyle(
                   color: Color(0xFF64748B),
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -133,7 +129,7 @@ class CoursesPage extends ConsumerWidget {
               FilledButton(
                 onPressed: () =>
                     ref.read(coursesControllerProvider.notifier).refresh(),
-                child: const Text('Qayta urinish'),
+                child: Text(l10n.commonRetry),
               ),
             ],
           ),
@@ -149,8 +145,8 @@ class CoursesPage extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 2),
                   child: Text(
-                    'Kurslar',
-                    style: TextStyle(
+                    l10n.coursesTitle,
+                    style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
@@ -163,8 +159,8 @@ class CoursesPage extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                   child: Text(
-                    "O'qituvchi bilan yoki mustaqil — siz tanlaysiz",
-                    style: TextStyle(
+                    l10n.coursesSubtitle,
+                    style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -174,7 +170,7 @@ class CoursesPage extends ConsumerWidget {
               ),
               // ── My enrolled courses ─────────────────────────────────────
               if (state.mine.isNotEmpty) ...[
-                _SectionLabel(title: 'Mening kurslarim'),
+                _SectionLabel(title: l10n.coursesMyEnrolledSectionTitle),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList.separated(
@@ -237,6 +233,7 @@ class CoursesPage extends ConsumerWidget {
 
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel({required this.title});
+
   final String title;
 
   @override
@@ -262,10 +259,12 @@ class _SectionLabel extends StatelessWidget {
 
 class _ActiveSubscriptionBanner extends StatelessWidget {
   const _ActiveSubscriptionBanner({required this.subscription});
+
   final ActiveSubscription subscription;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final daysLeft = _daysLeft(subscription.endDate);
     return Container(
       padding: const EdgeInsets.all(14),
@@ -295,9 +294,9 @@ class _ActiveSubscriptionBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Obuna faol',
-                  style: TextStyle(
+                Text(
+                  l10n.coursesSubscriptionActiveLabel,
+                  style: const TextStyle(
                     color: Color(0xFF0F172A),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -305,7 +304,10 @@ class _ActiveSubscriptionBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${_formatDate(subscription.endDate)} gacha · $daysLeft kun qoldi',
+                  l10n.coursesSubscriptionStatus(
+                    _formatDate(subscription.endDate, context),
+                    daysLeft,
+                  ),
                   style: const TextStyle(
                     color: Color(0xFF64748B),
                     fontSize: 12,
@@ -383,11 +385,14 @@ class _TeacherAvatarState extends State<_TeacherAvatar>
 
 class _TeacherHeroSection extends StatelessWidget {
   const _TeacherHeroSection({required this.plans, required this.isSubscribed});
+
   final List<Plan> plans;
   final bool isSubscribed;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final testimonials = _kTestimonials(l10n);
     return Container(
       decoration: BoxDecoration(
         color: AppColors.navy,
@@ -461,16 +466,16 @@ class _TeacherHeroSection extends StatelessWidget {
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Icon(
+                              children: [
+                                const Icon(
                                   Icons.verified_rounded,
                                   size: 12,
                                   color: AppColors.primaryLight,
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
-                                  'MENTORLIK DASTURI',
-                                  style: TextStyle(
+                                  l10n.coursesMentorshipProgramBadge,
+                                  style: const TextStyle(
                                     color: AppColors.primaryLight,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
@@ -481,9 +486,9 @@ class _TeacherHeroSection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          const Text(
-                            'Haqiqiy nazorat —\nhaqiqiy natija',
-                            style: TextStyle(
+                          Text(
+                            l10n.coursesTeacherHeroTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
@@ -500,7 +505,7 @@ class _TeacherHeroSection extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Shaxsiy o'qituvchi bilan ingliz tilini 2x tezroq o'rganing. Har hafta nazorat, har kuni yo'nalish.",
+                  l10n.coursesTeacherHeroSubtitle,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.62),
                     fontSize: 13,
@@ -509,49 +514,49 @@ class _TeacherHeroSection extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
                 // ── Features ─────────────────────────────────────────────
-                const _DarkFeature(
+                _DarkFeature(
                   icon: Icons.calendar_month_rounded,
-                  text: "Haftada 3 marta individual dars",
+                  text: l10n.coursesTeacherFeature1,
                 ),
                 const SizedBox(height: 11),
-                const _DarkFeature(
+                _DarkFeature(
                   icon: Icons.route_rounded,
-                  text: "Maqsadingizga mos individual o'quv rejasi",
+                  text: l10n.coursesTeacherFeature2,
                 ),
                 const SizedBox(height: 11),
-                const _DarkFeature(
+                _DarkFeature(
                   icon: Icons.mark_chat_read_rounded,
-                  text: "Har bir mashqqa batafsil yozma feedback",
+                  text: l10n.coursesTeacherFeature3,
                 ),
                 const SizedBox(height: 11),
-                const _DarkFeature(
+                _DarkFeature(
                   icon: Icons.chat_bubble_rounded,
-                  text: "Ilovada shaxsiy chat orqali qo'llab-quvvatlash",
+                  text: l10n.coursesTeacherFeature4,
                 ),
                 const SizedBox(height: 11),
-                const _DarkFeature(
+                _DarkFeature(
                   icon: Icons.laptop_rounded,
-                  text: "To'liq platforma imkoniyatlari (video, AI, testlar)",
+                  text: l10n.coursesTeacherFeature5,
                 ),
                 const SizedBox(height: 26),
                 // ── Testimonials ─────────────────────────────────────────
-                _RowDivider(label: "O'QUVCHILAR AYTADI"),
+                _RowDivider(label: l10n.coursesTestimonialsDividerLabel),
                 const SizedBox(height: 16),
                 SizedBox(
                   height: 152,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     clipBehavior: Clip.none,
-                    itemCount: _kTestimonials.length,
+                    itemCount: testimonials.length,
                     separatorBuilder: (_, _) => const SizedBox(width: 10),
                     itemBuilder: (_, i) =>
-                        _TestimonialCard(data: _kTestimonials[i]),
+                        _TestimonialCard(data: testimonials[i]),
                   ),
                 ),
                 // ── Pricing ──────────────────────────────────────────────
                 if (!isSubscribed && plans.isNotEmpty) ...[
                   const SizedBox(height: 26),
-                  _RowDivider(label: 'NARXLAR'),
+                  _RowDivider(label: l10n.coursesPricingDividerLabel),
                   const SizedBox(height: 14),
                   for (final plan in plans)
                     _PlanPriceBlock(plan: plan, dark: true),
@@ -571,17 +576,17 @@ class _TeacherHeroSection extends StatelessWidget {
                         color: AppColors.primary.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.check_circle_rounded,
                           color: AppColors.primaryLight,
                           size: 18,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          "Siz o'qituvchi dasturiga ulanganisiz",
-                          style: TextStyle(
+                          l10n.coursesTeacherSubscribedBadge,
+                          style: const TextStyle(
                             color: AppColors.primaryLight,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -602,6 +607,7 @@ class _TeacherHeroSection extends StatelessWidget {
 
 class _DarkFeature extends StatelessWidget {
   const _DarkFeature({required this.icon, required this.text});
+
   final IconData icon;
   final String text;
 
@@ -638,6 +644,7 @@ class _DarkFeature extends StatelessWidget {
 
 class _RowDivider extends StatelessWidget {
   const _RowDivider({required this.label});
+
   final String label;
 
   @override
@@ -671,6 +678,7 @@ class _RowDivider extends StatelessWidget {
 
 class _TestimonialCard extends StatelessWidget {
   const _TestimonialCard({required this.data});
+
   final _TData data;
 
   @override
@@ -766,12 +774,14 @@ class _TestimonialCard extends StatelessWidget {
 
 class _PlanPriceBlock extends StatelessWidget {
   const _PlanPriceBlock({required this.plan, required this.dark});
+
   final Plan plan;
   final bool dark;
 
   @override
   Widget build(BuildContext context) {
     if (plan.prices.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
     final popularIdx = plan.prices.length >= 2 ? 1 : -1;
     return Column(
       children: [
@@ -780,7 +790,9 @@ class _PlanPriceBlock extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: _PriceRow(
               price: plan.prices[i],
-              planName: plan.name.isEmpty ? 'Tarif' : plan.name,
+              planName: plan.name.isEmpty
+                  ? l10n.coursesDefaultPlanName
+                  : plan.name,
               isPopular: i == popularIdx,
               dark: dark,
               hasMentor: plan.hasMentor,
@@ -813,6 +825,7 @@ class _PriceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final hasSaving = price.hasDiscount;
     final savingPct = hasSaving
         ? ((price.actualPrice - price.price) / price.actualPrice * 100).round()
@@ -844,7 +857,7 @@ class _PriceRow extends StatelessWidget {
         final paymentId = await PaymentTypesSheet.show(
           context,
           amount: price.price,
-          title: '$planName · ${price.month} oy',
+          title: '$planName · ${l10n.coursesMonthsShort(price.month)}',
         );
         if (paymentId != null && context.mounted) {
           context.goNamed(AppRoute.main.name, extra: MainScreen.coursesTab);
@@ -870,7 +883,7 @@ class _PriceRow extends StatelessWidget {
                     runSpacing: 4,
                     children: [
                       Text(
-                        '${price.month} oylik obuna',
+                        l10n.coursesMonthlySubscriptionLabel(price.month),
                         style: TextStyle(
                           color: textColor,
                           fontSize: 13,
@@ -887,9 +900,9 @@ class _PriceRow extends StatelessWidget {
                             color: const Color(0xFFFBBF24),
                             borderRadius: BorderRadius.circular(5),
                           ),
-                          child: const Text(
-                            'MASHHUR',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.coursesPopularBadge,
+                            style: const TextStyle(
                               color: Color(0xFF1A1200),
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
@@ -928,7 +941,7 @@ class _PriceRow extends StatelessWidget {
                   if (price.month > 1) ...[
                     const SizedBox(height: 2),
                     Text(
-                      "${_formatPrice(perMonth.round())}/oy",
+                      l10n.coursesPerMonthPrice(_formatPrice(perMonth.round())),
                       style: TextStyle(color: subColor, fontSize: 11),
                     ),
                   ],
@@ -970,7 +983,7 @@ class _PriceRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Text(
-                'Tanlash',
+                l10n.coursesSelectButton,
                 style: TextStyle(
                   color: isPopular
                       ? Colors.white
@@ -1061,6 +1074,8 @@ class _PlatformSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final testimonials = _kPlatformTestimonials(l10n);
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF0C0A1A),
@@ -1133,16 +1148,16 @@ class _PlatformSection extends StatelessWidget {
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Icon(
+                              children: [
+                                const Icon(
                                   Icons.auto_awesome_rounded,
                                   size: 12,
                                   color: _violetLight,
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
-                                  'PLATFORMA',
-                                  style: TextStyle(
+                                  l10n.coursesPlatformBadge,
+                                  style: const TextStyle(
                                     color: _violetLight,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
@@ -1153,9 +1168,9 @@ class _PlatformSection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          const Text(
-                            "O'z tezligingizda —\nprofessional darajaga",
-                            style: TextStyle(
+                          Text(
+                            l10n.coursesPlatformHeroTitle,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
@@ -1172,7 +1187,7 @@ class _PlatformSection extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "O'qituvchisiz ham muvaffaqiyat mumkin. AI va video kurslar bilan o'z jadvalingizda o'rganing.",
+                  l10n.coursesPlatformHeroSubtitle,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.62),
                     fontSize: 13,
@@ -1186,8 +1201,8 @@ class _PlatformSection extends StatelessWidget {
                     Expanded(
                       child: _PlatformFeatureCard(
                         icon: Icons.record_voice_over_rounded,
-                        title: "AI Speaking",
-                        subtitle: "Cheksiz muloqot",
+                        title: l10n.coursesFeatureAiSpeakingTitle,
+                        subtitle: l10n.coursesFeatureUnlimitedTalk,
                         color: _violetLight,
                       ),
                     ),
@@ -1195,8 +1210,8 @@ class _PlatformSection extends StatelessWidget {
                     Expanded(
                       child: _PlatformFeatureCard(
                         icon: Icons.play_circle_rounded,
-                        title: "Video Kurslar",
-                        subtitle: "Native speakerlar",
+                        title: l10n.coursesFeatureVideoCoursesTitle,
+                        subtitle: l10n.coursesFeatureNativeSpeakers,
                         color: _indigo,
                       ),
                     ),
@@ -1208,8 +1223,8 @@ class _PlatformSection extends StatelessWidget {
                     Expanded(
                       child: _PlatformFeatureCard(
                         icon: Icons.smart_toy_rounded,
-                        title: "AI Yordamchi",
-                        subtitle: "24/7 javob",
+                        title: l10n.coursesFeatureAiAssistantTitle,
+                        subtitle: l10n.coursesFeature247Response,
                         color: const Color(0xFF34D399),
                       ),
                     ),
@@ -1217,8 +1232,8 @@ class _PlatformSection extends StatelessWidget {
                     Expanded(
                       child: _PlatformFeatureCard(
                         icon: Icons.quiz_rounded,
-                        title: "Mock Testlar",
-                        subtitle: "IELTS & CEFR",
+                        title: l10n.coursesFeatureMockTestsTitle,
+                        subtitle: l10n.coursesFeatureIeltsCefr,
                         color: const Color(0xFFF472B6),
                       ),
                     ),
@@ -1226,7 +1241,7 @@ class _PlatformSection extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
                 // ── CEFR level chips ─────────────────────────────────────
-                _RowDivider(label: 'DARAJALAR'),
+                _RowDivider(label: l10n.coursesLevelsDividerLabel),
                 const SizedBox(height: 12),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -1245,23 +1260,23 @@ class _PlatformSection extends StatelessWidget {
                 ),
                 // ── Testimonials ─────────────────────────────────────────
                 const SizedBox(height: 26),
-                _RowDivider(label: "O'QUVCHILAR AYTADI"),
+                _RowDivider(label: l10n.coursesTestimonialsDividerLabel),
                 const SizedBox(height: 16),
                 SizedBox(
                   height: 152,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     clipBehavior: Clip.none,
-                    itemCount: _kPlatformTestimonials.length,
+                    itemCount: testimonials.length,
                     separatorBuilder: (_, _) => const SizedBox(width: 10),
                     itemBuilder: (_, i) =>
-                        _TestimonialCard(data: _kPlatformTestimonials[i]),
+                        _TestimonialCard(data: testimonials[i]),
                   ),
                 ),
                 // ── Pricing ──────────────────────────────────────────────
                 if (!isSubscribed && plans.isNotEmpty) ...[
                   const SizedBox(height: 26),
-                  _RowDivider(label: 'NARXLAR'),
+                  _RowDivider(label: l10n.coursesPricingDividerLabel),
                   const SizedBox(height: 14),
                   for (final plan in plans)
                     _PlanPriceBlock(plan: plan, dark: true),
@@ -1279,17 +1294,17 @@ class _PlatformSection extends StatelessWidget {
                       borderRadius: BorderRadius.circular(11),
                       border: Border.all(color: _violet.withValues(alpha: 0.3)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.check_circle_rounded,
                           color: _violetLight,
                           size: 18,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          "Siz platforma obunasida",
-                          style: TextStyle(
+                          l10n.coursesPlatformSubscribedBadge,
+                          style: const TextStyle(
                             color: _violetLight,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -1368,6 +1383,7 @@ class _PlatformFeatureCard extends StatelessWidget {
 
 class _LevelChip extends StatelessWidget {
   const _LevelChip({required this.level});
+
   final String level;
 
   @override
@@ -1398,6 +1414,7 @@ class _LevelChip extends StatelessWidget {
 
 class _EnrolledCourseCard extends StatelessWidget {
   const _EnrolledCourseCard({required this.course});
+
   final Course course;
 
   @override
@@ -1483,6 +1500,7 @@ class _EnrolledCourseCard extends StatelessWidget {
 
 class _CourseCover extends StatelessWidget {
   const _CourseCover({required this.coverUrl});
+
   final String? coverUrl;
 
   @override
@@ -1534,12 +1552,31 @@ const _uzMonths = [
   'dekabr',
 ];
 
-String _formatDate(DateTime d) {
+const _enMonths = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+String _formatDate(DateTime d, BuildContext context) {
   final local = d.toLocal();
+  final isEn = Localizations.localeOf(context).languageCode == 'en';
+  final months = isEn ? _enMonths : _uzMonths;
   final month = (local.month >= 1 && local.month <= 12)
-      ? _uzMonths[local.month - 1]
+      ? months[local.month - 1]
       : '';
-  return '${local.day}-$month ${local.year}';
+  return isEn
+      ? '$month ${local.day}, ${local.year}'
+      : '${local.day}-$month ${local.year}';
 }
 
 int _daysLeft(DateTime endDate) {

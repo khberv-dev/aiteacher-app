@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/router/app_router.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/vocabulary/vocabulary_intro_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ class MiniCardsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
       child: Row(
@@ -19,7 +21,7 @@ class MiniCardsRow extends StatelessWidget {
             child: _MiniCard(
               key: vocabularyKey,
               icon: Icons.menu_book_outlined,
-              titleLines: const ['Kundalik', "lug'atlar"],
+              titleLines: l10n.homeVocabMiniCardTitle.split('\n'),
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -34,7 +36,7 @@ class MiniCardsRow extends StatelessWidget {
             child: _MiniCard(
               key: battleKey,
               icon: Icons.sports_esports_outlined,
-              titleLines: const ["So'z", 'Jangi'],
+              titleLines: l10n.homeBattleMiniCardTitle.split('\n'),
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

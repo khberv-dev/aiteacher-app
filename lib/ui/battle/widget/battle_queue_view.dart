@@ -1,4 +1,5 @@
 import 'package:ai_teacher/core/battle/data/battle_dtos.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class BattleQueueView extends StatefulWidget {
@@ -32,6 +33,7 @@ class _BattleQueueViewState extends State<BattleQueueView>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final count = widget.lobbyPlayers.length;
     const max = 4;
 
@@ -69,9 +71,9 @@ class _BattleQueueViewState extends State<BattleQueueView>
             ),
           ),
           const SizedBox(height: 28),
-          const Text(
-            'Lobbyda kutilmoqda…',
-            style: TextStyle(
+          Text(
+            l10n.battleQueueWaitingTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -82,7 +84,7 @@ class _BattleQueueViewState extends State<BattleQueueView>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '$count/$max oyinchi',
+                l10n.battleQueuePlayerCount(count, max),
                 style: const TextStyle(
                   color: Color(0xFF94A3B8),
                   fontSize: 14,
@@ -112,9 +114,9 @@ class _BattleQueueViewState extends State<BattleQueueView>
           const SizedBox(height: 40),
           TextButton(
             onPressed: widget.onCancel,
-            child: const Text(
-              'Bekor qilish',
-              style: TextStyle(
+            child: Text(
+              l10n.commonCancel,
+              style: const TextStyle(
                 color: Color(0xFF94A3B8),
                 fontWeight: FontWeight.w700,
               ),

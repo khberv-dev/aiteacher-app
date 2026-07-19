@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,7 @@ class ReportRadarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final entries = <_RadarSkill>[
       _RadarSkill('Speaking', skills.speaking, const Color(0xFFF5B700)),
       _RadarSkill('Vocabulary', skills.vocabulary, const Color(0xFF3B82F6)),
@@ -24,7 +26,7 @@ class ReportRadarCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ReportSectionLabel(text: "KO'NIKMALAR TAHLILI"),
+          ReportSectionLabel(text: l10n.speakingReportRadarSkillsSectionLabel),
           const SizedBox(height: 14),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,

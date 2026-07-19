@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class TrainingSummaryView extends StatelessWidget {
@@ -19,6 +20,7 @@ class TrainingSummaryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final accuracy = total == 0 ? 0 : (correct * 100 / total).round();
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -51,10 +53,10 @@ class TrainingSummaryView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          const Text(
-            "Mashq yakunlandi",
+          Text(
+            l10n.vocabularySummaryTitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 22,
               fontWeight: FontWeight.w900,
@@ -63,7 +65,7 @@ class TrainingSummaryView extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            "$total ta so'zdan $correct tasini bilding · $accuracy%",
+            l10n.vocabularySummaryStats(total, correct, accuracy),
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF6B7280),
@@ -76,7 +78,7 @@ class TrainingSummaryView extends StatelessWidget {
             children: [
               Expanded(
                 child: _Stat(
-                  label: 'To\'g\'ri',
+                  label: l10n.vocabularyCorrectLabel,
                   value: correct,
                   color: const Color(0xFF16A34A),
                   background: const Color(0xFFF0FDF4),
@@ -85,7 +87,7 @@ class TrainingSummaryView extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _Stat(
-                  label: 'Bilmadim',
+                  label: l10n.vocabularyIncorrectLabel,
                   value: incorrect,
                   color: const Color(0xFFB91C1C),
                   background: const Color(0xFFFEF2F2),
@@ -100,9 +102,12 @@ class TrainingSummaryView extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onRestart,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text(
-                "Yana mashq qilish",
-                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+              label: Text(
+                l10n.vocabularyRestart,
+                style: const TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -119,9 +124,9 @@ class TrainingSummaryView extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFF6B7280),
             ),
-            child: const Text(
-              "Bosh sahifaga qaytish",
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+            child: Text(
+              l10n.vocabularyBackToHome,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ),
         ],

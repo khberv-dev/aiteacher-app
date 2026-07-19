@@ -55,10 +55,9 @@ class OtpController extends Notifier<AuthActionState> {
   Future<bool> resend(RegistrationDraft draft) async {
     state = const AuthLoading();
     try {
-      await ref.read(authRepositoryProvider).requestOtp(
-        phoneNumber: draft.phoneNumber,
-        email: draft.email,
-      );
+      await ref
+          .read(authRepositoryProvider)
+          .requestOtp(phoneNumber: draft.phoneNumber, email: draft.email);
       state = const AuthIdle();
       return true;
     } on AuthException catch (e) {

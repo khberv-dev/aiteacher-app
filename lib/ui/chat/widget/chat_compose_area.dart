@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ChatComposeArea extends StatelessWidget {
@@ -34,6 +35,7 @@ class _ComposeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -55,11 +57,11 @@ class _ComposeRow extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 isCollapsed: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 12),
-                hintText: 'Xabar yozing...',
-                hintStyle: TextStyle(
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                hintText: l10n.chatMessageHint,
+                hintStyle: const TextStyle(
                   color: Color(0xFFBBBBBB),
                   fontSize: 13,
                   fontWeight: FontWeight.w400,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/chatbot/presentation/chatbot_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/courses/widget/chatbot_view.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +99,7 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
   @override
   Widget build(BuildContext context) {
     ref.watch(chatbotControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -113,7 +115,7 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
                 children: [
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.3,
-                    child: _buildVideoPlayer(),
+                    child: _buildVideoPlayer(l10n),
                   ),
                   Positioned(
                     top: 8,
@@ -152,7 +154,7 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
                     if (focused) _chewieCtrl?.pause();
                   },
                   onInputTyped: () => _chewieCtrl?.pause(),
-                  emptyHintText: 'Bu video dars haqida\nbiror savol bering!',
+                  emptyHintText: l10n.coursesVideoEmptyHint,
                   trailingAction: GestureDetector(
                     onTap: () {
                       if (_isPlaying) {
@@ -187,21 +189,21 @@ class _CourseVideoScreenState extends ConsumerState<CourseVideoScreen> {
     );
   }
 
-  Widget _buildVideoPlayer() {
+  Widget _buildVideoPlayer(AppLocalizations l10n) {
     if (_videoError) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline_rounded,
               size: 40,
               color: Color(0xFF94A3B8),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Video yuklanmadi',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+              l10n.coursesVideoLoadFailed,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
             ),
           ],
         ),

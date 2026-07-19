@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,7 @@ class ReportPriorityWords extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final styled = <_WordChip>[
       for (var i = 0; i < words.length; i++)
         _WordChip(words[i], _kinds[i % _kinds.length]),
@@ -41,7 +43,7 @@ class ReportPriorityWords extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ReportSectionLabel(text: "B2 UCHUN ZARUR PRIORITY SO'ZLAR"),
+            ReportSectionLabel(text: l10n.speakingReportPriorityWordsTitle),
             const SizedBox(height: 10),
             Wrap(
               spacing: 6,
@@ -114,6 +116,7 @@ class _Cta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
       decoration: BoxDecoration(
@@ -125,7 +128,7 @@ class _Cta extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              "📋  To'liq $total so'z ro'yxatini ko'rish",
+              l10n.speakingReportPriorityWordsViewAll(total),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,

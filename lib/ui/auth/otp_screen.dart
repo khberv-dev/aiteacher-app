@@ -5,6 +5,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/auth/data/auth_dtos.dart';
 import 'package:ai_teacher/core/auth/presentation/auth_action_state.dart';
 import 'package:ai_teacher/core/auth/presentation/otp_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/auth/widget/otp_app_bar.dart';
 import 'package:ai_teacher/ui/auth/widget/otp_progress_dots.dart';
 import 'package:ai_teacher/ui/auth/widget/otp_verify_button.dart';
@@ -97,25 +98,26 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     context.goNamed(AppRoute.main.name);
   }
 
-  String _maskedIdentifier() {
+  String _maskedIdentifier(AppLocalizations l10n) {
     final email = widget.draft.email;
     if (email != null && email.isNotEmpty) {
       final at = email.indexOf('@');
       if (at > 1) {
         final name = email.substring(0, at);
         final domain = email.substring(at);
-        final masked = '${name.substring(0, 1)}${'•' * (name.length - 1)}$domain';
-        return '$masked ga';
+        final masked =
+            '${name.substring(0, 1)}${'•' * (name.length - 1)}$domain';
+        return l10n.authOtpSentToTarget(masked);
       }
-      return '$email ga';
+      return l10n.authOtpSentToTarget(email);
     }
     final phone = widget.draft.phoneNumber ?? '';
     final digits = phone.replaceAll(RegExp(r'\D'), '');
-    if (digits.length < 6) return '$phone raqamiga';
+    if (digits.length < 6) return l10n.authOtpSentToPhone(phone);
     final country = digits.substring(0, 3);
     final head = digits.substring(3, 5);
     final tail = digits.substring(digits.length - 2);
-    return '+$country $head ••• ••$tail raqamiga';
+    return l10n.authOtpSentToPhone('+$country $head ••• ••$tail');
   }
 
   String _formatCountdown(int seconds) {
@@ -126,6 +128,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(otpControllerProvider);
     ref.listen<AuthActionState>(otpControllerProvider, (prev, next) {
       if (next is AuthFailure) {
@@ -203,7 +206,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              OtpAppBar(title: 'Tasdiqlash', onBack: _onBack),
+              OtpAppBar(title: l10n.authOtpAppBarTitle, onBack: _onBack),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -214,8 +217,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       const SizedBox(height: 22),
                       Text(
                         widget.draft.email != null
-                            ? 'Email kodni kiriting'
-                            : 'SMS kodni kiriting',
+                            ? l10n.authOtpEnterEmailCodeLabel
+                            : l10n.authOtpEnterSmsCodeLabel,
                         style: const TextStyle(
                           color: Color(0xFF1A1A1A),
                           fontSize: 21,
@@ -225,7 +228,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        _maskedIdentifier(),
+                        _maskedIdentifier(l10n),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppColors.primary,
@@ -235,7 +238,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         ),
                       ),
                       Text(
-                        '${OtpScreen.codeLength} xonali kod yuborildi',
+                        l10n.authOtpCodeSentCount(OtpScreen.codeLength),
                         style: const TextStyle(
                           color: Color(0xFF8A8580),
                           fontSize: 13,
@@ -280,23 +283,25 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       ),
                       const SizedBox(height: 18),
                       OtpVerifyButton(
-                        label: loading ? 'Tekshirilmoqda...' : 'Tasdiqlash',
+                        label: loading
+                            ? l10n.authOtpVerifyingLabel
+                            : l10n.authOtpVerifyButtonLabel,
                         enabled: canVerify,
                         onPressed: _onVerify,
                       ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
+                        children: [
+                          const Icon(
                             Icons.shield_outlined,
                             size: 12,
                             color: Color(0xFFB5B0A8),
                           ),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           Text(
-                            "Ma'lumotlaringiz himoyalangan",
-                            style: TextStyle(
+                            l10n.authOtpDataProtectedLabel,
+                            style: const TextStyle(
                               color: Color(0xFFB5B0A8),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -367,12 +372,13 @@ class _ResendRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
-          'Kodni olmadingizmi?',
-          style: TextStyle(
+        Text(
+          l10n.authOtpResendPromptLabel,
+          style: const TextStyle(
             color: Color(0xFF8A8580),
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -383,9 +389,9 @@ class _ResendRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: onResend,
-            child: const Text(
-              'Qayta yuborish',
-              style: TextStyle(
+            child: Text(
+              l10n.authOtpResendActionLabel,
+              style: const TextStyle(
                 color: AppColors.primary,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,

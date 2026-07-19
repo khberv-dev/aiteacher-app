@@ -1,6 +1,7 @@
 import 'package:ai_teacher/core/writing_task/data/writing_task_dtos.dart';
 import 'package:ai_teacher/core/writing_task/presentation/writing_task_controller.dart';
 import 'package:ai_teacher/core/writing_task/presentation/writing_task_list_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/writing_task/widget/writing_task_completed_view.dart';
 import 'package:ai_teacher/ui/writing_task/widget/writing_task_feedback_view.dart';
 import 'package:ai_teacher/ui/writing_task/widget/writing_task_step1_view.dart';
@@ -17,6 +18,7 @@ class WritingTaskScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(writingTaskControllerProvider(taskId));
+    final l10n = AppLocalizations.of(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -45,9 +47,9 @@ class WritingTaskScreen extends ConsumerWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
-                            'Vazifa yuklanmadi',
-                            style: TextStyle(
+                          Text(
+                            l10n.writingTaskLoadError,
+                            style: const TextStyle(
                               color: Color(0xFF64748B),
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -58,7 +60,7 @@ class WritingTaskScreen extends ConsumerWidget {
                             onPressed: () => ref.invalidate(
                               writingTaskControllerProvider(taskId),
                             ),
-                            child: const Text('Qayta urinish'),
+                            child: Text(l10n.commonRetry),
                           ),
                         ],
                       ),
@@ -138,6 +140,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
@@ -152,9 +155,9 @@ class _TopBar extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Yozish Vazifasi',
-                    style: TextStyle(
+                  Text(
+                    l10n.writingTaskScreenTitle,
+                    style: const TextStyle(
                       color: Color(0xFF0F172A),
                       fontSize: 15,
                       fontWeight: FontWeight.w800,

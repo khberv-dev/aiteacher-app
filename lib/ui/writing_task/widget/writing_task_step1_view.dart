@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class WritingTaskStep1View extends StatefulWidget {
@@ -40,6 +41,7 @@ class _WritingTaskStep1ViewState extends State<WritingTaskStep1View> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Expanded(
@@ -53,11 +55,11 @@ class _WritingTaskStep1ViewState extends State<WritingTaskStep1View> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Text(
-                  "O'zbek tiliga tarjima qiling",
-                  style: TextStyle(
+                  l10n.writingTaskStep1Instructions,
+                  style: const TextStyle(
                     color: Color(0xFF0F172A),
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -82,8 +84,7 @@ class _WritingTaskStep1ViewState extends State<WritingTaskStep1View> {
                       height: 1.5,
                     ),
                     decoration: InputDecoration(
-                      hintText:
-                          "Inglizcha matnni o'zbek tiliga tarjima qiling…",
+                      hintText: l10n.writingTaskStep1Hint,
                       hintStyle: const TextStyle(
                         color: Color(0xFFCBD5E1),
                         fontSize: 14,
@@ -114,7 +115,7 @@ class _WritingTaskStep1ViewState extends State<WritingTaskStep1View> {
           ),
         ),
         _SubmitBar(
-          label: 'Tarjimani yuborish',
+          label: l10n.writingTaskStep1SubmitButton,
           enabled: _hasText && !widget.isSubmitting,
           isLoading: widget.isSubmitting,
           onTap: () => widget.onSubmit(_ctrl.text.trim()),
@@ -132,6 +133,7 @@ class _OriginCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -171,9 +173,9 @@ class _OriginCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Inglizcha matn',
-                style: TextStyle(
+              Text(
+                l10n.writingTaskOriginTextLabel,
+                style: const TextStyle(
                   color: Color(0xFF94A3B8),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,

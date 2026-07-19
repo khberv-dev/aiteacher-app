@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/speaking/presentation/report_unlock_price.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/profile/payment_types_sheet.dart';
 import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:flutter/material.dart';
@@ -26,11 +27,12 @@ class UnlockReportSheet extends ConsumerWidget {
   }
 
   Future<void> _onPay(BuildContext context, int price) async {
+    final l10n = AppLocalizations.of(context);
     Navigator.of(context).pop();
     await PaymentTypesSheet.show(
       context,
       amount: price,
-      title: 'Hisobotni ochish',
+      title: l10n.speakingReportUnlockPaymentTitle,
       callbackUrl: 'https://ai.myteacher.uz/app/report',
       conversationId: conversationId,
     );
@@ -43,6 +45,7 @@ class UnlockReportSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final priceAsync = ref.watch(reportUnlockPriceProvider);
     final price = priceAsync.valueOrNull;
     return SafeArea(
@@ -66,10 +69,10 @@ class UnlockReportSheet extends ConsumerWidget {
             const SizedBox(height: 18),
             const Center(child: _Hero()),
             const SizedBox(height: 18),
-            const Text(
-              "Hisobotni to'liq oching",
+            Text(
+              l10n.speakingReportUnlockTitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF0F172A),
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -78,11 +81,10 @@ class UnlockReportSheet extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              "Bir martalik to'lov — bu hisobotning barcha qulflangan "
-              "tafsilotlari faqat shu hisobot uchun ochiladi. ",
+            Text(
+              l10n.speakingReportUnlockDescription,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF6B7280),
                 fontSize: 13.5,
                 fontWeight: FontWeight.w500,
@@ -105,9 +107,12 @@ class UnlockReportSheet extends ConsumerWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: const Color(0xFF6B7280),
                 ),
-                child: const Text(
-                  "Keyinroq",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                child: Text(
+                  l10n.sharedUpdateDialogLater,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -160,6 +165,7 @@ class _PriceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
@@ -171,23 +177,23 @@ class _PriceCard extends StatelessWidget {
         children: [
           const Text('💎', style: TextStyle(fontSize: 22)),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Bu hisobot uchun",
-                  style: TextStyle(
+                  l10n.speakingReportUnlockPriceCardLabel,
+                  style: const TextStyle(
                     color: Color(0xFF6B7280),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  "Bir martalik to'lov",
-                  style: TextStyle(
+                  l10n.speakingReportUnlockOneTimePayment,
+                  style: const TextStyle(
                     color: Color(0xFF0F172A),
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -207,7 +213,7 @@ class _PriceCard extends StatelessWidget {
             )
           else
             Text(
-              _formatPrice(amount!),
+              _formatPrice(l10n, amount!),
               style: const TextStyle(
                 color: Color(0xFF0F172A),
                 fontSize: 18,
@@ -231,6 +237,7 @@ class _PayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Opacity(
       opacity: enabled ? 1 : 0.5,
       child: SizedBox(
@@ -259,20 +266,20 @@ class _PayButton extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Center(
+              child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "To'lash",
-                      style: TextStyle(
+                      l10n.speakingReportUnlockPayButton,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Icon(
+                    const SizedBox(width: 8),
+                    const Icon(
                       Icons.arrow_forward_rounded,
                       color: Colors.white,
                       size: 20,
@@ -295,6 +302,7 @@ class _UnlimitedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: double.infinity,
       height: 50,
@@ -312,24 +320,24 @@ class _UnlimitedButton extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Row(
-              children: const [
-                Icon(
+              children: [
+                const Icon(
                   Icons.workspace_premium_rounded,
                   color: AppColors.primary,
                   size: 20,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "Cheksiz hisobotlar — obuna oling",
-                    style: TextStyle(
+                    l10n.speakingReportUnlockUnlimitedButton,
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.arrow_forward_rounded,
                   color: AppColors.primary,
                   size: 18,
@@ -343,7 +351,7 @@ class _UnlimitedButton extends StatelessWidget {
   }
 }
 
-String _formatPrice(num value) {
+String _formatPrice(AppLocalizations l10n, num value) {
   final whole = value.toInt();
   final s = whole.toString();
   final buf = StringBuffer();
@@ -351,5 +359,5 @@ String _formatPrice(num value) {
     if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
     buf.write(s[i]);
   }
-  return "${buf.toString()} so'm";
+  return '${buf.toString()} ${l10n.speakingReportUnlockCurrencySom}';
 }

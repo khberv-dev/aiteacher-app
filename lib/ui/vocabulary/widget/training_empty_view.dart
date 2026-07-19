@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Shown when the user has no vocabulary words yet — the server populates
@@ -10,6 +11,7 @@ class TrainingEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
       child: Column(
@@ -34,10 +36,10 @@ class TrainingEmptyView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          const Text(
-            "Lug'atingiz hali bo'sh",
+          Text(
+            l10n.vocabularyEmptyTitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -45,11 +47,10 @@ class TrainingEmptyView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            "AI Speaking mashqini yakunlang — siz uchun ustuvor so'zlar "
-            "shu yerda jamlanadi.",
+          Text(
+            l10n.vocabularyEmptyBody,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF6B7280),
               fontSize: 13.5,
               fontWeight: FontWeight.w600,
@@ -63,9 +64,12 @@ class TrainingEmptyView extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onStartSpeaking,
               icon: const Icon(Icons.mic_rounded),
-              label: const Text(
-                "AI Speaking ochish",
-                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w900),
+              label: Text(
+                l10n.vocabularyOpenSpeaking,
+                style: const TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,

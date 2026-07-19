@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ReportTopNav extends StatelessWidget {
@@ -8,16 +9,17 @@ class ReportTopNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
       child: Row(
         children: [
           _LightChip(icon: Icons.arrow_back_rounded, onTap: onBack),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Speaking Report',
-              style: TextStyle(
+              l10n.speakingReportTopNavTitle,
+              style: const TextStyle(
                 color: Color(0xFF1A1A1A),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,

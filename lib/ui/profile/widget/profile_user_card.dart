@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/data/network_config.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ProfileUserCard extends StatelessWidget {
@@ -26,6 +27,7 @@ class ProfileUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 20),
       child: Container(
@@ -74,13 +76,13 @@ class ProfileUserCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Row(
+                  Row(
                     children: [
                       _Tag(
-                        label: 'B1 Level',
-                        background: Color(0x330D9488),
-                        border: Color(0x400D9488),
-                        textColor: Color(0xFF2DD4BF),
+                        label: l10n.profileUserLevelBadge,
+                        background: const Color(0x330D9488),
+                        border: const Color(0x400D9488),
+                        textColor: const Color(0xFF2DD4BF),
                       ),
                     ],
                   ),

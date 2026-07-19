@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/cards/data/card_dtos.dart';
 import 'package:ai_teacher/core/cards/presentation/cards_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/profile/add_card_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,7 @@ class CardsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final async = ref.watch(cardsControllerProvider);
     final bottom = MediaQuery.of(context).padding.bottom;
 
@@ -53,10 +55,10 @@ class CardsSheet extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Kartalarim',
-                      style: TextStyle(
+                      l10n.profileCardsTitle,
+                      style: const TextStyle(
                         color: Color(0xFF0F172A),
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -74,9 +76,9 @@ class CardsSheet extends ConsumerWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Kartalar yuklanmadi',
-                        style: TextStyle(
+                      Text(
+                        l10n.profileCardsLoadError,
+                        style: const TextStyle(
                           color: Color(0xFF64748B),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -87,7 +89,7 @@ class CardsSheet extends ConsumerWidget {
                         onPressed: () => ref
                             .read(cardsControllerProvider.notifier)
                             .refresh(),
-                        child: const Text('Qayta urinish'),
+                        child: Text(l10n.commonRetry),
                       ),
                     ],
                   ),
@@ -122,9 +124,12 @@ class CardsSheet extends ConsumerWidget {
                   ),
                 ),
                 icon: const Icon(Icons.add_rounded, size: 20),
-                label: const Text(
-                  "Karta qo'shish",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                label: Text(
+                  l10n.profileAddCardAction,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -139,29 +144,30 @@ class CardsSheet extends ConsumerWidget {
     WidgetRef ref,
     UserCard card,
   ) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Kartani o\'chirish',
-          style: TextStyle(
+        title: Text(
+          l10n.profileDeleteCardTitle,
+          style: const TextStyle(
             color: Color(0xFF0F172A),
             fontSize: 17,
             fontWeight: FontWeight.w800,
           ),
         ),
         content: Text(
-          '${card.maskedNumber} kartasini o\'chirishni tasdiqlaysizmi?',
+          l10n.profileDeleteCardConfirmMessage(card.maskedNumber),
           style: const TextStyle(color: Color(0xFF475569), fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(
-              'Bekor qilish',
-              style: TextStyle(
+            child: Text(
+              l10n.commonCancel,
+              style: const TextStyle(
                 color: Color(0xFF64748B),
                 fontWeight: FontWeight.w600,
               ),
@@ -169,9 +175,9 @@ class CardsSheet extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(
-              "O'chirish",
-              style: TextStyle(
+            child: Text(
+              l10n.commonDelete,
+              style: const TextStyle(
                 color: Color(0xFFEF4444),
                 fontWeight: FontWeight.w800,
               ),
@@ -283,39 +289,42 @@ class _EmptyCardsView extends StatelessWidget {
   const _EmptyCardsView();
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 48),
-    child: Column(
-      children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: const BoxDecoration(
-            color: Color(0xFFEFF6FF),
-            shape: BoxShape.circle,
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Column(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: const BoxDecoration(
+              color: Color(0xFFEFF6FF),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.credit_card_off_outlined,
+              size: 36,
+              color: Color(0xFF2563EB),
+            ),
           ),
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.credit_card_off_outlined,
-            size: 36,
-            color: Color(0xFF2563EB),
+          const SizedBox(height: 16),
+          Text(
+            l10n.profileNoCardsTitle,
+            style: const TextStyle(
+              color: Color(0xFF0F172A),
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          "Kartalar yo'q",
-          style: TextStyle(
-            color: Color(0xFF0F172A),
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
+          const SizedBox(height: 6),
+          Text(
+            l10n.profileNoCardsSubtitle,
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
           ),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          "To'lov kartangizni qo'shing",
-          style: TextStyle(color: Color(0xFF64748B), fontSize: 13),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }

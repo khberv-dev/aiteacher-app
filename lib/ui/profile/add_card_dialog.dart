@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/cards/data/card_dtos.dart';
 import 'package:ai_teacher/core/cards/data/card_repository.dart';
 import 'package:ai_teacher/core/cards/presentation/cards_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/utils/uz_phone_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -116,44 +117,50 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
   }
 
   String _parseError(Object e) {
+    final l10n = AppLocalizations.of(context);
     final msg = e.toString();
-    if (msg.contains('400')) return "Karta ma'lumotlari noto'g'ri";
-    if (msg.contains('404')) return 'Karta topilmadi';
-    return 'Xatolik yuz berdi';
+    if (msg.contains('400')) return l10n.profileAddCardInvalidDataError;
+    if (msg.contains('404')) return l10n.profileAddCardNotFoundError;
+    return l10n.profileAddCardGenericError;
   }
 
   String? _validateCard(String? value) {
+    final l10n = AppLocalizations.of(context);
     final digits = value?.replaceAll(' ', '') ?? '';
-    if (digits.isEmpty) return 'Karta raqamini kiriting';
-    if (digits.length != 16) return "16 ta raqam bo'lishi kerak";
+    if (digits.isEmpty) return l10n.profileAddCardNumberRequired;
+    if (digits.length != 16) return l10n.profileAddCardNumberLengthError;
     return null;
   }
 
   String? _validateExpiry(String? value) {
+    final l10n = AppLocalizations.of(context);
     final v = value ?? '';
-    if (v.length != 5) return "Amal qilish muddatini kiriting";
+    if (v.length != 5) return l10n.profileAddCardExpiryRequired;
     final month = int.tryParse(v.split('/').first) ?? 0;
-    if (month < 1 || month > 12) return "Noto'g'ri oy";
+    if (month < 1 || month > 12) return l10n.profileAddCardExpiryInvalidMonth;
     return null;
   }
 
   String? _validatePhone(String? value) {
+    final l10n = AppLocalizations.of(context);
     final digits = UzPhoneFormatter.digitsOf(value ?? '');
-    if (digits.isEmpty) return 'Telefon raqamini kiriting';
-    if (digits.length != 9) return "9 ta raqam bo'lishi kerak";
+    if (digits.isEmpty) return l10n.profileAddCardPhoneRequired;
+    if (digits.length != 9) return l10n.profileAddCardPhoneLengthError;
     return null;
   }
 
   String? _validateOtp(String? value) {
+    final l10n = AppLocalizations.of(context);
     final v = value?.trim() ?? '';
-    if (v.isEmpty) return 'Kodni kiriting';
-    if (v.length != 6) return '6 ta raqam kiriting';
+    if (v.isEmpty) return l10n.profileAddCardOtpRequired;
+    if (v.length != 6) return l10n.profileAddCardOtpLengthError;
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding = MediaQuery.of(context).viewInsets.bottom +
+    final bottomPadding =
+        MediaQuery.of(context).viewInsets.bottom +
         MediaQuery.of(context).padding.bottom;
     return Padding(
       padding: EdgeInsets.only(bottom: bottomPadding),
@@ -162,6 +169,7 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
   }
 
   Widget _buildFormSheet() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,10 +194,10 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "Karta qo'shish",
-                  style: TextStyle(
+                  l10n.profileAddCardAction,
+                  style: const TextStyle(
                     color: Color(0xFF0F172A),
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -216,7 +224,7 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                   _ErrorBanner(_error!),
                   const SizedBox(height: 14),
                 ],
-                _FieldLabel('KARTA RAQAMI'),
+                _FieldLabel(l10n.profileAddCardNumberLabel),
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _cardCtrl,
@@ -240,7 +248,7 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _FieldLabel('TELEFON RAQAMI'),
+                          _FieldLabel(l10n.profileAddCardPhoneLabel),
                           const SizedBox(height: 6),
                           TextFormField(
                             controller: _phoneCtrl,
@@ -279,7 +287,7 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _FieldLabel('MUDDAT'),
+                          _FieldLabel(l10n.profileAddCardExpiryLabel),
                           const SizedBox(height: 6),
                           TextFormField(
                             controller: _expiryCtrl,
@@ -318,9 +326,9 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'Davom etish',
-                          style: TextStyle(
+                      : Text(
+                          l10n.profileAddCardContinueButton,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -336,6 +344,7 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
   }
 
   Widget _buildOtpSheet() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -349,20 +358,20 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                 onPressed: _loading
                     ? null
                     : () => setState(() {
-                          _step = _Step.form;
-                          _error = null;
-                          _otpCtrl.clear();
-                        }),
+                        _step = _Step.form;
+                        _error = null;
+                        _otpCtrl.clear();
+                      }),
                 icon: const Icon(
                   Icons.arrow_back_rounded,
                   color: Color(0xFF64748B),
                 ),
               ),
               const SizedBox(width: 4),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Tasdiqlash kodi',
-                  style: TextStyle(
+                  l10n.profileAddCardOtpTitle,
+                  style: const TextStyle(
                     color: Color(0xFF0F172A),
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -405,7 +414,9 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${_addResult.otpSentPhone} raqamiga tasdiqlash kodi yuborildi',
+                          l10n.profileAddCardOtpSentMessage(
+                            _addResult.otpSentPhone,
+                          ),
                           style: const TextStyle(
                             color: Color(0xFF475569),
                             fontSize: 13,
@@ -421,7 +432,7 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                   _ErrorBanner(_error!),
                   const SizedBox(height: 14),
                 ],
-                _FieldLabel('TASDIQLASH KODI'),
+                _FieldLabel(l10n.profileAddCardOtpLabel),
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _otpCtrl,
@@ -434,7 +445,13 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                   autofocus: true,
                   textAlign: TextAlign.center,
                   maxLength: 6,
-                  buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                  buildCounter:
+                      (
+                        _, {
+                        required currentLength,
+                        required isFocused,
+                        maxLength,
+                      }) => null,
                   onChanged: (v) {
                     if (v.length == 6) _onConfirm();
                   },
@@ -465,9 +482,9 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'Tasdiqlash',
-                          style: TextStyle(
+                      : Text(
+                          l10n.profileAddCardConfirmButton,
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -483,38 +500,37 @@ class _AddCardDialogState extends ConsumerState<AddCardDialog> {
   }
 
   InputDecoration _dec(String hint) => InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(
-          color: Color(0xFFCBD5E1),
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 1.5,
-        ),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEF4444)),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
-        ),
-      );
+    hintText: hint,
+    hintStyle: const TextStyle(
+      color: Color(0xFFCBD5E1),
+      fontSize: 15,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 1.5,
+    ),
+    filled: true,
+    fillColor: const Color(0xFFF8FAFC),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Color(0xFFEF4444)),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+    ),
+  );
 }
 
 class _SheetHandle extends StatelessWidget {
@@ -522,18 +538,18 @@ class _SheetHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Center(
-          child: Container(
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE2E8F0),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
+    padding: const EdgeInsets.symmetric(vertical: 10),
+    child: Center(
+      child: Container(
+        width: 36,
+        height: 4,
+        decoration: BoxDecoration(
+          color: const Color(0xFFE2E8F0),
+          borderRadius: BorderRadius.circular(2),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _FieldLabel extends StatelessWidget {
@@ -543,14 +559,14 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          color: Color(0xFF64748B),
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-      );
+    text,
+    style: const TextStyle(
+      color: Color(0xFF64748B),
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.5,
+    ),
+  );
 }
 
 class _ErrorBanner extends StatelessWidget {
@@ -560,32 +576,32 @@ class _ErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF1F2),
-          borderRadius: BorderRadius.circular(10),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFF1F2),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Row(
+      children: [
+        const Icon(
+          Icons.error_outline_rounded,
+          size: 16,
+          color: Color(0xFFEF4444),
         ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              size: 16,
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            message,
+            style: const TextStyle(
               color: Color(0xFFEF4444),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Color(0xFFEF4444),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 class _CardNumberFormatter extends TextInputFormatter {

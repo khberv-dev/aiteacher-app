@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/unlock_report_sheet.dart';
 import 'package:flutter/material.dart';
 
@@ -74,6 +75,7 @@ class _ProLockPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
@@ -89,19 +91,19 @@ class _ProLockPill extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.lock_rounded, color: Color(0xFFF5B700), size: 14),
-          SizedBox(width: 6),
+        children: [
+          const Icon(Icons.lock_rounded, color: Color(0xFFF5B700), size: 14),
+          const SizedBox(width: 6),
           Text(
-            "Ochish",
-            style: TextStyle(
+            l10n.speakingReportLockedCardOpenLabel,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),
-          SizedBox(width: 6),
-          Icon(
+          const SizedBox(width: 6),
+          const Icon(
             Icons.arrow_forward_rounded,
             color: AppColors.primaryLight,
             size: 14,

@@ -5,7 +5,6 @@ import 'package:ai_teacher/app/modal_queue/modal_queue_notifier.dart';
 import 'package:ai_teacher/app/modal_queue/modal_task.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
-import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/core/call/presentation/call_controller.dart';
 import 'package:ai_teacher/core/cashback/data/cashback_repository.dart';
 import 'package:ai_teacher/core/chat/data/chat_socket.dart';
@@ -13,6 +12,7 @@ import 'package:ai_teacher/core/chat/presentation/chat_unread_provider.dart';
 import 'package:ai_teacher/core/promo/data/promo_dtos.dart';
 import 'package:ai_teacher/core/promo/data/promo_socket.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_check_in_controller.dart';
+import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
 import 'package:ai_teacher/ui/blog/blog_page.dart' show CommentsPage;
 import 'package:ai_teacher/ui/cashback/cashback_earned_toast.dart';
 import 'package:ai_teacher/ui/courses/courses_page.dart';
@@ -261,7 +261,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           onTap: _onTabTap,
           chatBadge: ref.watch(chatUnreadProvider),
           hideCoursesTab:
-              ref.watch(currentUserProvider).valueOrNull?.phoneNumber
+              ref
+                  .watch(currentUserProvider)
+                  .valueOrNull
+                  ?.phoneNumber
                   .endsWith('990000000') ??
               false,
         ),

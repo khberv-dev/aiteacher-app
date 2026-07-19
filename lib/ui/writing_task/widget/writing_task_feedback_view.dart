@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/writing_task/widget/writing_feedback_html_text.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class WritingTaskFeedbackView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Expanded(
@@ -43,9 +45,9 @@ class WritingTaskFeedbackView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Baho va tahlil',
-                        style: TextStyle(
+                      Text(
+                        l10n.writingTaskFeedbackTitle,
+                        style: const TextStyle(
                           color: Color(0xFF0F172A),
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -61,7 +63,10 @@ class WritingTaskFeedbackView extends StatelessWidget {
             ),
           ),
         ),
-        _ContinueBar(label: "Qayta tarjimaga o'tish", onTap: onContinue),
+        _ContinueBar(
+          label: l10n.writingTaskFeedbackContinueButton,
+          onTap: onContinue,
+        ),
       ],
     );
   }
@@ -80,6 +85,7 @@ class _ScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -119,9 +125,9 @@ class _ScoreCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '1-bosqich: Tarjima',
-                  style: TextStyle(
+                Text(
+                  l10n.writingTaskFeedbackStepLabel,
+                  style: const TextStyle(
                     color: Color(0xFF64748B),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -130,10 +136,10 @@ class _ScoreCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   score >= 80
-                      ? 'Juda yaxshi!'
+                      ? l10n.writingTaskScoreExcellent
                       : score >= 60
-                      ? 'Yaxshi'
-                      : "Mashq qilish kerak",
+                      ? l10n.writingTaskScoreGood
+                      : l10n.writingTaskScoreNeedsPractice,
                   style: TextStyle(
                     color: _color,
                     fontSize: 16,
@@ -142,7 +148,7 @@ class _ScoreCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '100 dan $score ball',
+                  l10n.writingTaskScoreOutOf100(score),
                   style: const TextStyle(
                     color: Color(0xFF94A3B8),
                     fontSize: 12,

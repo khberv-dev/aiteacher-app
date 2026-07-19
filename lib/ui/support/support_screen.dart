@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/support/data/support_dtos.dart';
 import 'package:ai_teacher/core/support/presentation/support_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,7 +82,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
                       const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Center(
                     child: Text(
-                      'Yuklanmadi',
+                      AppLocalizations.of(context).supportLoadError,
                       style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 14,
@@ -115,6 +116,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -144,21 +146,21 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Yordam markazi',
-                style: TextStyle(
+                l10n.supportCenterTitle,
+                style: const TextStyle(
                   color: Color(0xFF0F172A),
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               Text(
-                'AI Teacher qo\'llab-quvvatlash',
-                style: TextStyle(
+                l10n.supportCenterSubtitle,
+                style: const TextStyle(
                   color: Color(0xFF94A3B8),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -250,6 +252,7 @@ class _MessageBubble extends StatelessWidget {
 class _EmptyHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -271,19 +274,19 @@ class _EmptyHint extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
-              'Yordam kerakmi?',
-              style: TextStyle(
+            Text(
+              l10n.supportEmptyTitle,
+              style: const TextStyle(
                 color: Color(0xFF0F172A),
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Xabar yuboring, tez orada javob beramiz',
+            Text(
+              l10n.supportEmptyMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF94A3B8),
                 fontSize: 13,
                 height: 1.45,
@@ -327,7 +330,7 @@ class _InputBar extends StatelessWidget {
               textInputAction: TextInputAction.send,
               onSubmitted: hasText ? (_) => onSend() : null,
               decoration: InputDecoration(
-                hintText: 'Xabaringizni yozing…',
+                hintText: AppLocalizations.of(context).supportMessageHint,
                 hintStyle: const TextStyle(
                   color: Color(0xFFCBD5E1),
                   fontSize: 14,

@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/auth/presentation/auth_action_state.dart';
 import 'package:ai_teacher/core/auth/presentation/register_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/auth/widget/auth_header.dart';
 import 'package:ai_teacher/ui/auth/widget/auth_identifier_toggle.dart';
 import 'package:ai_teacher/ui/auth/widget/labeled_field.dart';
@@ -103,37 +104,38 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
   }
 
-  String? _validateName(String? value) {
+  String? _validateName(String? value, AppLocalizations l10n) {
     final v = value?.trim() ?? '';
-    if (v.isEmpty) return 'Ismingizni kiriting';
-    if (v.length < 2) return 'Ism juda qisqa';
+    if (v.isEmpty) return l10n.authNameRequiredError;
+    if (v.length < 2) return l10n.authNameTooShortError;
     return null;
   }
 
-  String? _validatePhone(String? value) {
+  String? _validatePhone(String? value, AppLocalizations l10n) {
     final digits = UzPhoneFormatter.digitsOf(value ?? '');
-    if (digits.isEmpty) return 'Telefon raqamini kiriting';
-    if (digits.length != 9) return "9 ta raqam bo'lishi kerak";
+    if (digits.isEmpty) return l10n.authPhoneRequiredError;
+    if (digits.length != 9) return l10n.authPhoneDigitsError;
     return null;
   }
 
-  String? _validateEmail(String? value) {
+  String? _validateEmail(String? value, AppLocalizations l10n) {
     final v = value?.trim() ?? '';
-    if (v.isEmpty) return 'Emailni kiriting';
+    if (v.isEmpty) return l10n.authEmailRequiredError;
     final ok = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v);
-    if (!ok) return "Email noto'g'ri";
+    if (!ok) return l10n.authEmailInvalidError;
     return null;
   }
 
-  String? _validatePassword(String? value) {
+  String? _validatePassword(String? value, AppLocalizations l10n) {
     final v = value ?? '';
-    if (v.isEmpty) return 'Parolni kiriting';
-    if (v.length < 6) return 'Kamida 6 ta belgi';
+    if (v.isEmpty) return l10n.authPasswordRequiredError;
+    if (v.length < 6) return l10n.authPasswordMinLengthError;
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(registerControllerProvider);
     ref.listen<AuthActionState>(registerControllerProvider, (prev, next) {
       if (next is AuthFailure) {
@@ -159,9 +161,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           child: Column(
             children: [
               AuthHeader(
-                titleStart: 'Hisobingizni',
-                titleAccent: 'yarating',
-                subtitle: 'Bir daqiqa — umrbod foyda',
+                titleStart: l10n.authRegisterTitleStart,
+                titleAccent: l10n.authRegisterTitleAccent,
+                subtitle: l10n.authRegisterSubtitle,
                 onBack: _onBack,
               ),
               Expanded(
@@ -171,11 +173,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       LabeledField(
-                        label: 'ISMINGIZ',
-                        hint: 'Sardor Toshmatov',
+                        label: l10n.authNameLabel,
+                        hint: l10n.authNameHint,
                         controller: _nameController,
                         textInputAction: TextInputAction.next,
-                        validator: _validateName,
+                        validator: (value) => _validateName(value, l10n),
                       ),
                       const SizedBox(height: 16),
                       AuthIdentifierToggle(
@@ -186,28 +188,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const SizedBox(height: 16),
                       if (_identifierKind == AuthIdentifierKind.phone)
                         PhoneField(
-                          label: 'TELEFON RAQAM',
-                          hint: '90 123 45 67',
+                          label: l10n.authPhoneNumberLabel,
+                          hint: l10n.authPhoneNumberHint,
                           controller: _phoneController,
                           textInputAction: TextInputAction.next,
-                          validator: _validatePhone,
+                          validator: (value) => _validatePhone(value, l10n),
                         )
                       else
                         LabeledField(
-                          label: 'EMAIL',
-                          hint: 'name@example.com',
+                          label: l10n.authEmailLabel,
+                          hint: l10n.authEmailHint,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
-                          validator: _validateEmail,
+                          validator: (value) => _validateEmail(value, l10n),
                         ),
                       const SizedBox(height: 16),
                       PasswordField(
-                        label: 'PAROL',
-                        hint: 'Kamida 6 ta belgi',
+                        label: l10n.authPasswordLabel,
+                        hint: l10n.authPasswordMinLengthError,
                         controller: _passwordController,
                         textInputAction: TextInputAction.next,
-                        validator: _validatePassword,
+                        validator: (value) => _validatePassword(value, l10n),
                       ),
                       const SizedBox(height: 8),
                       InkWell(
@@ -239,9 +241,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 ),
                               ),
                               const SizedBox(width: 10),
-                              const Text(
-                                'Menda referal kod bor',
-                                style: TextStyle(
+                              Text(
+                                l10n.authHasReferralLabel,
+                                style: const TextStyle(
                                   color: Color(0xFF64748B),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -254,8 +256,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       if (_hasReferral) ...[
                         const SizedBox(height: 12),
                         LabeledField(
-                          label: 'REFERAL KOD',
-                          hint: 'A1B2C3D4',
+                          label: l10n.authReferralCodeLabel,
+                          hint: l10n.authReferralCodeHint,
                           controller: _referralController,
                           textInputAction: TextInputAction.done,
                           keyboardType: TextInputType.text,
@@ -274,18 +276,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     child: Column(
                       children: [
                         PrimaryButton(
-                          label: loading ? 'Yuborilmoqda...' : 'Davom etish  →',
+                          label: loading
+                              ? l10n.authRegisterLoadingLabel
+                              : l10n.authContinueButtonLabel,
                           enabled: !loading,
                           onPressed: _onSubmit,
                         ),
                         const SizedBox(height: 10),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            'Davom etish orqali Foydalanish shartlari va '
-                            'Maxfiylik siyosatiga rozilik bildirasiz',
+                            l10n.authTermsAgreementText,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Color(0xFFBBBBBB),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -297,9 +300,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Hisobingiz bormi?',
-                              style: TextStyle(
+                            Text(
+                              l10n.authHasAccountPrompt,
+                              style: const TextStyle(
                                 color: Color(0xFF888888),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -309,9 +312,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: _onLogin,
-                              child: const Text(
-                                'Kirish',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.authLoginLinkLabel,
+                                style: const TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,

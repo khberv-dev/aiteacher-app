@@ -1,5 +1,6 @@
 import 'package:ai_teacher/core/cashback/data/cashback_dtos.dart';
 import 'package:ai_teacher/core/cashback/presentation/cashback_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -43,6 +44,7 @@ class _CashbackTopRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -50,9 +52,9 @@ class _CashbackTopRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Jami cashback',
-                style: TextStyle(
+              Text(
+                l10n.homeCashbackTotalLabel,
+                style: const TextStyle(
                   color: Color(0x66FFFFFF),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -60,7 +62,7 @@ class _CashbackTopRow extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                _formatPrice(summary.total),
+                _formatPrice(summary.total, l10n.homeCurrencySom),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -78,12 +80,12 @@ class _CashbackTopRow extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text('🪙', style: TextStyle(fontSize: 14)),
-              SizedBox(width: 4),
+            children: [
+              const Text('🪙', style: TextStyle(fontSize: 14)),
+              const SizedBox(width: 4),
               Text(
-                'Cashback',
-                style: TextStyle(
+                l10n.homeCashbackBadgeLabel,
+                style: const TextStyle(
                   color: Color(0xFFF5B700),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -104,6 +106,7 @@ class _CashbackMeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final hasUnclaimed = summary.unclaimed > 0;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,8 +114,10 @@ class _CashbackMeta extends StatelessWidget {
         Expanded(
           child: Text(
             hasUnclaimed
-                ? "Olishga tayyor: ${_formatPrice(summary.unclaimed)}"
-                : "Yangi cashback'larni do'st referal qilib oling",
+                ? l10n.homeCashbackReadyToClaim(
+                    _formatPrice(summary.unclaimed, l10n.homeCurrencySom),
+                  )
+                : l10n.homeCashbackReferralHint,
             style: const TextStyle(
               color: Color(0x59FFFFFF),
               fontSize: 11,
@@ -125,7 +130,7 @@ class _CashbackMeta extends StatelessWidget {
   }
 }
 
-String _formatPrice(num value) {
+String _formatPrice(num value, String currencySuffix) {
   final whole = value.toInt();
   final s = whole.toString();
   final buf = StringBuffer();
@@ -133,5 +138,5 @@ String _formatPrice(num value) {
     if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
     buf.write(s[i]);
   }
-  return "${buf.toString()} so'm";
+  return "${buf.toString()} $currencySuffix";
 }

@@ -5,6 +5,7 @@ import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/core/speaking/data/speaking_repository.dart';
 import 'package:ai_teacher/core/speaking/presentation/speaking_controller.dart';
 import 'package:ai_teacher/core/student_activity/data/student_activity_socket.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/profile/subscription_details_sheet.dart';
 import 'package:ai_teacher/ui/speaking/limit_reached_sheet.dart';
 import 'package:ai_teacher/ui/speaking/widget/partner_avatar.dart';
@@ -101,10 +102,11 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
     final state = ref.read(speakingControllerProvider);
     if (state.analyzingReport) return;
     if (!state.readyForAnalyze || state.conversationId == null) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text("Hisobot uchun yana bir oz gaplashing")),
+          SnackBar(content: Text(l10n.speakingScreenNotEnoughForReport)),
         );
       return;
     }
@@ -162,11 +164,9 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
       _ => '00:00',
     };
 
-    final statusText = _statusText(state);
-    const fallback =
-        "Assalomu alaykum! Men sizning sun'iy intellekt yordamchingizman. "
-        "Qo'rqmasdan pastdagi mikrofon tugmasini bosing va o'zingizni inglizchada tanishtiring🤗 "
-        "(yoki shunchaki 'Hello' deb ko'ring😉)";
+    final l10n = AppLocalizations.of(context);
+    final statusText = _statusText(state, l10n);
+    final fallback = l10n.speakingScreenFallbackGreeting;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -229,12 +229,12 @@ class _SpeakingPartnerScreenState extends ConsumerState<SpeakingPartnerScreen> {
     super.dispose();
   }
 
-  String? _statusText(SpeakingState state) {
+  String? _statusText(SpeakingState state, AppLocalizations l10n) {
     switch (state.phase) {
       case SpeakingPhase.recording:
-        return "🎙️ I'm listening — go ahead!";
+        return l10n.speakingScreenListeningStatus;
       case SpeakingPhase.processing:
-        return '💭 Bir lahza... javob tayyorlanmoqda.';
+        return l10n.speakingScreenProcessingStatus;
       default:
         return null;
     }
@@ -398,39 +398,41 @@ class _RotatingWaitText extends StatefulWidget {
   State<_RotatingWaitText> createState() => _RotatingWaitTextState();
 }
 
+List<String> _waitingTexts(AppLocalizations l10n) => [
+  l10n.speakingScreenWaitText1,
+  l10n.speakingScreenWaitText2,
+  l10n.speakingScreenWaitText3,
+  l10n.speakingScreenWaitText4,
+  l10n.speakingScreenWaitText5,
+  l10n.speakingScreenWaitText6,
+  l10n.speakingScreenWaitText7,
+  l10n.speakingScreenWaitText8,
+  l10n.speakingScreenWaitText9,
+  l10n.speakingScreenWaitText10,
+  l10n.speakingScreenWaitText11,
+  l10n.speakingScreenWaitText12,
+  l10n.speakingScreenWaitText13,
+  l10n.speakingScreenWaitText14,
+  l10n.speakingScreenWaitText15,
+  l10n.speakingScreenWaitText16,
+  l10n.speakingScreenWaitText17,
+  l10n.speakingScreenWaitText18,
+  l10n.speakingScreenWaitText19,
+  l10n.speakingScreenWaitText20,
+  l10n.speakingScreenWaitText21,
+  l10n.speakingScreenWaitText22,
+  l10n.speakingScreenWaitText23,
+  l10n.speakingScreenWaitText24,
+  l10n.speakingScreenWaitText25,
+  l10n.speakingScreenWaitText26,
+  l10n.speakingScreenWaitText27,
+  l10n.speakingScreenWaitText28,
+  l10n.speakingScreenWaitText29,
+  l10n.speakingScreenWaitText30,
+];
+
 class _RotatingWaitTextState extends State<_RotatingWaitText> {
-  static const _texts = [
-    '💭 Bir lahza... javob tayyorlanmoqda.',
-    '🧠 AI miyasini isitmoqda...',
-    '📚 Oxford lug\'atiga qarayapman...',
-    '☕ Bir piyola choy ichib o\'ylayapman...',
-    '🌍 171,476 ingliz so\'zidan eng yaxshisini tanlayapman...',
-    '🤖 Beep boop... javob qurilmoqda...',
-    '🎭 Shekspir ham shuncha o\'ylagandir...',
-    '🔍 Google Tarjimondan yaxshiroq javob izlayapman...',
-    '🎯 Mukammal javob = AI + sabr...',
-    '😅 Bu savolni ChatGPT ham qiyin deb topdi...',
-    '🦜 Toʻtiqush ham bunday inglizchani bilmaydi...',
-    '🌀 Neyronlar ishlayapti, sabr qiling...',
-    '📡 Londonga signal yuborildi, javob kelmoqda...',
-    '🎩 Grammatika sehrgari ish ustida...',
-    '🧩 Jumlani yig\'ishtiryapman, deyarli tayyorlashdi...',
-    '🚀 Javob warp tezligida kelmoqda...',
-    '🌙 Hatto tunda ham inglizcha o\'rganiladi...',
-    '🎸 AI ham ba\'zan improvizatsiya qiladi...',
-    '🧊 Sovuqqonlik bilan eng zo\'r javobni izlayapman...',
-    '🎲 Random emas, puxta o\'ylaб javob berayapman...',
-    '🦁 Aslan ham inglizchani sekin o\'rgangan...',
-    '⌨️ 1000 so\'z per minut... lekin sifat bilan...',
-    '🌊 Fikrlar oqimi javobni shakllantiryapti...',
-    '🎪 Tilshunoslik sirki hozir ochiladi...',
-    '🍕 Yaxshi javob, xuddi yaxshi pizza — vaqt oladi...',
-    '🧲 Eng to\'g\'ri so\'zlarni tortib olayapman...',
-    '🪄 Hokimlik tayoqchasi ishga tushdi...',
-    '🦊 Ayyor AI hamma variantni ko\'rib chiqmoqda...',
-    '🌺 Gaplaring bog\'ida eng chiroyli javobni uzmoqdaman...',
-    '⚡ Tez bo\'laman deb va\'da bermagan edim, lekin urinaman...',
-  ];
+  static const int _textsCount = 30;
 
   int _index = 0;
   late final Timer _timer;
@@ -439,12 +441,12 @@ class _RotatingWaitTextState extends State<_RotatingWaitText> {
   @override
   void initState() {
     super.initState();
-    _index = _random.nextInt(_texts.length);
+    _index = _random.nextInt(_textsCount);
     _timer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;
       int next;
       do {
-        next = _random.nextInt(_texts.length);
+        next = _random.nextInt(_textsCount);
       } while (next == _index);
       setState(() => _index = next);
     });
@@ -458,6 +460,8 @@ class _RotatingWaitTextState extends State<_RotatingWaitText> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final texts = _waitingTexts(l10n);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 380),
       transitionBuilder: (child, animation) => FadeTransition(
@@ -471,7 +475,7 @@ class _RotatingWaitTextState extends State<_RotatingWaitText> {
         ),
       ),
       child: Text(
-        _texts[_index],
+        texts[_index],
         key: ValueKey(_index),
         textAlign: TextAlign.center,
         style: TextStyle(
@@ -633,6 +637,7 @@ class _AnalyzeHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final maxWidth = MediaQuery.sizeOf(context).width - 96;
     return Align(
       alignment: Alignment.centerRight,
@@ -672,8 +677,8 @@ class _AnalyzeHint extends StatelessWidget {
             Flexible(
               child: Text(
                 loading
-                    ? 'Hisobot tayyorlanmoqda...'
-                    : "Hisobot uchun tayyor — ✨ tugmasini bosing",
+                    ? l10n.speakingScreenReportPreparing
+                    : l10n.speakingScreenReportReadyHint,
                 style: const TextStyle(
                   color: Color(0xFF1340C4),
                   fontSize: 12,

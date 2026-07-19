@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/auth/presentation/auth_action_state.dart';
 import 'package:ai_teacher/core/auth/presentation/login_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/auth/widget/auth_header.dart';
 import 'package:ai_teacher/ui/auth/widget/auth_identifier_toggle.dart';
 import 'package:ai_teacher/ui/auth/widget/labeled_field.dart';
@@ -70,30 +71,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     context.goNamed(AppRoute.main.name);
   }
 
-  String? _validatePhone(String? value) {
+  String? _validatePhone(String? value, AppLocalizations l10n) {
     final digits = UzPhoneFormatter.digitsOf(value ?? '');
-    if (digits.isEmpty) return 'Telefon raqamini kiriting';
-    if (digits.length != 9) return "9 ta raqam bo'lishi kerak";
+    if (digits.isEmpty) return l10n.authPhoneRequiredError;
+    if (digits.length != 9) return l10n.authPhoneDigitsError;
     return null;
   }
 
-  String? _validateEmail(String? value) {
+  String? _validateEmail(String? value, AppLocalizations l10n) {
     final v = value?.trim() ?? '';
-    if (v.isEmpty) return 'Emailni kiriting';
+    if (v.isEmpty) return l10n.authEmailRequiredError;
     final ok = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v);
-    if (!ok) return "Email noto'g'ri";
+    if (!ok) return l10n.authEmailInvalidError;
     return null;
   }
 
-  String? _validatePassword(String? value) {
+  String? _validatePassword(String? value, AppLocalizations l10n) {
     final v = value ?? '';
-    if (v.isEmpty) return 'Parolni kiriting';
-    if (v.length < 6) return 'Kamida 6 ta belgi';
+    if (v.isEmpty) return l10n.authPasswordRequiredError;
+    if (v.length < 6) return l10n.authPasswordMinLengthError;
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(loginControllerProvider);
     ref.listen<AuthActionState>(loginControllerProvider, (prev, next) {
       if (next is AuthFailure) {
@@ -118,10 +120,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             children: [
               AuthHeader(
-                titleStart: 'Xush',
-                titleAccent: 'kelibsiz',
-                subtitle:
-                    "Hisobingizga kirish uchun ma'lumotlaringizni kiriting",
+                titleStart: l10n.authLoginTitleStart,
+                titleAccent: l10n.authLoginTitleAccent,
+                subtitle: l10n.authLoginSubtitle,
                 onBack: _onBack,
               ),
               Expanded(
@@ -138,29 +139,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 16),
                       if (_identifierKind == AuthIdentifierKind.phone)
                         PhoneField(
-                          label: 'TELEFON RAQAM',
-                          hint: '90 123 45 67',
+                          label: l10n.authPhoneNumberLabel,
+                          hint: l10n.authPhoneNumberHint,
                           controller: _phoneController,
                           textInputAction: TextInputAction.next,
-                          validator: _validatePhone,
+                          validator: (value) => _validatePhone(value, l10n),
                         )
                       else
                         LabeledField(
-                          label: 'EMAIL',
-                          hint: 'name@example.com',
+                          label: l10n.authEmailLabel,
+                          hint: l10n.authEmailHint,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
-                          validator: _validateEmail,
+                          validator: (value) => _validateEmail(value, l10n),
                         ),
                       const SizedBox(height: 16),
                       PasswordField(
-                        label: 'PAROL',
-                        hint: 'Parolingizni kiriting',
+                        label: l10n.authPasswordLabel,
+                        hint: l10n.authPasswordHint,
                         controller: _passwordController,
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => _onSubmit(),
-                        validator: _validatePassword,
+                        validator: (value) => _validatePassword(value, l10n),
                       ),
                       const SizedBox(height: 8),
                       Align(
@@ -168,11 +169,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: _onForgot,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Text(
-                              'Parolni unutdingizmi?',
-                              style: TextStyle(
+                              l10n.authForgotPasswordLabel,
+                              style: const TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -193,7 +194,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                       children: [
                         PrimaryButton(
-                          label: loading ? 'Kuting...' : 'Kirish  →',
+                          label: loading
+                              ? l10n.authLoginLoadingLabel
+                              : l10n.authLoginSubmitLabel,
                           enabled: !loading,
                           onPressed: _onSubmit,
                         ),
@@ -201,9 +204,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              "Hisobingiz yo'qmi?",
-                              style: TextStyle(
+                            Text(
+                              l10n.authNoAccountPrompt,
+                              style: const TextStyle(
                                 color: Color(0xFF888888),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -213,9 +216,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: _onSignUp,
-                              child: const Text(
-                                "Ro'yxatdan o'tish",
-                                style: TextStyle(
+                              child: Text(
+                                l10n.authSignUpLinkLabel,
+                                style: const TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,

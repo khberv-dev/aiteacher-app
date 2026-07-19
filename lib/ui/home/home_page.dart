@@ -2,6 +2,7 @@ import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/user/presentation/current_user_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/cashback/cashback_info_sheet.dart';
 import 'package:ai_teacher/ui/home/widget/cashback_card.dart';
 import 'package:ai_teacher/ui/home/widget/dictionary_card.dart';
@@ -51,54 +52,45 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _maybeShowIntro() {
     if (!mounted || _introEntry != null) return;
 
+    final l10n = AppLocalizations.of(context);
+
     final steps = [
       IntroStep(
         targetKey: _speakingKey,
-        title: 'AI Speaking Partner',
-        description:
-            "Sun'iy intellekt bilan ingliz tilida real suhbat quning. "
-            "Talaffuzingizni baholang va nutq ko'nikmalaringizni tez "
-            'rivojlantiring.',
+        title: l10n.homeIntroSpeakingTitle,
+        description: l10n.homeIntroSpeakingDescription,
         icon: Icons.record_voice_over_rounded,
         iconColor: AppColors.primary,
         iconBackground: AppColors.primarySubtle,
       ),
       IntroStep(
         targetKey: _vocabKey,
-        title: "Kundalik Lug'atlar",
-        description:
-            "Har kuni yangi so'zlar o'rganing. Smart kartochkalar va "
-            "intervalli takrorlash tizimi yordamida lug'atni kengaytiring.",
+        title: l10n.homeIntroVocabTitle,
+        description: l10n.homeIntroVocabDescription,
         icon: Icons.menu_book_rounded,
         iconColor: const Color(0xFF2563EB),
         iconBackground: const Color(0xFFEFF6FF),
       ),
       IntroStep(
         targetKey: _battleKey,
-        title: "So'z Jangi",
-        description:
-            "Boshqa o'quvchilar bilan real vaqtda so'z bilimingizni "
-            "sinab ko'ring. G'olib bo'ling va reytingda tepaga chiqing!",
+        title: l10n.homeIntroBattleTitle,
+        description: l10n.homeIntroBattleDescription,
         icon: Icons.sports_esports_rounded,
         iconColor: const Color(0xFFDC2626),
         iconBackground: const Color(0xFFFEF2F2),
       ),
       IntroStep(
         targetKey: _writingTaskKey,
-        title: 'AI Writing Task',
-        description:
-            "Yozish ko'nikmangizni sun'iy intellekt yordamida rivojlantiring. "
-            'Topshiriqlarni bajaring va batafsil fikr-mulohaza oling.',
+        title: l10n.homeIntroWritingTitle,
+        description: l10n.homeIntroWritingDescription,
         icon: Icons.edit_note_rounded,
         iconColor: const Color(0xFF7C3AED),
         iconBackground: const Color(0xFFF5F3FF),
       ),
       IntroStep(
         targetKey: _cashbackKey,
-        title: 'Cashback',
-        description:
-            "Har bir dars va topshiriq uchun cashback yig'ing. "
-            "To'plangan cashbackni keyingi to'lovlarda ishlating.",
+        title: l10n.homeIntroCashbackTitle,
+        description: l10n.homeIntroCashbackDescription,
         icon: Icons.account_balance_wallet_rounded,
         iconColor: const Color(0xFF059669),
         iconBackground: const Color(0xFFECFDF5),
@@ -125,10 +117,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     ref.listen(introTriggerProvider, (_, _) => _maybeShowIntro());
 
+    final l10n = AppLocalizations.of(context);
     final firstName = ref.watch(currentUserProvider).valueOrNull?.firstName;
     final greeting = firstName == null || firstName.isEmpty
-        ? 'Salom 👋'
-        : 'Salom, $firstName 👋';
+        ? l10n.homeGreetingNoName
+        : l10n.homeGreetingWithName(firstName);
 
     return Column(
       children: [
@@ -153,12 +146,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 const RadarCard(),
                 SectionHeader(
-                  title: 'Streak',
-                  actionLabel: 'Batafsil →',
+                  title: l10n.homeStreakSectionTitle,
+                  actionLabel: l10n.homeSeeMoreAction,
                   onAction: () => StreakSheet.show(context),
                 ),
                 const StreakCard(),
-                const SectionHeader(title: 'AI bilan suhbat'),
+                SectionHeader(title: l10n.homeChatSectionTitle),
                 LiveCard(
                   key: _speakingKey,
                   onStart: () => context.pushNamed(AppRoute.speaking.name),
@@ -167,21 +160,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                 DictionaryCard(
                   onTap: () => context.pushNamed(AppRoute.dictionary.name),
                 ),
-                const SectionHeader(title: 'AI Writing Task'),
+                SectionHeader(title: l10n.homeWritingSectionTitle),
                 WritingTaskCard(
                   key: _writingTaskKey,
                   onStart: () => context.pushNamed(AppRoute.writingTask.name),
                 ),
                 SectionHeader(
-                  title: 'Cashback',
-                  actionLabel: 'Batafsil →',
+                  title: l10n.homeCashbackSectionTitle,
+                  actionLabel: l10n.homeSeeMoreAction,
                   onAction: () => CashbackInfoSheet.show(context),
                 ),
                 CashbackCard(
                   key: _cashbackKey,
                   onTap: () => CashbackInfoSheet.show(context),
                 ),
-                const SectionHeader(title: "Mening o'sishim raqamlarda"),
+                SectionHeader(title: l10n.homeGrowthSectionTitle),
                 const StatsCard(),
                 const PageDots(length: 4, activeIndex: 0),
               ],

@@ -1,5 +1,6 @@
 import 'package:ai_teacher/core/streak/data/streak_dtos.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/streak/streak_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ class StreakCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final streakAsync = ref.watch(weeklyStreakProvider);
     final streak = streakAsync.valueOrNull ?? WeeklyStreak.empty;
     final days = streak.week;
@@ -42,7 +44,7 @@ class StreakCard extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '🔥 ${streak.currentStreak} kunlik seriya!',
+                      l10n.homeStreakDaysCount(streak.currentStreak),
                       style: const TextStyle(
                         color: Color(0xFF1A1A1A),
                         fontSize: 13,
@@ -51,8 +53,8 @@ class StreakCard extends ConsumerWidget {
                     ),
                     Text(
                       streak.daysLeftThisWeek > 0
-                          ? '${streak.daysLeftThisWeek} kun qoldi'
-                          : 'Hafta yopildi',
+                          ? l10n.homeStreakDaysLeft(streak.daysLeftThisWeek)
+                          : l10n.homeStreakWeekClosed,
                       style: const TextStyle(
                         color: Color(0xB3000000),
                         fontSize: 12,

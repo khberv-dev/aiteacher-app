@@ -1,5 +1,6 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/speaking/data/assessment.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -15,34 +16,35 @@ class ReportFluencyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final metrics = <_FluencyMetric>[
       _FluencyMetric(
         '⚡',
-        'Nutq tezligi',
+        l10n.speakingReportFluencyCardSpeechRateLabel,
         '${fluency.speechRateWpm}wpm',
         (fluency.speechRateWpm / 200).clamp(0.0, 1.0),
       ),
       _FluencyMetric(
         '⏸',
-        'Kamroq pauza',
+        l10n.speakingReportFluencyCardPauseControlLabel,
         '${fluency.pauseControl}%',
         fluency.pauseControl / 100,
       ),
       _FluencyMetric(
         '🎯',
-        'Aniq ifoda',
+        l10n.speakingReportFluencyCardClarityLabel,
         '${fluency.clarity}%',
         fluency.clarity / 100,
       ),
       _FluencyMetric(
         '🌊',
-        'Intonatsiya',
+        l10n.speakingReportFluencyCardIntonationLabel,
         '${fluency.intonation}%',
         fluency.intonation / 100,
       ),
       _FluencyMetric(
         '🔄',
-        "So'z xilma-xilligi",
+        l10n.speakingReportFluencyCardLexicalDiversityLabel,
         '${fluency.lexicalDiversity}%',
         fluency.lexicalDiversity / 100,
       ),
@@ -67,15 +69,17 @@ class ReportFluencyCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ReportSectionLabel(text: 'RAVONLIK (FLUENCY)'),
+            ReportSectionLabel(
+              text: l10n.speakingReportFluencyCardSectionLabel,
+            ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Text(
-                  'Umumiy ball',
-                  style: TextStyle(
+                Text(
+                  l10n.speakingReportFluencyCardOverallScoreLabel,
+                  style: const TextStyle(
                     color: Color(0xFF1A1A1A),
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -93,9 +97,9 @@ class ReportFluencyCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 2),
-                    const Text(
-                      '/100',
-                      style: TextStyle(
+                    Text(
+                      l10n.speakingReportFluencyCardOutOf100Label,
+                      style: const TextStyle(
                         color: Color(0xFF6B6860),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

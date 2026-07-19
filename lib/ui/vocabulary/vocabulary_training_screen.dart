@@ -3,6 +3,7 @@ import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/vocabulary/data/vocabulary_word.dart';
 import 'package:ai_teacher/core/vocabulary/data/word_status.dart';
 import 'package:ai_teacher/core/vocabulary/presentation/vocabulary_training_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/vocabulary/widget/hold_mic_button.dart';
 import 'package:ai_teacher/ui/vocabulary/widget/training_empty_view.dart';
 import 'package:ai_teacher/ui/vocabulary/widget/training_evaluation_card.dart';
@@ -98,6 +99,7 @@ class _TrainingBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(vocabularyTrainingControllerProvider.notifier);
+    final l10n = AppLocalizations.of(context);
     final current = state.current!;
     final showingResult =
         state.speakingPhase == SpeakingCheckPhase.showingResult &&
@@ -110,7 +112,7 @@ class _TrainingBody extends ConsumerWidget {
           TrainingProgressBar(
             currentIndex: state.currentIndex,
             total: state.batch.length,
-            statsSummary: _statsLine(state.stats),
+            statsSummary: _statsLine(l10n, state.stats),
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -222,12 +224,12 @@ class _CefrBadge extends StatelessWidget {
   }
 }
 
-String? _statsLine(Map<WordStatus, int>? stats) {
+String? _statsLine(AppLocalizations l10n, Map<WordStatus, int>? stats) {
   if (stats == null) return null;
   final n = stats[WordStatus.newWord] ?? 0;
   final l = stats[WordStatus.learning] ?? 0;
   final m = stats[WordStatus.mastered] ?? 0;
-  return "$n yangi · $l o'rganilmoqda · $m o'rganilgan";
+  return l10n.vocabularyStatsLine(n, l, m);
 }
 
 class _TopBar extends StatelessWidget {
@@ -237,6 +239,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 6, 16, 4),
       child: Row(
@@ -247,9 +250,9 @@ class _TopBar extends StatelessWidget {
             color: const Color(0xFF0F172A),
           ),
           const SizedBox(width: 4),
-          const Text(
-            "Lug'at mashqi",
-            style: TextStyle(
+          Text(
+            l10n.vocabularyTitle,
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -267,11 +270,12 @@ class _Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context);
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 30,
             height: 30,
             child: CircularProgressIndicator(
@@ -279,10 +283,10 @@ class _Loading extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation(AppColors.primary),
             ),
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Text(
-            "So'zlar tayyorlanmoqda…",
-            style: TextStyle(
+            l10n.vocabularyLoadingWords,
+            style: const TextStyle(
               color: Color(0xFF6B7280),
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -349,6 +353,7 @@ class _Error extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -360,10 +365,10 @@ class _Error extends StatelessWidget {
             size: 40,
           ),
           const SizedBox(height: 12),
-          const Text(
-            "Mashqlarni yuklab bo'lmadi",
+          Text(
+            l10n.vocabularyLoadError,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 16,
               fontWeight: FontWeight.w900,
@@ -388,7 +393,7 @@ class _Error extends StatelessWidget {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
-            child: const Text("Qayta urinish"),
+            child: Text(l10n.commonRetry),
           ),
         ],
       ),

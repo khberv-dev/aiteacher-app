@@ -1,17 +1,15 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ReportCoachCard extends StatelessWidget {
-  const ReportCoachCard({
-    super.key,
-    required this.tips,
-    this.subtitle = "Vocabulary bo'yicha",
-  });
+  const ReportCoachCard({super.key, required this.tips, this.subtitle});
 
   final List<String> tips;
-  final String subtitle;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Container(
@@ -59,9 +57,9 @@ class ReportCoachCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'AI Coach maslahat',
-                        style: TextStyle(
+                      Text(
+                        l10n.speakingReportCoachCardTitle,
+                        style: const TextStyle(
                           color: Color(0xFF1A1A1A),
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
@@ -69,7 +67,7 @@ class ReportCoachCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        subtitle,
+                        subtitle ?? l10n.speakingReportCoachCardSubtitleDefault,
                         style: const TextStyle(
                           color: Color(0xFF6B6860),
                           fontSize: 10,

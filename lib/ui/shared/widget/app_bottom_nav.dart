@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class NavTab {
@@ -30,59 +31,61 @@ class AppBottomNav extends StatelessWidget {
   final bool hideCoursesTab;
 
   // Each entry: (originalIndex, NavTab)
-  static const _allTabs = <(int, NavTab)>[
+  List<(int, NavTab)> _allTabs(AppLocalizations l10n) => <(int, NavTab)>[
     (
       0,
       NavTab(
-        label: 'Chat',
+        label: l10n.navTabChat,
         icon: Icons.chat_bubble_outline_rounded,
         iconColor: AppColors.primary,
-        iconBackground: Color(0xFFF0FDFA),
+        iconBackground: const Color(0xFFF0FDFA),
       ),
     ),
     (
       1,
       NavTab(
-        label: 'Kurs',
+        label: l10n.navTabCourses,
         icon: Icons.school_rounded,
-        iconColor: Color(0xFF22C55E),
-        iconBackground: Color(0xFFF0FDF4),
+        iconColor: const Color(0xFF22C55E),
+        iconBackground: const Color(0xFFF0FDF4),
       ),
     ),
     (
       2,
       NavTab(
-        label: 'Home',
+        label: l10n.navTabHome,
         icon: Icons.home_rounded,
         iconColor: AppColors.primary,
-        iconBackground: Color(0xFFCCFBF1),
+        iconBackground: const Color(0xFFCCFBF1),
       ),
     ),
     (
       3,
       NavTab(
-        label: 'Izohlar',
+        label: l10n.navTabComments,
         icon: Icons.forum_outlined,
-        iconColor: Color(0xFFFB923C),
-        iconBackground: Color(0xFFFFF7ED),
+        iconColor: const Color(0xFFFB923C),
+        iconBackground: const Color(0xFFFFF7ED),
       ),
     ),
     (
       4,
       NavTab(
-        label: 'Profil',
+        label: l10n.navTabProfile,
         icon: Icons.person_outline_rounded,
-        iconColor: Color(0xFFA855F7),
-        iconBackground: Color(0xFFFDF4FF),
+        iconColor: const Color(0xFFA855F7),
+        iconBackground: const Color(0xFFFDF4FF),
       ),
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final allTabs = _allTabs(l10n);
     final tabs = hideCoursesTab
-        ? _allTabs.where((e) => e.$1 != 1).toList()
-        : _allTabs;
+        ? allTabs.where((e) => e.$1 != 1).toList()
+        : allTabs;
 
     return Container(
       decoration: BoxDecoration(

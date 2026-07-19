@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
 import 'package:ai_teacher/core/dictionary/data/definition_parser.dart';
 import 'package:ai_teacher/core/dictionary/data/dictionary_word_ref.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class DictionaryDefinitionSheet extends StatefulWidget {
@@ -54,6 +55,7 @@ class _DictionaryDefinitionSheetState extends State<DictionaryDefinitionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final entry = widget.wordRef.entry;
     final parsed = parseDefinition(entry.definition, entry.word);
 
@@ -138,7 +140,7 @@ class _DictionaryDefinitionSheetState extends State<DictionaryDefinitionSheet> {
               ),
             ),
           const SizedBox(height: 18),
-          const _Label("TA'RIF"),
+          _Label(l10n.dictionaryDefinitionLabel),
           const SizedBox(height: 6),
           if (parsed.senses.isNotEmpty)
             for (final sense in parsed.senses)
@@ -164,18 +166,18 @@ class _DictionaryDefinitionSheetState extends State<DictionaryDefinitionSheet> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.info_outline_rounded,
                     size: 18,
                     color: Color(0xFF94A3B8),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Ta'rif topilmadi",
-                      style: TextStyle(
+                      l10n.dictionaryDefinitionNotFound,
+                      style: const TextStyle(
                         color: Color(0xFF94A3B8),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -198,9 +200,12 @@ class _DictionaryDefinitionSheetState extends State<DictionaryDefinitionSheet> {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: const Text(
-                'Yopish',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              child: Text(
+                l10n.commonClose,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

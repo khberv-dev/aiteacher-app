@@ -3,9 +3,11 @@ import 'dart:io' show Platform;
 
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:ai_teacher/app/theme/app_theme.dart';
+import 'package:ai_teacher/core/locale/presentation/locale_controller.dart';
 import 'package:ai_teacher/core/promo/data/promo_socket.dart';
 import 'package:ai_teacher/core/session/presentation/session_controller.dart';
 import 'package:ai_teacher/core/update/update_checker.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/main/main_screen.dart';
 import 'package:ai_teacher/ui/shared/widget/update_dialog.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -161,10 +163,14 @@ class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(localeControllerProvider);
     return MaterialApp.router(
       title: 'AI Teacher',
       theme: AppTheme.light,
       routerConfig: router,
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

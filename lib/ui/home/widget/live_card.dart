@@ -1,4 +1,5 @@
 import 'package:ai_teacher/app/theme/app_colors.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class LiveCard extends StatelessWidget {
@@ -8,6 +9,7 @@ class LiveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
       child: GestureDetector(
@@ -38,9 +40,9 @@ class LiveCard extends StatelessWidget {
                   children: [
                     const _LiveBadge(),
                     const SizedBox(height: 8),
-                    const Text(
-                      'AI Speaking Partner',
-                      style: TextStyle(
+                    Text(
+                      l10n.homeLiveCardTitle,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
@@ -66,6 +68,7 @@ class _LiveBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -74,12 +77,12 @@ class _LiveBadge extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          _PulseDot(),
-          SizedBox(width: 5),
+        children: [
+          const _PulseDot(),
+          const SizedBox(width: 5),
           Text(
-            'JONLI',
-            style: TextStyle(
+            l10n.homeLiveBadgeLabel,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 10,
               fontWeight: FontWeight.w800,
@@ -113,6 +116,7 @@ class _StartPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -122,9 +126,9 @@ class _StartPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Boshlash',
-            style: TextStyle(
+          Text(
+            l10n.homeStartAction,
+            style: const TextStyle(
               color: AppColors.primary,
               fontSize: 13,
               fontWeight: FontWeight.w800,

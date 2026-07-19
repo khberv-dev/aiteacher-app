@@ -1,5 +1,6 @@
 import 'package:ai_teacher/core/streak/data/streak_dtos.dart';
 import 'package:ai_teacher/core/streak/presentation/streak_controller.dart';
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
@@ -19,6 +20,7 @@ class StreakSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final streakAsync = ref.watch(weeklyStreakProvider);
     final streak = streakAsync.valueOrNull ?? WeeklyStreak.empty;
     final isLoading = streakAsync.isLoading && streakAsync.valueOrNull == null;
@@ -51,9 +53,9 @@ class StreakSheet extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Streak',
-                      style: TextStyle(
+                    Text(
+                      l10n.streakSheetTitle,
+                      style: const TextStyle(
                         color: Color(0xFF111111),
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -87,6 +89,7 @@ class _StreakBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final days = streak.week;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
@@ -105,7 +108,7 @@ class _StreakBody extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "${streak.currentStreak} kunlik seriya 🔥",
+            l10n.streakCurrentStreak(streak.currentStreak),
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF111111),
@@ -116,7 +119,7 @@ class _StreakBody extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            _motivation(streak),
+            _motivation(streak, l10n),
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF6B7280),
@@ -130,10 +133,10 @@ class _StreakBody extends StatelessWidget {
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
-                'Hafta',
-                style: TextStyle(
+                l10n.streakWeekLabel,
+                style: const TextStyle(
                   color: Color(0xFF111111),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -155,14 +158,14 @@ class _StreakBody extends StatelessWidget {
     );
   }
 
-  String _motivation(WeeklyStreak streak) {
+  String _motivation(WeeklyStreak streak, AppLocalizations l10n) {
     if (streak.currentStreak == 0) {
-      return "Bugun mashq qiling — yangi seriyani boshlang!";
+      return l10n.streakMotivationStart;
     }
     if (streak.daysLeftThisWeek == 0) {
-      return "Bu hafta a'lo darajada! Keyingi haftaga davom etamiz.";
+      return l10n.streakMotivationWeekComplete;
     }
-    return "Bu hafta yana ${streak.daysLeftThisWeek} kun qoldi. Davom eting!";
+    return l10n.streakMotivationDaysLeft(streak.daysLeftThisWeek);
   }
 }
 
@@ -173,11 +176,12 @@ class _StatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
           child: _StatCard(
-            label: 'Joriy seriya',
+            label: l10n.streakCurrentStreakLabel,
             value: '${streak.currentStreak}',
             emoji: '🔥',
           ),
@@ -185,7 +189,7 @@ class _StatRow extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _StatCard(
-            label: 'Bu hafta',
+            label: l10n.streakThisWeekLabel,
             value: '${streak.activeDaysThisWeek}/7',
             emoji: '📅',
           ),
@@ -324,13 +328,13 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Text(
-          "Streak ma'lumotlarini yuklab bo'lmadi",
+          AppLocalizations.of(context).streakErrorState,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: Color(0xFF8A8580),
             fontSize: 13,
             fontWeight: FontWeight.w600,

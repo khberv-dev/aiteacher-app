@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class _MonthEntry {
@@ -36,10 +37,11 @@ class ReportMonthlyPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final entries = <_MonthEntry>[
       for (var i = 0; i < focusAreas.length; i++)
         _MonthEntry(
-          month: 'OY ${i + 1}',
+          month: l10n.speakingReportMonthlyPlanMonthLabel(i + 1),
           title: focusAreas[i],
           fraction: ((focusAreas.length - i) / focusAreas.length).clamp(
             0.25,
@@ -68,9 +70,9 @@ class ReportMonthlyPlanCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Oylik o'qish rejasi",
-              style: TextStyle(
+            Text(
+              l10n.speakingReportMonthlyPlanTitle,
+              style: const TextStyle(
                 color: Color(0xFF1A1A1A),
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -78,7 +80,11 @@ class ReportMonthlyPlanCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '$currentLevel → $targetLevel uchun ${entries.length} oylik plan',
+              l10n.speakingReportMonthlyPlanSubtitle(
+                currentLevel,
+                targetLevel,
+                entries.length,
+              ),
               style: const TextStyle(
                 color: Color(0xFF6B6860),
                 fontSize: 11,

@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:ai_teacher/ui/speaking/widget/report_section_label.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,7 @@ class ReportResponseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Container(
@@ -38,7 +40,9 @@ class ReportResponseChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ReportSectionLabel(text: 'JAVOB SIFATI — 10 TA SAVOL'),
+            ReportSectionLabel(
+              text: l10n.speakingReportResponseChartSectionLabel,
+            ),
             const SizedBox(height: 10),
             SizedBox(
               height: 100,

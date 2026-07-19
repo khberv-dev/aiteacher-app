@@ -109,23 +109,6 @@ class _NotifButton extends ConsumerWidget {
                     ),
                   ),
                 ),
-              )
-            else
-              Positioned(
-                top: -2,
-                right: -2,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5B700),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFEDEAE4),
-                      width: 1.5,
-                    ),
-                  ),
-                ),
               ),
           ],
         ),

@@ -1,3 +1,4 @@
+import 'package:ai_teacher/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class WritingTaskCard extends StatelessWidget {
@@ -7,6 +8,7 @@ class WritingTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
       child: Container(
@@ -35,9 +37,9 @@ class WritingTaskCard extends StatelessWidget {
                 children: [
                   _Badge(),
                   const SizedBox(height: 8),
-                  const Text(
-                    'AI Writing Task',
-                    style: TextStyle(
+                  Text(
+                    l10n.homeWritingCardTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -45,7 +47,7 @@ class WritingTaskCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Inglizcha matnni tarjima qil,\nkeyin qayta inglizchaga o\'gir',
+                    l10n.homeWritingCardSubtitle,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.75),
                       fontSize: 12,
@@ -82,15 +84,16 @@ class WritingTaskCard extends StatelessWidget {
 class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        'AI BILAN',
-        style: TextStyle(
+      child: Text(
+        l10n.homeWritingBadgeLabel,
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 10,
           fontWeight: FontWeight.w800,
@@ -108,6 +111,7 @@ class _StartPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(10),
@@ -119,9 +123,9 @@ class _StartPill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Boshlash',
-                style: TextStyle(
+              Text(
+                l10n.homeStartAction,
+                style: const TextStyle(
                   color: Color(0xFF059669),
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
