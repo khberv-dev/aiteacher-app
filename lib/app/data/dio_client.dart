@@ -1,6 +1,7 @@
 import 'package:ai_teacher/app/data/auth_interceptor.dart';
 import 'package:ai_teacher/app/data/cache_service.dart';
 import 'package:ai_teacher/app/data/network_config.dart';
+import 'package:ai_teacher/app/data/socket_reconnect_coordinator.dart';
 import 'package:ai_teacher/app/router/app_router.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,6 +43,14 @@ final dioProvider = Provider<Dio>((ref) {
           ref.read(routerProvider).goNamed(AppRoute.login.name);
         } catch (_) {
           // Router not ready yet — ignore.
+        }
+      },
+      onTokenRefreshed: () {
+        try {
+          ref.read(socketReconnectCoordinatorProvider).reconnectAll();
+        } catch (_) {
+          // Nothing to reconnect yet (e.g. refresh happened before any
+          // socket provider was ever read) — ignore.
         }
       },
     ),

@@ -18,10 +18,15 @@ class StudentActivitySocket {
 
   bool get _connected => _socket?.connected ?? false;
 
+  /// Reconnects if not currently connected — safe to call after a token
+  /// refresh even when the socket is already healthy (no-op in that case).
+  void reconnect() => _ensureConnected();
+
   void _ensureConnected() {
     if (_connected) return;
     final token = _session.accessToken;
     if (token == null || token.isEmpty) return;
+    _socket?.dispose();
 
     final socket = io.io(
       '${NetworkConfig.hostUrl}/student-activity',

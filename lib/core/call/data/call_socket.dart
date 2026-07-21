@@ -41,6 +41,7 @@ class CallSocket {
     if (token == null || token.isEmpty) {
       throw CallSocketException('no_token');
     }
+    _socket?.dispose();
 
     final socket = io.io(
       '${NetworkConfig.hostUrl}/call',

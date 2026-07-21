@@ -41,6 +41,7 @@ class ChatSocket {
     if (token == null || token.isEmpty) {
       throw ChatSocketException('no_token');
     }
+    _socket?.dispose();
 
     final socket = io.io(
       '${NetworkConfig.hostUrl}/chat',

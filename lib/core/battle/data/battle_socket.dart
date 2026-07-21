@@ -64,6 +64,7 @@ class BattleSocket {
     if (_socket?.connected == true) return;
     final token = _session.accessToken;
     if (token == null || token.isEmpty) return;
+    _socket?.dispose();
 
     final socket = io.io(
       '${NetworkConfig.hostUrl}/battle',

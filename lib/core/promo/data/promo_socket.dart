@@ -51,6 +51,7 @@ class PromoSocket {
 
   Future<void> connect() async {
     if (_socket?.connected == true) return;
+    _socket?.dispose();
     final userId = _session.currentUserId ?? '';
 
     // Track the intended userId NOW, before the async handshake, so that a

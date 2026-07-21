@@ -7,11 +7,17 @@ class AuthInterceptor extends QueuedInterceptor {
     required this.cache,
     required this.refreshDio,
     this.onUnauthorized,
+    this.onTokenRefreshed,
   });
 
   final CacheService cache;
   final Dio refreshDio;
   final VoidCallback? onUnauthorized;
+
+  /// Called right after a 401 is resolved by successfully refreshing the
+  /// access token — lets callers (e.g. sockets left dead by an auth error)
+  /// reconnect using the new token.
+  final VoidCallback? onTokenRefreshed;
 
   static const String _refreshPath = 'auth/refresh';
 
@@ -65,6 +71,7 @@ class AuthInterceptor extends QueuedInterceptor {
       if (newRefresh != null && newRefresh.isNotEmpty) {
         await cache.setRefreshToken(newRefresh);
       }
+      onTokenRefreshed?.call();
 
       final retried = await refreshDio.fetch<dynamic>(
         err.requestOptions..headers['Authorization'] = 'Bearer $newAccess',
